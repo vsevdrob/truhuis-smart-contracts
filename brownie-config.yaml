@@ -1,0 +1,54 @@
+dependencies:
+    # - <organization(github account)/repo>@<version>
+    - OpenZeppelin/openzeppelin-contracts@4.5.0
+    - smartcontractkit/chainlink-brownie-contracts@0.4.0
+    #- truhuis/truhuis-address-registry-contracts@0.0.1
+compiler:
+    solc:
+        version: 0.8.13
+        remappings:
+            - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.5.0"
+            - "@chainlink=smartcontractkit/chainlink-brownie-contracts@0.4.0"
+            #- "@truhuis-address-registry=truhuis/truhuis-address-registry-contracts@0.0.1"
+dotenv: .env
+networks:
+    default: development
+    development:
+        gas_price: 17000000000 # in order to fulfill the tx on hardhat node
+    hardhat:
+        gas_price: 17000000000
+        deployer: "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+        account_1: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+        account_2: "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc"
+        account_3: "0x90f79bf6eb2c4f870365e785982e1f101e93b906"
+        account_4: "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65"
+    mainnet:
+        verify: False
+    rinkeby:
+        verify: False
+    kovan:
+        verify: False
+        account_1: ${ACCOUNT_1_TEST}
+    polygon:
+        verify: False
+wallets:
+    mainnet:
+        from_key: ${PRIVATE_KEY_MAIN}
+    rinkeby:
+        from_key: ${PRIVATE_KEY_TEST}
+    kovan:
+        from_key: ${PRIVATE_KEY_TEST}
+    polygon:
+        from_key: ${PRIVATE_KEY_MAIN}
+    hardhat:
+        deployer: 
+            from_key: ${PRIVATE_KEY_HARDHAT_0}
+        account_1:
+            from_key: ${PRIVATE_KEY_HARDHAT_1}
+        account_2:
+            from_key: ${PRIVATE_KEY_HARDHAT_2}
+        account_3:
+            from_key: ${PRIVATE_KEY_HARDHAT_3}
+        account_4:
+            from_key: ${PRIVATE_KEY_HARDHAT_4}
+
