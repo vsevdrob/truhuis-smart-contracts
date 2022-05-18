@@ -2,6 +2,7 @@
 pragma solidity 0.8.13;
 
 import "../address/adapters/TruhuisAddressRegistryAdapter.sol";
+import "../../interfaces/IGovernment.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -30,23 +31,21 @@ contract TruhuisLandRegistry is
 
     string public contractURI;
 
-    mapping(uint256 => bytes3) internal s_realEstateCountry;
-
     constructor(
         string memory _contractURI,
-        address _royaltyReceiver,
-        uint96 _royaltyFraction // e.g. 100 (1%); 1000 (10%)
+        address _addressRegistry
     ) ERC721("Truhuis Land Registry", "TLR") {
         contractURI = _contractURI;
-        setDefaultRoyalty(_royaltyReceiver, _royaltyFraction);
+        _updateAddressRegistry(_addressRegistry);
+        //_setDefaultRoyalty(address(this), 100);
     }
 
-    event Minted(address _to, uint256 _tokenId, string _tokenURI);
-    event SetTokenURI(uint256 _tokenId, string _tokenURI);
-    event SetDefaultRoyalty(address _receiver, uint96 _fraction);
-    event SetTokenRoyalty(uint256 _tokenId, address _receiver, uint96 _fraction);
+    event Minted(address to, uint256 tokenId, string tokenURI, address transferTaxReceiver, uint256 transferTaxFraction);
+    event SetTokenURI(uint256 tokenId, string _tokenURI);
+    event SetDefaultRoyalty(address receiver, uint96 fraction);
+    event SetTokenRoyalty(uint256 tokenId, address receiver, uint96 fraction);
     event DeletedDefaultRoyalty();
-    event ResetTokenRoyalty(uint256 _tokenId);
+    event ResetTokenRoyalty(uint256 tokenId);
 
     modifier isValidTokenURI(uint256 _tokenId, string memory _tokenURI) {
         bytes32 bTokenURI = keccak256(bytes(_tokenURI));
@@ -66,11 +65,11 @@ contract TruhuisLandRegistry is
         _;
     }
 
-    function pause() public onlyOwner {_pause();}
+    function pause() external onlyOwner {_pause();}
 
-    function unpause() public onlyOwner {_unpause();}
+    function unpause() external onlyOwner {_unpause();}
 
-    function setContractURI(string memory _contractURI) public onlyOwner {
+    function setContractURI(string memory _contractURI) external onlyOwner {
         contractURI = _contractURI;
     }
 
@@ -85,12 +84,15 @@ contract TruhuisLandRegistry is
         _safeMint(_to, tokenId);
         _setTokenURI(tokenId, _tokenURI);
 
-        s_realEstateCountry[tokenId] = bytes3(bytes(_realEstateCountry));
+        address transferTaxReceiver = government(_realEstateCountry).getAddress();
+        uint96 transferTax = government(_realEstateCountry).getTransferTax(); 
+
+        _setTokenRoyalty(tokenId, transferTaxReceiver, transferTax);
 
         setApprovalForAll(address(auction()), true);
         setApprovalForAll(address(marketplace()), true);
 
-        emit Minted(msg.sender, tokenId, _tokenURI);
+        emit Minted(msg.sender, tokenId, _tokenURI, transferTaxReceiver, transferTax);
     }
 
     function setTokenURI(uint256 _tokenId, string memory _tokenURI)
@@ -133,10 +135,6 @@ contract TruhuisLandRegistry is
     {
         _resetTokenRoyalty(_tokenId);
         emit ResetTokenRoyalty(_tokenId);
-    }
-
-    function getRealEstateCountry(uint256 _tokenId) public view returns (bytes3) {
-        return s_realEstateCountry[_tokenId];
     }
 
     function isOwner(address _account, uint256 _tokenId) public view returns (bool) {

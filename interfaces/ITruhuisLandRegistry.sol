@@ -6,5 +6,4 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 interface ITruhuisLandRegistry is IERC721 {
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256);
     function isOwner(address _account, uint256 _tokenId) external view returns (bool);
-    function getRealEstateCountry(uint256 _tokenId) external view returns (bytes3);
 }

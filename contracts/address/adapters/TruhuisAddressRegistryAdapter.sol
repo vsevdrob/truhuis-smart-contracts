@@ -33,7 +33,7 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
         return ITruhuisCurrencyRegistry(_addressRegistry.currencyRegistry());
     }
 
-    function government(string calldata _country) public view virtual returns (IGovernment) {
+    function government(string memory _country) public view virtual returns (IGovernment) {
         return IGovernment(_addressRegistry.government(_country));
     }
 

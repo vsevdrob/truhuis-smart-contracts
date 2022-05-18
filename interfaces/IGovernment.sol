@@ -11,5 +11,8 @@ interface IGovernment {
         string[] memory _citizenship
     ) external;
     
+    function getAddress() external view returns (address);
     function getCitizen(address _citizen) external view returns (address);
+    function getCountry() external view returns (string memory);
+    function getTransferTax() external view returns (uint96);
 }

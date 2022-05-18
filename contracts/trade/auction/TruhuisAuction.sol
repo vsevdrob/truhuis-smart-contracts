@@ -6,8 +6,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "../address/adapters/TruhuisAddressRegistryAdapter.sol";
-import "../../interfaces/ICitizen.sol";
+import "../../address/adapters/TruhuisAddressRegistryAdapter.sol";
+import "../../../interfaces/ICitizen.sol";
+import "../../../interfaces/IGovernment.sol";
 
 contract TruhuisAuction is 
     Ownable,
@@ -32,8 +33,8 @@ contract TruhuisAuction is
         uint256 lastBidTime;
     }
 
-    address public marketplaceOwner;
-    uint256 public marketplaceCommissionFranction;
+    address public auctionOwner;
+    uint256 public auctionCommissionFranction;
 
     mapping(uint256 => Auction) public s_auctions;
     mapping(uint256 => HighestBid) public s_highestBids;
@@ -83,9 +84,9 @@ contract TruhuisAuction is
         _;
     }
 
-    constructor(address _marketplaceOwner, address _addressRegistry, uint256 _marketplaceCommissionFraction) {
-        marketplaceOwner = _marketplaceOwner;
-        marketplaceCommissionFranction = _marketplaceCommissionFraction;
+    constructor(address _auctionOwner, address _addressRegistry, uint256 _marketplaceCommissionFraction) {
+        auctionOwner = _auctionOwner;
+        auctionCommissionFranction = _marketplaceCommissionFraction;
         _updateAddressRegistry(_addressRegistry);
     }
 
@@ -221,7 +222,7 @@ contract TruhuisAuction is
         address bidder = highestBid.bidder;
         uint256 madeBid = highestBid.bid;
         uint256 auctionCommission = getAuctionCommission(madeBid);
-        uint256 royaltyCommission = getRoyaltyCommission(tokenId, madeBid - auctionCommission);
+        uint256 transferTax = getTransferTax(tokenId, madeBid - auctionCommission);
 
         require(isAuctionApproved(auction.auctioneer), "auction should be approved");
 
@@ -229,8 +230,8 @@ contract TruhuisAuction is
 
         _setAuctionIsResulted(tokenId);
         _sendAuctionCommission(currency, auctionCommission);
-        _sendRoyaltyCommission(currency, tokenId, royaltyCommission);
-        _sendFundsTo(msg.sender, currency, madeBid - auctionCommission - royaltyCommission);
+        _sendTransferTax(currency, tokenId, transferTax);
+        _sendFundsTo(msg.sender, currency, madeBid - auctionCommission - transferTax);
         _transferNftFrom(msg.sender, bidder, tokenId);
 
         delete s_auctions[tokenId];
@@ -278,18 +279,18 @@ contract TruhuisAuction is
         bidWithdrawalLockTime = _bidWithdrawalLockTime;
     }
 
-    function updateMarketplaceCommissionFraction(uint256 _newCommissionFraction)
+    function updateAuctionCommissionFraction(uint256 _newCommissionFraction)
         external
         onlyOwner
     {
-        marketplaceCommissionFranction = _newCommissionFraction;
+        auctionCommissionFranction = _newCommissionFraction;
     }
 
-    function updateMarketplaceOwner(address _newOwner)
+    function updateAuctionOwner(address _newOwner)
         external
         onlyOwner
     {
-        marketplaceOwner = _newOwner;
+        auctionOwner = _newOwner;
     }
 
     function reclaimERC20(address _currency) external onlyOwner {
@@ -316,8 +317,14 @@ contract TruhuisAuction is
         return marketplace().getMarketplaceCommission(_bid);
     }
 
-    function getRoyaltyCommission(uint256 _tokenId, uint256 _salePrice) public view returns (uint256) {
-        return marketplace().getRoyaltyCommission(_tokenId, _salePrice);
+    function getTransferTaxReceiver(uint256 _tokenId) public view returns (address) {
+        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, uint256(1));
+        return transferTaxReceiver;
+    }
+
+    function getTransferTax(uint256 _tokenId, uint256 _salePrice) public view returns (uint256) {
+        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, _salePrice);
+        return transferTax;
     }
 
     function getStartTime(uint256 _tokenId) external view returns (uint256) {
@@ -329,7 +336,9 @@ contract TruhuisAuction is
     //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
 
     function areSimilarCountries(address _account, uint256 _tokenId) public view returns (bool) {
-        bytes3 realEstateCountry = landRegistry().getRealEstateCountry(_tokenId);
+        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, uint256(1));
+        string memory country = IGovernment(transferTaxReceiver).getCountry();
+        bytes3 realEstateCountry = bytes3(bytes(country));
         bytes3 citizenship = bytes3(bytes(citizen(_account).citizenship()));
         return realEstateCountry == citizenship;
     }
@@ -431,10 +440,10 @@ contract TruhuisAuction is
         return block.timestamp;
     }
     
-    function _sendRoyaltyCommission(address _currency, uint256 _tokenId, uint256 _royaltyCommission) private {
-        address royaltyReceiver = marketplace().getRoyaltyReceiver(_tokenId);
-        require(royaltyReceiver != address(0) || _royaltyCommission > 0, "invalid royalty info");
-        IERC20(_currency).transfer(royaltyReceiver, _royaltyCommission);
+    function _sendTransferTax(address _currency, uint256 _tokenId, uint256 _transferTax) private {
+        address transferTaxReceiver = getTransferTaxReceiver(_tokenId);
+        require(transferTaxReceiver != address(0) || _transferTax > 0, "invalid transfer tax info");
+        IERC20(_currency).transfer(transferTaxReceiver, _transferTax);
     }
 
     function _transferNftFrom(address _auctioneer, address _bidder, uint256 _tokenId) private {
@@ -463,7 +472,7 @@ contract TruhuisAuction is
     }
 
     function _sendAuctionCommission(address _currency, uint256 _commission) private {
-        IERC20(_currency).transfer(marketplaceOwner, _commission);
+        IERC20(_currency).transfer(auctionOwner, _commission);
     }
 
     function _setAuctionIsResulted(uint256 _tokenId) private {

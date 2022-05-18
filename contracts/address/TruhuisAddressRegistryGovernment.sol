@@ -48,7 +48,7 @@ contract TruhuisAddressRegistryGovernment is Ownable {
     function _registerGovernment(address _government, string memory _country)
         private
     {
-        _validateGovernment(_government);
+        require(_government != address(0), "invalid zero address");
 
         bytes3 country = bytes3(bytes(_country));
 
@@ -59,10 +59,6 @@ contract TruhuisAddressRegistryGovernment is Ownable {
         });
 
         emit GovernmentRegistered(_government, _country);
-    }
-
-    function _validateGovernment(address _government) private pure {
-        require(_government != address(0), "invalid zero address");
     }
 }
 

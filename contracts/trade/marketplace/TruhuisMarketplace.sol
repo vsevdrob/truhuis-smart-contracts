@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "../address/adapters/TruhuisAddressRegistryAdapter.sol";
-import "../../interfaces/ICitizen.sol";
+import "../../address/adapters/TruhuisAddressRegistryAdapter.sol";
+import "../../../interfaces/IGovernment.sol";
+import "../../../interfaces/ICitizen.sol";
 
 contract TruhuisMarketplace is Ownable, TruhuisAddressRegistryAdapter, ReentrancyGuard {
     enum Status {
@@ -136,10 +137,10 @@ contract TruhuisMarketplace is Ownable, TruhuisAddressRegistryAdapter, Reentranc
         uint256 marketplaceCommission = getMarketplaceCommission(listing.price);
         _sendMarketplaceCommission(msg.sender, _currency, marketplaceCommission);
 
-        uint256 royaltyCommission = getRoyaltyCommission(_tokenId, listing.price - marketplaceCommission); 
-        _sendRoyalty(msg.sender, _currency, _tokenId, royaltyCommission);
+        uint256 transferTax = getTransferTax(_tokenId, listing.price - marketplaceCommission); 
+        _sendTransferTax(msg.sender, _currency, _tokenId, transferTax);
 
-        _purchaseHouseFrom(_seller, msg.sender, _currency, listing.price - marketplaceCommission - royaltyCommission);
+        _purchaseHouseFrom(_seller, msg.sender, _currency, listing.price - marketplaceCommission - transferTax);
 
         _transferNftFrom(_seller, msg.sender, _tokenId);
 
@@ -203,10 +204,10 @@ contract TruhuisMarketplace is Ownable, TruhuisAddressRegistryAdapter, Reentranc
         uint256 marketplaceCommission = getMarketplaceCommission(offer.price);
         _sendMarketplaceCommission(_offerer, offer.currency, marketplaceCommission);
 
-        uint256 royaltyCommission = getRoyaltyCommission(_tokenId, offer.price - marketplaceCommission); 
-        _sendRoyalty(_offerer, offer.currency, _tokenId, royaltyCommission);
+        uint256 transferTax = getTransferTax(_tokenId, offer.price - marketplaceCommission); 
+        _sendTransferTax(_offerer, offer.currency, _tokenId, transferTax);
 
-        _purchaseHouseFrom(listing.seller, _offerer, offer.currency, offer.price - marketplaceCommission - royaltyCommission);
+        _purchaseHouseFrom(listing.seller, _offerer, offer.currency, offer.price - marketplaceCommission - transferTax);
 
         _transferNftFrom(listing.seller, _offerer, _tokenId);
 
@@ -266,7 +267,9 @@ contract TruhuisMarketplace is Ownable, TruhuisAddressRegistryAdapter, Reentranc
     //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
 
     function areSimilarCountries(address _account, uint256 _tokenId) public view returns (bool) {
-        bytes3 realEstateCountry = landRegistry().getRealEstateCountry(_tokenId);
+        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, uint256(1));
+        string memory country = IGovernment(transferTaxReceiver).getCountry();
+        bytes3 realEstateCountry = bytes3(bytes(country));
         bytes3 citizenship = bytes3(bytes(citizen(_account).citizenship()));
         return realEstateCountry == citizenship;
     }
@@ -281,18 +284,14 @@ contract TruhuisMarketplace is Ownable, TruhuisAddressRegistryAdapter, Reentranc
         return _salePrice * marketplaceCommissionFraction / 10000;
     }
 
-    function getRoyaltyInfo(uint256 _tokenId, uint256 _salePrice) public view returns (address, uint256) {
-        return landRegistry().royaltyInfo(_tokenId, _salePrice);
+    function getTransferTax(uint256 _tokenId, uint256 _salePrice) public view returns (uint256) {
+        (, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, _salePrice);
+        return transferTax;
     }
 
-    function getRoyaltyCommission(uint256 _tokenId, uint256 _salePrice) public view returns (uint256) {
-        (, uint256 commission) = landRegistry().royaltyInfo(_tokenId, uint(1));
-        return commission;
-    }
-
-    function getRoyaltyReceiver(uint256 _tokenId) public view returns (address) {
-        (address receiver, ) = landRegistry().royaltyInfo(_tokenId, uint(1));
-        return receiver;
+    function getTransferTaxReceiver(uint256 _tokenId) public view returns (address) {
+        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, uint256(1));
+        return transferTaxReceiver;
     }
 
     function isAuctionInAction(uint256 _tokenId) public view returns (bool) {
@@ -370,10 +369,11 @@ contract TruhuisMarketplace is Ownable, TruhuisAddressRegistryAdapter, Reentranc
         delete s_listings[_tokenId];
     }
 
-    function _sendRoyalty(address _buyer, address _currency, uint256 _tokenId, uint256 _amount) private {
-        address royaltyReceiver = getRoyaltyReceiver(_tokenId);
-        require(royaltyReceiver != address(0) || _amount > 0, "invalid royalty info");
-        IERC20(_currency).transferFrom(_buyer, royaltyReceiver, _amount);
+    function _sendTransferTax(address _buyer, address _currency, uint256 _tokenId, uint256 _amount) private {
+        require(areSimilarCountries(_buyer, _tokenId), "buyer must be from the same country as the property");
+        address transferTaxReceiver = getTransferTaxReceiver(_tokenId);
+        require(transferTaxReceiver != address(0) || _amount > 0, "invalid info");
+        IERC20(_currency).transferFrom(_buyer, transferTaxReceiver, _amount);
     }
 
     function _sendMarketplaceCommission(address _buyer, address _currency, uint256 _commission) private {
