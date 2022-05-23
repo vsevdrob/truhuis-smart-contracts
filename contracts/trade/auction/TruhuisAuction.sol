@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "../../address/adapters/TruhuisAddressRegistryAdapter.sol";
 import "../../../interfaces/ICitizen.sol";
-import "../../../interfaces/IGovernment.sol";
+import "../../../interfaces/IStateGovernment.sol";
 
 contract TruhuisAuction is 
     Ownable,
@@ -318,12 +318,12 @@ contract TruhuisAuction is
     }
 
     function getTransferTaxReceiver(uint256 _tokenId) public view returns (address) {
-        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, uint256(1));
+        (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, uint256(1));
         return transferTaxReceiver;
     }
 
     function getTransferTax(uint256 _tokenId, uint256 _salePrice) public view returns (uint256) {
-        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, _salePrice);
+        (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, _salePrice);
         return transferTax;
     }
 
@@ -336,10 +336,9 @@ contract TruhuisAuction is
     //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
 
     function areSimilarCountries(address _account, uint256 _tokenId) public view returns (bool) {
-        (address transferTaxReceiver, uint256 transferTax) = landRegistry().royaltyInfo(_tokenId, uint256(1));
-        string memory country = IGovernment(transferTaxReceiver).getCountry();
-        bytes3 realEstateCountry = bytes3(bytes(country));
-        bytes3 citizenship = bytes3(bytes(citizen(_account).citizenship()));
+        (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, uint256(1));
+        bytes3 realEstateCountry = IStateGovernment(transferTaxReceiver).getCountry();
+        bytes3 citizenship = citizen(_account).citizenship();
         return realEstateCountry == citizenship;
     }
 
@@ -352,7 +351,7 @@ contract TruhuisAuction is
     }
 
     function isAuctionApproved(address _auctioneer) public view returns (bool) {
-        return landRegistry().isApprovedForAll(_auctioneer, address(this));
+        return cadastre().isApprovedForAll(_auctioneer, address(this));
     }
 
     function isAuctionEnded(uint256 _tokenId) public view returns (bool) {
@@ -380,7 +379,7 @@ contract TruhuisAuction is
     }
 
     function isPropertyOwner(address _auctioneer, uint256 _tokenId) public view returns (bool) {
-        return landRegistry().isOwner(_auctioneer, _tokenId);
+        return cadastre().isOwner(_auctioneer, _tokenId);
     }
 
     function isValidEndTime(uint256 _startTime, uint256 _endTime) public view returns (bool) {
@@ -447,7 +446,7 @@ contract TruhuisAuction is
     }
 
     function _transferNftFrom(address _auctioneer, address _bidder, uint256 _tokenId) private {
-        IERC721(addressRegistry().landRegistry()).transferFrom(_auctioneer, _bidder, _tokenId);
+        IERC721(addressRegistry().cadastre()).transferFrom(_auctioneer, _bidder, _tokenId);
     }
 
     function _sendMadeBid(address _bidder, address _currency, uint256 _madeBid) private {

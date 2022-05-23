@@ -20,6 +20,10 @@ contract PriceConsumerV3 is Ownable {
     mapping(uint256 => PriceFeed) public s_priceFeeds;
     mapping(address => bool) public s_existing;
 
+    constructor(string memory _pair, address _proxy) {
+        setPriceFeedProxy(_pair, _proxy);
+    }
+
     modifier notExisting(address _proxy) {
         if (s_existing[_proxy]) revert PriceFeedProxyAlreadyExists(_proxy);
         _;
@@ -44,11 +48,11 @@ contract PriceConsumerV3 is Ownable {
         _s_priceFeedIdCounter.increment();
     }
 
-    function totalPriceFeeds() public view returns (uint256) {
+    function getTotalPriceFeeds() public view returns (uint256) {
         return _s_priceFeedIdCounter.current();
     }
 
-    function pair(uint256 _id)
+    function getPair(uint256 _id)
         public
         view
         returns (string memory)
@@ -61,7 +65,7 @@ contract PriceConsumerV3 is Ownable {
      * @param _id ID of the price feed proxy (e.g. 1). See setPriceFeedProxy
      * @return Proxy address of a provided currency pair.
      */
-    function proxy(uint256 _id) public view returns (address) {
+    function getProxy(uint256 _id) public view returns (address) {
         return s_priceFeeds[_id].proxy;
     }
 
@@ -70,7 +74,7 @@ contract PriceConsumerV3 is Ownable {
      * @param _id ID of the price feed proxy (e.g. 1). See setPriceFeedProxy
      * @return Latest price.
      */
-    function price(uint256 _id) public view returns (uint256) {
+    function getPrice(uint256 _id) public view returns (uint256) {
         address proxy = s_priceFeeds[_id].proxy;
         AggregatorV3Interface priceFeed = AggregatorV3Interface(proxy);
 
@@ -90,7 +94,7 @@ contract PriceConsumerV3 is Ownable {
      * @param _id ID of the price feed proxy (e.g. 1). See setPriceFeedProxy
      * @return Decimals (usually 8 if x/USD or 18 if x/ETH; see docs).
      */
-    function decimals(uint256 _id) public view returns (uint8) {
+    function getDecimals(uint256 _id) public view returns (uint8) {
         address proxy = s_priceFeeds[_id].proxy;
         AggregatorV3Interface priceFeed = AggregatorV3Interface(proxy);
 

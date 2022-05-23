@@ -23,10 +23,10 @@ contract Citizen is MultiSig {
     }
 
     struct DateOfBirth {
-        int8 birthtime;
-        int8 day;
-        int8 month;
-        int8 year;
+        uint24 birthtime;
+        uint24 day;
+        uint24 month;
+        uint24 year;
     }
 
     struct PlaceOfBirth {
@@ -48,11 +48,11 @@ contract Citizen is MultiSig {
 
     constructor(
         bytes32[] memory _name,
-        int8[] memory _dateOfBirth,
+        uint24[] memory _dateOfBirth,
         bytes32[] memory _placeOfBirth,
         address[] memory _account,
         string[] memory _uri,
-        bytes32[] memory _citizenship
+        bytes3[] memory _citizenship
     ) MultiSig(_account[0], msg.sender) {
         s_citizen.name.first = _name[0];
         s_citizen.name.last = _name[1];
@@ -71,7 +71,7 @@ contract Citizen is MultiSig {
         s_citizen.uri.biometricInfo = _uri[0];
         s_citizen.uri.photo = _uri[1];
 
-        s_citizen.citizenship.citizenship = bytes3(_citizenship[0]);
+        s_citizen.citizenship.citizenship = _citizenship[0];
     }
 
     function updateFirstName(bytes32 _firstName, uint256 _txIndex)
@@ -101,7 +101,7 @@ contract Citizen is MultiSig {
         s_citizen.name.last = _lastName;
     }
 
-    function updateBirthtime(int8 _birthtime, uint256 _txIndex)
+    function updateBirthtime(uint24 _birthtime, uint256 _txIndex)
         public 
         onlyOwner
         txExists(_txIndex)
@@ -114,7 +114,7 @@ contract Citizen is MultiSig {
         s_citizen.dateOfBirth.birthtime = _birthtime;
     }
 
-    function updateBirthDay(int8 _birthDay, uint256 _txIndex)
+    function updateBirthDay(uint24 _birthDay, uint256 _txIndex)
         public 
         onlyOwner
         txExists(_txIndex)
@@ -127,7 +127,7 @@ contract Citizen is MultiSig {
         s_citizen.dateOfBirth.day = _birthDay;
     }
 
-    function updateBirthMonth(int8 _birthMonth, uint256 _txIndex)
+    function updateBirthMonth(uint24 _birthMonth, uint256 _txIndex)
         public 
         onlyOwner
         txExists(_txIndex)
@@ -140,7 +140,7 @@ contract Citizen is MultiSig {
         s_citizen.dateOfBirth.month = _birthMonth;
     }
 
-    function updateBirthYear(int8 _birthYear, uint256 _txIndex)
+    function updateBirthYear(uint24 _birthYear, uint256 _txIndex)
         public 
         onlyOwner
         txExists(_txIndex)
@@ -179,7 +179,7 @@ contract Citizen is MultiSig {
         s_citizen.placeOfBirth.state = _state;
     }
 
-    function updateBirthCountry(bytes32 _country, uint256 _txIndex)
+    function updateBirthCountry(bytes3 _country, uint256 _txIndex)
         public 
         onlyOwner
         txExists(_txIndex)
@@ -189,7 +189,7 @@ contract Citizen is MultiSig {
         require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
         transaction.isExecuted = true;
 
-        s_citizen.placeOfBirth.country = bytes3(_country);
+        s_citizen.placeOfBirth.country = _country;
     }
 
     function updateAccount(address _account, uint256 _txIndex)
@@ -244,51 +244,44 @@ contract Citizen is MultiSig {
         s_citizen.citizenship.citizenship = bytes3(_citizenship);
     }
 
-    function fullName() public view returns (string memory) {
-        return string.concat(
-            string(
-                abi.encode(
-                    s_citizen.name.first,
-                    s_citizen.name.last
-                )
-            )
-        );
+    function fullName() public view returns (bytes32, bytes32) {
+        return (s_citizen.name.first, s_citizen.name.last);
     }
 
-    function firstName() public view returns (string memory) {
-        return string(abi.encode(s_citizen.name.first));
+    function firstName() public view returns (bytes32) {
+        return s_citizen.name.first;
     }
 
-    function lastName() public view returns (string memory) {
-        return string(abi.encode(s_citizen.name.last));
+    function lastName() public view returns (bytes32) {
+        return s_citizen.name.last;
     }
 
-    function birthtime() public view returns (int8) {
+    function birthtime() public view returns (uint24) {
         return s_citizen.dateOfBirth.birthtime;
     }
 
-    function birthDay() public view returns (int8) {
+    function birthDay() public view returns (uint24) {
         return s_citizen.dateOfBirth.day;
     }
 
-    function birthMonth() public view returns (int8) {
+    function birthMonth() public view returns (uint24) {
         return s_citizen.dateOfBirth.month;
     }
 
-    function birthYear() public view returns (int8) {
+    function birthYear() public view returns (uint24) {
         return s_citizen.dateOfBirth.year;
     }
 
-    function birthCity() public view returns (string memory) {
-        return string(abi.encode(s_citizen.placeOfBirth.city));
+    function birthCity() public view returns (bytes32) {
+        return s_citizen.placeOfBirth.city;
     }
 
-    function birthState() public view returns (string memory) {
-        return string(abi.encode(s_citizen.placeOfBirth.state));
+    function birthState() public view returns (bytes32) {
+        return s_citizen.placeOfBirth.state;
     }
 
-    function birthCountry() public view returns (string memory) {
-        return string(abi.encode(s_citizen.placeOfBirth.country));
+    function birthCountry() public view returns (bytes3) {
+        return s_citizen.placeOfBirth.country;
     }
 
     function account() public view returns (address) {
@@ -303,7 +296,7 @@ contract Citizen is MultiSig {
         return s_citizen.uri.photo;
     }
 
-    function citizenship() public view returns (string memory) {
-        return string(abi.encode(s_citizen.citizenship.citizenship));
+    function citizenship() public view returns (bytes3) {
+        return s_citizen.citizenship.citizenship;
     }
 }

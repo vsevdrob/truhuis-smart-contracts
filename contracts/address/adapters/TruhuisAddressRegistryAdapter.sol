@@ -1,13 +1,14 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../../../interfaces/ICitizen.sol";
-import "../../../interfaces/IGovernment.sol";
+import "../../../interfaces/IStateGovernment.sol";
 import "../../../interfaces/ITruhuisAddressRegistry.sol";
 import "../../../interfaces/ITruhuisAuction.sol";
 import "../../../interfaces/ITruhuisCurrencyRegistry.sol";
-import "../../../interfaces/ITruhuisLandRegistry.sol";
+import "../../../interfaces/ITruhuisCadastre.sol";
 import "../../../interfaces/ITruhuisMarketplace.sol";
 
 abstract contract TruhuisAddressRegistryAdapter is Ownable {
@@ -25,20 +26,20 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
         return _addressRegistry;
     }
 
-    function citizen(address _account) public view virtual returns (ICitizen) {
-        return ICitizen(_account);
+    function citizen(address _citizen) public view virtual returns (ICitizen) {
+        return ICitizen(_citizen);
     }
 
     function currencyRegistry() public view virtual returns (ITruhuisCurrencyRegistry) {
         return ITruhuisCurrencyRegistry(_addressRegistry.currencyRegistry());
     }
 
-    function government(string memory _country) public view virtual returns (IGovernment) {
-        return IGovernment(_addressRegistry.government(_country));
+    function stateGovernment(bytes3 _country) public view virtual returns (IStateGovernment) {
+        return IStateGovernment(_addressRegistry.stateGovernment(_country));
     }
 
-    function landRegistry() public view virtual returns (ITruhuisLandRegistry) {
-        return ITruhuisLandRegistry(_addressRegistry.landRegistry());
+    function cadastre() public view virtual returns (ITruhuisCadastre) {
+        return ITruhuisCadastre(_addressRegistry.cadastre());
     }
 
     function marketplace() public view virtual returns (ITruhuisMarketplace) {

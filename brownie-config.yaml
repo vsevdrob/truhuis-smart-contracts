@@ -2,66 +2,65 @@ dependencies:
     # - <organization(github account)/repo>@<version>
     - OpenZeppelin/openzeppelin-contracts@4.5.0
     - smartcontractkit/chainlink-brownie-contracts@0.4.0
-    #- truhuis/truhuis-address-registry-contracts@0.0.1
 compiler:
     solc:
-        #version: 0.8.13
         remappings:
             - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.5.0"
             - "@chainlink=smartcontractkit/chainlink-brownie-contracts@0.4.0"
-            #- "@truhuis-address-registry=truhuis/truhuis-address-registry-contracts@0.0.1"
 dotenv: .env
 networks:
     default: development
     development:
-        gas_price: 17000000000 # in order to fulfill the tx on hardhat node
+        gas_price: 17000000000
     hardhat:
         gas_price: 17000000000
-        address_registry: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-        auction: ""
-        currency_registry: ""
-        land_registry: ""
-        marketplace: ""
-        price_consumer_v3: "" 
-        truhuis: "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266" # 0
-        government_usa: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8" # 1
-        government_nld: "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc" # 2
-        citizen_usa_1: "0x90f79bf6eb2c4f870365e785982e1f101e93b906" # 3
-        citizen_usa_2: "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65" # 4
-        citizen_nld_1: "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc" # 5
-        citizen_nld_2: "0x976ea74026e726554db657fa54763abd0c3a0aa9" # 6
+        truhuis: ${ACCOUNT_HARDHAT_0}
+        state_government_nld_account: ${ACCOUNT_HARDHAT_1}
+        state_government_usa_account: ${ACCOUNT_HARDHAT_2}
+        citizen_nld_1: ${ACCOUNT_HARDHAT_3}
+        citizen_nld_2: ${ACCOUNT_HARDHAT_4}
+        citizen_nld_3: ${ACCOUNT_HARDHAT_5}
+        citizen_usa_1: ${ACCOUNT_HARDHAT_6}
+        citizen_usa_2: ${ACCOUNT_HARDHAT_7}
+        citizen_usa_3: ${ACCOUNT_HARDHAT_8}
+        chainlink_keeper: ${ACCOUNT_HARDHAT_19}
     mainnet:
         verify: False
     rinkeby:
         verify: False
     kovan:
         verify: False
-        account_1: ${ACCOUNT_1_TEST}
+        truhuis: ${ACCOUNT_TEST_0}
+        state_government_nld: ${ACCOUNT_TEST_1}
+        state_government_usa: ${ACCOUNT_TEST_2}
+        citizen_nld_1: ${ACCOUNT_TEST_3}
+        citizen_nld_2: ${ACCOUNT_TEST_4}
+        citizen_nld_3: ${ACCOUNT_TEST_5}
+        citizen_usa_1: ${ACCOUNT_TEST_6}
+        citizen_usa_2: ${ACCOUNT_TEST_7}
+        citizen_usa_3: ${ACCOUNT_TEST_8}
     polygon:
         verify: False
 wallets:
-    mainnet:
-        from_key: ${PRIVATE_KEY_MAIN}
-    rinkeby:
-        from_key: ${PRIVATE_KEY_TEST}
+    rinkeby: ${PRIVATE_KEY_TEST_0}
     kovan:
-        from_key: ${PRIVATE_KEY_TEST}
-    polygon:
-        from_key: ${PRIVATE_KEY_MAIN}
+        truhuis: ${PRIVATE_KEY_TEST_0}
+        state_government_nld: ${PRIVATE_KEY_TEST_1}
+        state_government_usa: ${PRIVATE_KEY_TEST_2}
+        citizen_nld_1: ${PRIVATE_KEY_TEST_3}
+        citizen_nld_2: ${PRIVATE_KEY_TEST_4}
+        citizen_nld_3: ${PRIVATE_KEY_TEST_5}
+        citizen_usa_1: ${PRIVATE_KEY_TEST_6} 
+        citizen_usa_2: ${PRIVATE_KEY_TEST_7}
+        citizen_usa_3: ${PRIVATE_KEY_TEST_8}
     hardhat:
-        truhuis: # truhuis deploying account
-            from_key: ${PRIVATE_KEY_HARDHAT_0} # 0
-        government_usa: # Government of the United States
-            from_key: ${PRIVATE_KEY_HARDHAT_1} # 1
-        government_nld: # Government of the Netherlands
-            from_key: ${PRIVATE_KEY_HARDHAT_2} # 2
-        citizen_usa_1: # First citizen of the United States
-            from_key: ${PRIVATE_KEY_HARDHAT_3} # 3
-        citizen_usa_2: # Second citizen of the United States
-            from_key: ${PRIVATE_KEY_HARDHAT_4} # 4
-        citizen_nld_1: # First citizen of the Netherlands
-            from_key: ${PRIVATE_KEY_HARDHAT_5} # 5
-        citizen_nld_2: # Second citizen of the Netherlands
-            from_key: ${PRIVATE_KEY_HARDHAT_6} # 6
-
-
+        truhuis: ${PRIVATE_KEY_HARDHAT_0}
+        state_government_nld: ${PRIVATE_KEY_HARDHAT_1}
+        state_government_usa: ${PRIVATE_KEY_HARDHAT_2}
+        citizen_nld_1: ${PRIVATE_KEY_HARDHAT_3}
+        citizen_nld_2: ${PRIVATE_KEY_HARDHAT_4}
+        citizen_nld_3: ${PRIVATE_KEY_HARDHAT_5}
+        citizen_usa_1: ${PRIVATE_KEY_HARDHAT_6}
+        citizen_usa_2: ${PRIVATE_KEY_HARDHAT_7}
+        citizen_usa_3: ${PRIVATE_KEY_HARDHAT_8}
+        chainlink_keeper: ${PRIVATE_KEY_HARDHAT_19}

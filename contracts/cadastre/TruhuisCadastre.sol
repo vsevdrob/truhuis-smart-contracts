@@ -2,7 +2,6 @@
 pragma solidity 0.8.13;
 
 import "../address/adapters/TruhuisAddressRegistryAdapter.sol";
-import "../../interfaces/IGovernment.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -15,7 +14,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 error ProvidedIdenticalTokenUriError(uint256 tokenId, string tokenURI);
 error NotOwnerError(address account, uint256 tokenId);
 
-contract TruhuisLandRegistry is 
+contract TruhuisCadastre is 
     ERC721,
     Ownable,
     Pausable,
@@ -34,7 +33,7 @@ contract TruhuisLandRegistry is
     constructor(
         string memory _contractURI,
         address _addressRegistry
-    ) ERC721("Truhuis Land Registry", "TLR") {
+    ) ERC721("Truhuis Cadastre", "TCA") {
         contractURI = _contractURI;
         _updateAddressRegistry(_addressRegistry);
         //_setDefaultRoyalty(address(this), 100);
@@ -73,7 +72,11 @@ contract TruhuisLandRegistry is
         contractURI = _contractURI;
     }
 
-    function safeMint(address _to, string memory _tokenURI, string memory _realEstateCountry)
+    /**
+     * @dev It would be more decentralized if the real owner could mint by him/herself.
+     * @dev Think first of all about the validation of the real owner and the property he/she provides.
+     */
+    function safeMint(address _to, string memory _tokenURI, bytes3 _realEstateCountry)
         public
         onlyOwner
         isValidTokenURI(_tokenIdCounter.current(), _tokenURI)
@@ -84,13 +87,15 @@ contract TruhuisLandRegistry is
         _safeMint(_to, tokenId);
         _setTokenURI(tokenId, _tokenURI);
 
-        address transferTaxReceiver = government(_realEstateCountry).getAddress();
-        uint96 transferTax = government(_realEstateCountry).getTransferTax(); 
+        address transferTaxReceiver = stateGovernment(_realEstateCountry).getAddress();
+        uint96 transferTax = stateGovernment(_realEstateCountry).getTransferTax(); 
 
         _setTokenRoyalty(tokenId, transferTaxReceiver, transferTax);
 
-        setApprovalForAll(address(auction()), true);
-        setApprovalForAll(address(marketplace()), true);
+        //isApprovedForAll(address(marketplace()), tokenId);
+        //approve(address(auction()), tokenId);
+        //setApprovalForAll(address(auction()), true);
+        //setApprovalForAll(address(marketplace()), true);
 
         emit Minted(msg.sender, tokenId, _tokenURI, transferTaxReceiver, transferTax);
     }

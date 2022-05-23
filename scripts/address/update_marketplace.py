@@ -3,14 +3,14 @@ from brownie import TruhuisAddressRegistry, TruhuisMarketplace, network
 from helper_brownie import get_account
 
 
-def update_marketplace(_marketplace: str = ""):
-    truhuis = get_account(wallet="truhuis")
-    address_registry = TruhuisAddressRegistry[-1]
+def update_marketplace(_marketplace_addr: str, _address_registry=None, _truhuis=None):
+    truhuis = _truhuis if _truhuis else get_account(wallet="truhuis")
+    address_registry = _address_registry if _address_registry else TruhuisAddressRegistry[-1]
 
-    marketplace = _marketplace if _marketplace else TruhuisMarketplace[-1].address
+    marketplace = _marketplace_addr if _marketplace_addr else TruhuisMarketplace[-1].address
 
     print(
-        f"Calling TruhuisAddressRegistry contract {address_registry.address} on network {network.show_active()}"
+        f"Sending transaction to TruhuisAddressRegistry contract {address_registry.address} on network {network.show_active()}"
     )
 
     tx = address_registry.updateMarketplace(marketplace, {"from": truhuis})
@@ -24,4 +24,4 @@ def update_marketplace(_marketplace: str = ""):
 
 
 def main():
-    update_marketplace(_marketplace=input("New TruhuisMarketplace address: "))
+    update_marketplace(_marketplace_addr=input("Updated TruhuisMarketplace address: "))

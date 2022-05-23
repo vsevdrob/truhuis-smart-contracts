@@ -1,82 +1,36 @@
-from brownie import config, network
-from brownie.network.web3 import Web3
-from helper_brownie import CHAINS, get_account, get_mock
+from brownie import network
+
+from helper_brownie import get_mock, CHAINS
 
 CHAINLINK = {
     "hardhat": {
-        "api_consumer": {
-            "link_token": get_mock("chainlink", "api_consumer", "", "link_token"),
-            "0": {
-                "name": "Latest CPI in Belgium",
-                "descirption": "Get the latest CPI in Belgium in the form of uint256. Data is taken from the Belgian statistical office",
-                "url": "https://bestat.statbel.fgov.be/bestat/api/views/876acb9d-4eae-408e-93d9-88eae4ad1eaf/result/JSON",
-                "path": "facts,6,Cosumtieprijsindex",
-                "http": 2,  # uint256
-                "oracle": get_mock("chainlink", "api_consumer", "0", "oracle"),
-                "payment": 100000000000000000,  # 0.1 LINK
-                "job_id": "d5270d1c311941d0b08bead21fea7747",
-            },
-        },
         "price_consumer_v3": {
             "0": {
                 "pair": "EUR/USD",
-                "proxy": get_mock("chainlink", "price_consumer_v3", "0", "proxy"),
+                "proxy": get_mock("chainlink", "price_consumer_v3", "0", "proxy")
+                if network.show_active() in CHAINS["local"]
+                else "0x",
                 "hearbeat": 60,  # minutes
                 "decimals": 18,  # amount
             }
         },
-        "keeper": {
-            "0": {
-                "employee": config["networks"][network.show_active()]["account_1"],
-                "payment_interval": 10,  # seconds
-                "salary": Web3.toWei(0.05, "ether"),
-            }
-        },
     },
     "kovan": {
-        "api_consumer": {
-            "link_token": "0xa36085F69e2889c224210F603D836748e7dC0088",
-            "0": {
-                "name": "Latest CPI in Belgium",
-                "descirption": "Get the latest CPI in Belgium in the form of uint256. Data is taken from the Belgian statistical office",
-                "url": "https://bestat.statbel.fgov.be/bestat/api/views/876acb9d-4eae-408e-93d9-88eae4ad1eaf/result/JSON",
-                "path": "facts,6,Cosumtieprijsindex",
-                "http": 2,  # uint256
-                "oracle": "0xc57B33452b4F7BB189bB5AfaE9cc4aBa1f7a4FD8",
-                "payment": 100000000000000000,  # 0.1 LINK
-                "job_id": "d5270d1c311941d0b08bead21fea7747",
-            },
-        },
         "price_consumer_v3": {
             "0": {
                 "pair": "EUR/USD",
                 "proxy": "0x0c15Ab9A0DB086e062194c273CC79f41597Bbf13",
                 "hearbeat": 30,  # minutes
                 "decimals": 8,
-            }
-        },
-        "keeper": {
-            "0": {
-                "employee": config["networks"][network.show_active()]["account_1"],
-                "payment_interval": 10,  # seconds
-                "salary": Web3.toWei(0.05, "ether"),
-            }
+            },
+            "1": {
+                "pair": "USDT/USD",
+                "proxy": "0x2ca5A90D34cA333661083F89D831f757A9A50148",
+                "hearbeat": 1440,  # 24 h
+                "decimals": 8,
+            },
         },
     },
 }
 
-API_CONSUMER = CHAINLINK[f"{network.show_active()}"]["api_consumer"]
 PRICE_CONSUMER_V3 = CHAINLINK[f"{network.show_active()}"]["price_consumer_v3"]
-KEEPER = CHAINLINK[f"{network.show_active()}"]["keeper"]
-
-
-def fund_with_link(_to, _from=None, _amount=Web3.toWei(0.2, "ether")):
-    account = _from if _from else get_account()
-    link_token = API_CONSUMER["link_token"]
-    ### Keep this line to show how it could be done without deploying a mock
-    # tx = interface.LinkTokenInterface(link_token.address).transfer(
-    #     contract_address, amount, {"from": account}
-    # )
-    tx = link_token.transfer(_to, _amount, {"from": account})
-    print("Funded {}".format(_to))
-    return tx

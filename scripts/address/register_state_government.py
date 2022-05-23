@@ -1,9 +1,9 @@
-from brownie import TruhuisAddressRegistry, Government, network
+from brownie import StateGovernment, TruhuisAddressRegistry, network
 
 from helper_brownie import get_account
 
 
-def register_government(_government: str = "", _country: str = ""):
+def register_state_government(_state_government_contract_addr: str = "", _country: str = ""):
 
     """
     @notice Call TruhuisAddressRegistry contract to register Government contract address.
@@ -14,13 +14,19 @@ def register_government(_government: str = "", _country: str = ""):
     truhuis = get_account(wallet="truhuis")
     address_registry = TruhuisAddressRegistry[-1]
 
-    government = _government if _government else Government[-1].address
+    state_government_contract_addr = (
+        _state_government_contract_addr
+        if _state_government_contract_addr
+        else StateGovernment[-1].address
+    )
 
     print(
         f"Calling TruhuisAddressRegistry contract {address_registry.address} on network {network.show_active()}"
     )
 
-    tx = address_registry.registerGovernment(government, _country, {"from": truhuis})
+    tx = address_registry.registerStateGovernment(
+        state_government_contract_addr, _country.encode("utf-8").hex(), {"from": truhuis}
+    )
     tx.wait(1)
 
     print(
@@ -31,7 +37,7 @@ def register_government(_government: str = "", _country: str = ""):
 
 
 def main():
-    register_government(
-        _government=input("Deployed Government address: "),
-        _country=input("Country that belongs to the Government: "),
+    register_state_government(
+        _state_government_contract_addr=input("State Government contract address: "),
+        _country=input("Country that is associated with the State Government: "),
     )

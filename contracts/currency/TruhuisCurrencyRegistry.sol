@@ -22,7 +22,7 @@ contract TruhuisCurrencyRegistry is Ownable {
     /// @dev Only owner.
     /// @param _tokenAddr ERC20 token address.
     function add(address _tokenAddr) external onlyOwner {
-        if (!s_allowed[_tokenAddr]) revert CurrencyAlreadyImplemented();
+        if (s_allowed[_tokenAddr]) revert CurrencyAlreadyImplemented();
         s_allowed[_tokenAddr] = true;
         emit Added(_tokenAddr);
     }
@@ -31,7 +31,7 @@ contract TruhuisCurrencyRegistry is Ownable {
     /// @dev Only owner.
     /// @param _tokenAddr ERC20 token address.
     function remove(address _tokenAddr) external onlyOwner {
-        if (s_allowed[_tokenAddr]) revert NonExistentCurrencyError();
+        if (!s_allowed[_tokenAddr]) revert NonExistentCurrencyError();
         s_allowed[_tokenAddr] = false;
         emit Removed(_tokenAddr);
     }
