@@ -1,9 +1,11 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "../utils/MultiSig.sol";
 
 contract Citizen is MultiSig {
+
     struct Name {
         bytes32 first;
         bytes32 last;

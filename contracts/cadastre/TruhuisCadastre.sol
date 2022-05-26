@@ -1,4 +1,5 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "../address/adapters/TruhuisAddressRegistryAdapter.sol";
@@ -11,9 +12,12 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-error ProvidedIdenticalTokenUriError(uint256 tokenId, string tokenURI);
 error NotOwnerError(address account, uint256 tokenId);
+error ProvidedIdenticalTokenUriError(uint256 tokenId, string tokenURI);
 
+/*
+ *
+ */
 contract TruhuisCadastre is 
     ERC721,
     Ownable,
@@ -24,6 +28,7 @@ contract TruhuisCadastre is
     ERC721Enumerable,
     TruhuisAddressRegistryAdapter
 {
+
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;

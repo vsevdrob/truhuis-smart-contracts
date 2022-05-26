@@ -19,8 +19,8 @@ def update_currency_registry(_currency_registry: str = ""):
     tx.wait(1)
 
     print(
-        "Updated successfully new TruhuisCurrencyRegistry address on {address_registry.address}. Transaction Hash: {tx.hash}\n",
-        "Run the following to read just updated TruhuisCurrencyRegistry address:\n",
+        f"Updated successfully new TruhuisCurrencyRegistry address on {address_registry.address}\n",
+        f"Run the following to read just updated TruhuisCurrencyRegistry address:\n",
         f"brownie run scripts/address/get_currency_registry.py --network {network.show_active()}",
     )
 

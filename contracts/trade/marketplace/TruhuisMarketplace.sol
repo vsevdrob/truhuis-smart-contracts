@@ -1,4 +1,5 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
@@ -18,6 +19,7 @@ contract TruhuisMarketplace is
     KeeperCompatibleInterface,
     TokenIdObserver
 {
+
     enum Stage {
         available,
         negotiation, // @dev Ontbindende voorwaarden opstellen. Vereist aparte contract.

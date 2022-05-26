@@ -29,7 +29,7 @@ networks:
     rinkeby:
         verify: False
     kovan:
-        verify: False
+        verify: True
         truhuis: ${ACCOUNT_TEST_0}
         state_government_nld: ${ACCOUNT_TEST_1}
         state_government_usa: ${ACCOUNT_TEST_2}
@@ -39,6 +39,7 @@ networks:
         citizen_usa_1: ${ACCOUNT_TEST_6}
         citizen_usa_2: ${ACCOUNT_TEST_7}
         citizen_usa_3: ${ACCOUNT_TEST_8}
+        chainlink_keeper: ${ACCOUNT_TEST_9}
     polygon:
         verify: False
 wallets:
@@ -53,6 +54,7 @@ wallets:
         citizen_usa_1: ${PRIVATE_KEY_TEST_6} 
         citizen_usa_2: ${PRIVATE_KEY_TEST_7}
         citizen_usa_3: ${PRIVATE_KEY_TEST_8}
+        chainlink_keeper: ${PRIVATE_KEY_TEST_9}
     hardhat:
         truhuis: ${PRIVATE_KEY_HARDHAT_0}
         state_government_nld: ${PRIVATE_KEY_HARDHAT_1}

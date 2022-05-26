@@ -30,8 +30,8 @@ def register_state_government(_state_government_contract_addr: str = "", _countr
     tx.wait(1)
 
     print(
-        "Registered successfully deployed Government address on {address_registry.address}. Transaction Hash: {tx.hash}\n",
-        "Run the following to read just registered Government address:\n",
+        f"Registered successfully deployed Government address on {address_registry.address}\n",
+        f"Run the following to read just registered Government address:\n",
         f"brownie run scripts/address/get_government.py get_government {_country} --network {network.show_active()}",
     )
 

@@ -21,8 +21,8 @@ def add(_token_addr: str = ""):
     tx.wait(1)
 
     print(
-        "Successfully added new ERC20 address on {currency_registry.address}. Transaction Hash: {tx.hash}\n",
-        "Run the following to verify just added ERC20 address:\n",
+        f"Successfully added new ERC20 address to {currency_registry.address}\n",
+        f"Run the following to verify just added ERC20 address:\n",
         f"brownie run scripts/currency_registry/is_allowed.py is_allowed {_token_addr} --network {network.show_active()}",
     )
 

@@ -108,7 +108,7 @@ def main():
 
         update_cadastre(cadastre.address)
 
-        clean_metadata_directories()
+        # clean_metadata_directories()
 
         current_token_id = cadastre.totalSupply()
         print(f"Current amount Truhuis NFTs minted: {current_token_id}")
@@ -171,11 +171,11 @@ def main():
         #                   CHAINLINK PRICE CONSUMER V3
         #
 
-        price_consumer_v3 = deploy_price_consumer_v3(
-            _pair=PRICE_CONSUMER_V3["0"]["pair"],
-            _proxy=PRICE_CONSUMER_V3["0"]["proxy"],
-            _deployer=truhuis,
-        )
+        # price_consumer_v3 = deploy_price_consumer_v3(
+        #    _pair=PRICE_CONSUMER_V3["0"]["pair"],
+        #    _proxy=PRICE_CONSUMER_V3["0"]["proxy"],
+        #    _deployer=truhuis,
+        # )
 
         #
         #                   TRUHUIS AUCTION
@@ -291,16 +291,17 @@ def main():
             _marketplace=marketplace,
         )
 
+        chainlink_keeper = get_account(wallet="chainlink_keeper")
+
+        check_upkeep(chainlink_keeper, 2, marketplace)
+        check_upkeep(chainlink_keeper, 4, marketplace)
+
         if network.show_active() in CHAINS["local"]:
 
             chain.mine(5)
-            chainlink_keeper = get_account(wallet="chainlink_keeper")
-            check_upkeep(chainlink_keeper, 2, marketplace)
             perform_upkeep(chainlink_keeper, 2, marketplace)
 
             chain.mine(5)
-            chainlink_keeper = get_account(wallet="chainlink_keeper")
-            check_upkeep(chainlink_keeper, 4, marketplace)
             perform_upkeep(chainlink_keeper, 4, marketplace)
 
         print(cadastre.balanceOf(citizen_nld_3), cadastre.balanceOf(citizen_nld_2))

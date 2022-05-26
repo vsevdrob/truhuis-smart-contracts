@@ -1,14 +1,14 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-error CurrencyAlreadyImplemented();
+error CurrencyAlreadyImplemented(); //
 error NonExistentCurrencyError();
 
 /// @title ERC20 token addresses with which user pays during purchase.
 contract TruhuisCurrencyRegistry is Ownable {
-
     /// @notice Mapping of allowed ERC20 currencies.
     /// @return Boolean true (allowed) or false (disallowed).
     mapping(address => bool) public s_allowed;

@@ -17,8 +17,8 @@ def update_marketplace(_marketplace_addr: str, _address_registry=None, _truhuis=
     tx.wait(1)
 
     print(
-        "Updated successfully new TruhuisMarketplace address on {address_registry.address}. Transaction Hash: {tx.hash}\n",
-        "Run the following to read just updated TruhuisMarketplace address:\n",
+        f"Updated successfully new TruhuisMarketplace address on {address_registry.address}\n",
+        f"Run the following to read just updated TruhuisMarketplace address:\n",
         f"brownie run scripts/address/get_marketplacepy --network {network.show_active()}",
     )
 

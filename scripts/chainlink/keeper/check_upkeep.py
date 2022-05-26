@@ -21,3 +21,10 @@ def check_upkeep(_chainlink_keeper, _check_data: int, _marketplace=None):
     print(f"Here is the perform data: {performData}")
 
     return upkeepNeeded, performData
+
+
+def main():
+    check_upkeep(
+        _chainlink_keeper=get_account(wallet="chainlink_keeper"),
+        _check_data=int(input("Truhuis NFT ID: ")),
+    )

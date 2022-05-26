@@ -24,8 +24,8 @@ def update_government(_new_addr: str = "", _country: str = ""):
     tx.wait(1)
 
     print(
-        "Updated successfully new Government address on {address_registry.address}. Transaction Hash: {tx.hash}\n",
-        "Run the following to read just updated Government address:\n",
+        f"Updated successfully new Government address on {address_registry.address}\n",
+        f"Run the following to read just updated Government address:\n",
         f"brownie run scripts/address/get_government.py get_government {_country} --network {network.show_active()}",
     )
 

@@ -1,23 +1,26 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../citizen/Citizen.sol";
 
+/*
+ *
+ */
 contract StateGovernment is Ownable {
-
     struct CitizenContract {
         bool isRegistered;
         address citizenContract;
     }
 
+    uint96 internal s_transferTax; // e.g. 100 (1%); 1000 (10%)
+    uint256 internal s_coolingOffPeriod; // usually 3 days. Consumer rights.
+
     /// @dev citizen addr => citizen profile contract
     mapping(address => CitizenContract) internal s_citizens; // citizen addr to the citizen profile.
     bytes3 internal s_country;
     
-    uint96 internal s_transferTax; // e.g. 100 (1%); 1000 (10%)
-    uint256 internal s_coolingOffPeriod; // usually 3 days. Consumer rights.
-
     event RegisteredCitizen(address citizen);
     event UpdatedTransferTax(uint256 tax);
     event UpdatedCoolingOffPeriod(uint256 coolingOffPeriod);

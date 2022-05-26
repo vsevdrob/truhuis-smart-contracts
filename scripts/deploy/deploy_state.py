@@ -19,7 +19,3 @@ def deploy(_state_government_account, _state_government_country: str = ""):
     )
 
     return state_goverment_contract
-
-
-def main():
-    deploy()

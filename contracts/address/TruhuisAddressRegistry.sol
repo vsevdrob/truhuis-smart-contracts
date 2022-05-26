@@ -1,17 +1,16 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./TruhuisAddressRegistryStateGovernment.sol";
 
 contract TruhuisAddressRegistry is Ownable, TruhuisAddressRegistryStateGovernment {
-
     /// @dev Potential future roles
     //address public appraiser;
     //address public bank;
     //address public homeInspector;
     //address public mortgagee;
-
     address public auction;
     address public currencyRegistry;
     address public cadastre;
@@ -22,12 +21,12 @@ contract TruhuisAddressRegistry is Ownable, TruhuisAddressRegistryStateGovernmen
         address indexed newAddr
     );
 
-    event CurrencyRegistryUpdated(
+    event CadastreUpdated(
         address indexed oldAddr,
         address indexed newAddr
     );
 
-    event CadastreUpdated(
+    event CurrencyRegistryUpdated(
         address indexed oldAddr,
         address indexed newAddr
     );
