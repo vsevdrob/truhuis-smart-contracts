@@ -145,6 +145,23 @@ contract TruhuisMarketplace is
         uint256 newCommissionFraction
     );
 
+    event SellerProceedsWithdrew(
+        address indexed seller,
+        address indexed currency,
+        uint256 indexed sellerProceeds
+    );
+
+    event TransferTaxesWithdrew(
+        address indexed transferTaxReceiver,
+        address indexed currency,
+        uint256 indexed transferTaxes
+    );
+
+    event MarketplaceProceedsWithdrew(
+        address indexed currency,
+        uint256 indexed marketplaceProceeds
+    );
+
     modifier listingExists(uint256 _tokenId) {
         require(isListingExistent(_tokenId), "listing must be existent");
         _;
@@ -431,7 +448,11 @@ contract TruhuisMarketplace is
         );
     }
 
-    function withdrawTransferTaxes(address _currency) external {
+    //          xxxxxxxxxxx                xxxxxxxxxxxxx
+    // EXTERNAL
+    //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
+
+    function withdrawTransferTaxes(address _currency) external nonReentrant {
         uint256 transferTaxes = s_transferTaxes[msg.sender][_currency];
 
         require(transferTaxes > 0, "no transfer taxes");
@@ -439,9 +460,11 @@ contract TruhuisMarketplace is
         s_transferTaxes[msg.sender][_currency] = 0;
 
         require(IERC20(_currency).transfer(msg.sender, transferTaxes), "failed to withdraw transfer taxes");
+
+        emit TransferTaxesWithdrew(msg.sender, _currency, transferTaxes);
     }
 
-    function withdrawSellerProceeds(address _currency) external {
+    function withdrawSellerProceeds(address _currency) external nonReentrant {
         uint256 proceeds = s_sellerProceeds[msg.sender][_currency];
         
         require(proceeds > 0, "no proceeds");
@@ -449,9 +472,11 @@ contract TruhuisMarketplace is
         s_sellerProceeds[msg.sender][_currency] = 0;
         
         require(IERC20(_currency).transfer(msg.sender, proceeds), "failed to withdraw proceeds");
+
+        emit SellerProceedsWithdrew(msg.sender, _currency, proceeds);
     }
 
-    function withdrawMarketplaceProceeds(address _currency) external {
+    function withdrawMarketplaceProceeds(address _currency) external nonReentrant {
         require(msg.sender == marketplaceOwner, "not marketplace owner");
 
         uint256 marketplaceProceeds = s_marketplaceProceeds[_currency];
@@ -460,7 +485,12 @@ contract TruhuisMarketplace is
 
         s_marketplaceProceeds[_currency] = 0;
 
-        require(IERC20(_currency).transfer(marketplaceOwner, marketplaceProceeds), "failed to withdraw marketplace proceeds");
+        require(
+            IERC20(_currency).transfer(marketplaceOwner, marketplaceProceeds),
+            "failed to withdraw marketplace proceeds"
+        );
+
+        emit MarketplaceProceedsWithdrew(_currency, marketplaceProceeds);
     }
 
     //function validateItemSold(uint256 _tokenId, address _seller, address _buyer) external onlyAuction {}
