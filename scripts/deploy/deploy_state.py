@@ -12,9 +12,9 @@ def deploy(_state_government_account, _state_government_country: str = ""):
     """
 
     state_goverment_contract = StateGovernment.deploy(
-        STATE_GOVERNMENT[_state_government_country]["country"],
-        STATE_GOVERNMENT[_state_government_country]["transfer_tax"],
-        STATE_GOVERNMENT[_state_government_country]["cooling_off_period"],
+        STATE_GOVERNMENT()[_state_government_country]["country"],
+        STATE_GOVERNMENT()[_state_government_country]["transfer_tax"],
+        STATE_GOVERNMENT()[_state_government_country]["cooling_off_period"],
         {"from": _state_government_account},
     )
 

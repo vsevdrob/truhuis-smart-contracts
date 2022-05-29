@@ -21,7 +21,7 @@ def deploy(
     )
 
     cadastre = TruhuisCadastre.deploy(
-        CADASTRE["contract_URI"], address_registry, {"from": deployer}
+        CADASTRE()["contract_URI"], address_registry, {"from": deployer}
     )
 
     if is_verifiable_contract():

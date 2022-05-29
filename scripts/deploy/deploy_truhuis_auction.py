@@ -12,9 +12,9 @@ def deploy():
     deployer = get_account(wallet="truhuis")
 
     auction = TruhuisAuction.deploy(
-        AUCTION["owner"],
+        AUCTION()["owner"],
         TruhuisAddressRegistry[-1].address,
-        AUCTION["commission"],
+        AUCTION()["commission"],
         {"from": deployer},
     )
 

@@ -1,4 +1,8 @@
-from brownie import accounts, config, network
+import os
+import shutil
+import time
+
+from brownie import accounts, chain, config, network
 from brownie import (
     LinkToken,
     MockERC20EURT,
@@ -25,6 +29,15 @@ BLOCK_CONFIRMATIONS_FOR_VERIFICATION: int = 1 if network.show_active() in CHAINS
 
 def is_verifiable_contract() -> bool:
     return config["networks"][network.show_active()].get("verify", False)
+
+
+def move_blocks(_amount=2, _sleep=1):
+    chain.mine(_amount)
+    time.sleep(_sleep)
+
+
+def get_address(_name: str) -> str:
+    return config["networks"][f"{network.show_active()}"][_name]
 
 
 def get_account(index=None, id=None, wallet: str = ""):
@@ -150,3 +163,21 @@ def deploy_mocks():
 
 def get_event_value(_tx, _event_name: str, _key: str):
     return _tx.events[_event_name][_key]
+
+
+def update_front_end():
+    print("Updating front end...")
+    copy_folders_to_front_end("./build", "../truhuis-marketplace-client/constants")
+    # copy_folders_to_front_end("./build/contracts", "../truhuis-marketplace-client/constants/abi")
+
+
+def copy_folders_to_front_end(src, dest):
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    shutil.copytree(src, dest)
+
+
+def copy_files_to_front_end(src, dest):
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    shutil.copyfile(src, dest)

@@ -12,12 +12,12 @@ def register_citizen(
     """
 
     tx = _state_government_contract.registerCitizen(
-        CITIZEN[_country][_index]["name"],
-        CITIZEN[_country][_index]["date_of_birth"],
-        CITIZEN[_country][_index]["place_of_birth"],
-        CITIZEN[_country][_index]["account"],
-        CITIZEN[_country][_index]["uri"],
-        CITIZEN[_country][_index]["citizenship"],
+        CITIZEN()[_country][_index]["name"],
+        CITIZEN()[_country][_index]["date_of_birth"],
+        CITIZEN()[_country][_index]["place_of_birth"],
+        CITIZEN()[_country][_index]["account"],
+        CITIZEN()[_country][_index]["uri"],
+        CITIZEN()[_country][_index]["citizenship"],
         {"from": _state_government_account},
     )
     tx.wait(1)

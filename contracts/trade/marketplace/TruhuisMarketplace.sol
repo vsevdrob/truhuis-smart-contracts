@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "../../address/adapters/TruhuisAddressRegistryAdapter.sol";
-import "./TokenIdObserver.sol";
 import "../../../interfaces/IStateGovernment.sol";
 import "../../../interfaces/ICitizen.sol";
 
@@ -16,10 +15,8 @@ contract TruhuisMarketplace is
     Ownable,
     TruhuisAddressRegistryAdapter,
     ReentrancyGuard,
-    KeeperCompatibleInterface,
-    TokenIdObserver
+    KeeperCompatibleInterface
 {
-
     enum Stage {
         available,
         negotiation, // @dev Ontbindende voorwaarden opstellen. Vereist aparte contract.
@@ -62,7 +59,14 @@ contract TruhuisMarketplace is
     /// @dev tokenId => offerer => Offer
     mapping(uint256 => mapping(address => Offer)) public s_offers; 
 
-    event HouseListed(
+    /// @dev seller => currency => seller proceeds allowed to withdraw
+    mapping(address => mapping(address => uint256)) public s_sellerProceeds;
+    /// @dev transferTaxReceiver => currency => transfer taxes allowed to withdraw
+    mapping(address => mapping(address => uint256)) public s_transferTaxes;
+    /// @dev currency => marketplace proceeds allowed to withdraw
+    mapping(address => uint256) public s_marketplaceProceeds;
+
+    event RealEstateListed(
         address indexed seller,
         uint256 indexed tokenId,
         bytes3 indexed propertyCountry,
@@ -73,7 +77,7 @@ contract TruhuisMarketplace is
         Stage stage
     );
 
-    event HouseBought(
+    event RealEstatePurchased(
         address indexed buyer,
         address indexed seller,
         uint256 indexed tokenId,
@@ -82,7 +86,7 @@ contract TruhuisMarketplace is
         Stage stage
     );
 
-    event HouseSold(
+    event RealEstateSold(
         address indexed buyer,
         address indexed seller,
         uint256 indexed tokenId,
@@ -176,7 +180,7 @@ contract TruhuisMarketplace is
     //          LISTING        LISTING           LISTING
     //      *            *                 *                 *
     
-    function listHouse(address _currency, uint256 _tokenId, uint256 _price)
+    function listRealEstate(address _currency, uint256 _tokenId, uint256 _price)
         external
         notListed(_tokenId)
         onlySeller(msg.sender, _tokenId)
@@ -199,7 +203,7 @@ contract TruhuisMarketplace is
 
         bytes3 propertyCountry = getPropertyCountry(_tokenId);
 
-        emit HouseListed(
+        emit RealEstateListed(
             msg.sender,
             _tokenId,
             propertyCountry,
@@ -209,11 +213,9 @@ contract TruhuisMarketplace is
             s_listing.coolingOffPeriod,
             Stage.available
         );
-
-        _storeTokenId(_tokenId);
     }
 
-    function buyHouseFrom(address _seller, address _currency, uint256 _tokenId)
+    function purchaseRealEstate(address _seller, address _currency, uint256 _tokenId)
         external
         nonReentrant
         onlyBuyer(msg.sender, _tokenId)
@@ -229,9 +231,9 @@ contract TruhuisMarketplace is
         s_listing.purchasePrice = s_listing.initialPrice;
         s_listing.purchaseTime = block.timestamp;
 
-        _purchaseHouse(msg.sender, _seller, _currency, _tokenId, s_listing.initialPrice);
+        _purchaseRealEstate(msg.sender, _currency, _tokenId, s_listing.initialPrice);
 
-        emit HouseBought(
+        emit RealEstatePurchased(
             msg.sender,
             _seller,
             _tokenId,
@@ -336,7 +338,7 @@ contract TruhuisMarketplace is
         s_listing.purchasePrice = offer.price;
         s_listing.purchaseTime = block.timestamp;
 
-        _purchaseHouse(_offerer, s_listing.seller, offer.currency, _tokenId, offer.price);
+        _purchaseRealEstate(_offerer, offer.currency, _tokenId, offer.price);
 
         emit OfferAccepted(
             s_listing.seller,
@@ -380,7 +382,7 @@ contract TruhuisMarketplace is
         Listing memory listing = s_listings[_tokenId];
 
         require(listing.buyer == msg.sender, "invalid buyer");
-        require(listing.status == Stage.coolingOffPeriod, "house wasn't purchased");
+        require(listing.status == Stage.coolingOffPeriod, "real estate wasn't purchased");
         require(listing.exists, "nonexistent listing");
 
         address currency = listing.currency;
@@ -390,7 +392,7 @@ contract TruhuisMarketplace is
         delete s_listings[_tokenId].purchasePrice;
         delete s_listings[_tokenId].purchaseTime;
 
-        _sendAmount(msg.sender, currency, purchasePrice);
+        require(IERC20(currency).transfer(msg.sender, purchasePrice), "purchase cancelation error");
 
         emit PurchaseCanceled(
             msg.sender,
@@ -429,6 +431,37 @@ contract TruhuisMarketplace is
         );
     }
 
+    function withdrawTransferTaxes(address _currency) external {
+        uint256 transferTaxes = s_transferTaxes[msg.sender][_currency];
+
+        require(transferTaxes > 0, "no transfer taxes");
+
+        s_transferTaxes[msg.sender][_currency] = 0;
+
+        require(IERC20(_currency).transfer(msg.sender, transferTaxes), "failed to withdraw transfer taxes");
+    }
+
+    function withdrawSellerProceeds(address _currency) external {
+        uint256 proceeds = s_sellerProceeds[msg.sender][_currency];
+        
+        require(proceeds > 0, "no proceeds");
+
+        s_sellerProceeds[msg.sender][_currency] = 0;
+        
+        require(IERC20(_currency).transfer(msg.sender, proceeds), "failed to withdraw proceeds");
+    }
+
+    function withdrawMarketplaceProceeds(address _currency) external {
+        require(msg.sender == marketplaceOwner, "not marketplace owner");
+
+        uint256 marketplaceProceeds = s_marketplaceProceeds[_currency];
+
+        require(marketplaceProceeds > 0, "no marketplace proceeds");
+
+        s_marketplaceProceeds[_currency] = 0;
+
+        require(IERC20(_currency).transfer(marketplaceOwner, marketplaceProceeds), "failed to withdraw marketplace proceeds");
+    }
 
     //function validateItemSold(uint256 _tokenId, address _seller, address _buyer) external onlyAuction {}
 
@@ -495,6 +528,10 @@ contract TruhuisMarketplace is
         return s_listings[_tokenId].initialTime;
     }
 
+    function getListing(uint256 _tokenId) public view returns (Listing memory) {
+        return s_listings[_tokenId];
+    }
+
     function getMarketplaceCommission(uint256 _salePrice) public view returns (uint256) {
         // price = 250000 USDT * (10**18)
         // price * 250 / 10000 = 6250 USDT * (10**18)
@@ -507,14 +544,23 @@ contract TruhuisMarketplace is
         return country;
     }
 
-    function getTransferTax(uint256 _tokenId, uint256 _salePrice) public view returns (uint256) {
-        (, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, _salePrice);
-        return transferTax;
+    function getTransferTaxes(address _transferTaxReceiver, address _currency) external view returns (uint256) {
+        return s_transferTaxes[_transferTaxReceiver][_currency];
     }
 
-    function getTransferTaxReceiver(uint256 _tokenId) public view returns (address) {
-        (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, uint256(1));
-        return transferTaxReceiver;
+    function getSellerProceeds(address _seller, address _currency) external view returns (uint256) {
+        return s_sellerProceeds[_seller][_currency];
+    }
+
+    function getMarketplaceProceeds(address _currency) public view returns (uint256) {
+        return s_marketplaceProceeds[_currency];
+    }
+
+    function getTransferTaxInfo(address _buyer, uint256 _tokenId, uint256 _salePrice) public view returns (address, uint256) {
+        require(areSimilarCountries(_buyer, _tokenId), "buyer must be from the same country as the property");
+        (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, _salePrice);
+        require(transferTaxReceiver != address(0) && transferTax > 0, "invalid transfer tax information");
+        return (transferTaxReceiver, transferTax);
     }
 
     function isAuctionInAction(uint256 _tokenId) public view returns (bool) {
@@ -575,23 +621,9 @@ contract TruhuisMarketplace is
         return block.timestamp;
     }
 
-    /**
-     * @notice Buyer pays transfer tax over to his State Government.
-     */
-    function _sendTransferTax(address _buyer, address _currency, uint256 _tokenId, uint256 _amount) private {
-        require(areSimilarCountries(_buyer, _tokenId), "buyer must be from the same country as the property");
-        address transferTaxReceiver = getTransferTaxReceiver(_tokenId);
-        require(transferTaxReceiver != address(0) || _amount > 0, "invalid info");
-        IERC20(_currency).transfer(transferTaxReceiver, _amount);
-    }
-
-    function _sendMarketplaceCommission(address _currency, uint256 _commission) private {
-        IERC20(_currency).transfer(marketplaceOwner, _commission);
-    }
-
-    function _purchaseHouse(address _buyer, address _seller, address _currency, uint256 _tokenId, uint256 _price) private {
+    function _purchaseRealEstate(address _buyer, address _currency, uint256 _tokenId, uint256 _price) private {
         s_listings[_tokenId].status = Stage.coolingOffPeriod;
-        IERC20(_currency).transferFrom(_buyer, address(this), _price);
+        require(IERC20(_currency).transferFrom(_buyer, address(this), _price), "failed to purchase real estate");
     }
 
     function _transferNftFrom(address _seller, address _buyer, uint256 _tokenId) private {
@@ -614,7 +646,6 @@ contract TruhuisMarketplace is
         );
     }
 
-    /// @dev Set more powerful requirements into this function workflow!
     function performUpkeep(bytes calldata _performData) external override {
         uint256 tokenId = abi.decode(_performData, (uint256));
         Listing memory listing = s_listings[tokenId];
@@ -628,17 +659,19 @@ contract TruhuisMarketplace is
         s_listings[tokenId].exists = false;
 
         uint256 marketplaceCommission = getMarketplaceCommission(listing.purchasePrice);
-        _sendMarketplaceCommission(listing.currency, marketplaceCommission);
+        s_marketplaceProceeds[listing.currency] += marketplaceCommission;
 
-        uint256 transferTax = getTransferTax(tokenId, listing.purchasePrice - marketplaceCommission); 
-        _sendTransferTax(listing.buyer, listing.currency, tokenId, transferTax);
+        (address transferTaxReceiver, uint256 transferTax) = getTransferTaxInfo(
+            listing.buyer, tokenId, listing.purchasePrice - marketplaceCommission
+        ); 
+        s_transferTaxes[transferTaxReceiver][listing.currency] += transferTax; 
 
         _transferNftFrom(listing.seller, listing.buyer, tokenId);
 
         uint256 amount = listing.purchasePrice - marketplaceCommission - transferTax;
-        _sendAmount(listing.seller, listing.currency, amount);
+        s_sellerProceeds[listing.seller][listing.currency] += amount;
 
-        emit HouseSold(
+        emit RealEstateSold(
             listing.buyer,
             listing.seller,
             listing.tokenId,
@@ -647,12 +680,7 @@ contract TruhuisMarketplace is
             Stage.sold
         );
 
-        _deleteTokenId(tokenId);
         delete s_listings[tokenId];
-    }
-
-    function _sendAmount(address _to, address _currency, uint256 _amount) internal {
-        require(IERC20(_currency).transfer(_to, _amount), "failed to pay out");
     }
 }
 
