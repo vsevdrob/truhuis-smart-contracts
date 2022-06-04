@@ -2,7 +2,7 @@
 
 <br/>
 <p align="center">
-<img src="https://github.com/truhuis/brand-assets/blob/main/truhuis_logo.png" width="225" alt="Truhuis logo">
+<img src="https://github.com/truhuis/brand-assets/blob/main/logo/truhuis_logo.png" width="225" alt="Truhuis logo">
 </a>
 </p>
 <br/>
