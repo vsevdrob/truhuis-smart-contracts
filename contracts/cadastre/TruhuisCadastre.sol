@@ -41,11 +41,10 @@ contract TruhuisCadastre is
     ) ERC721("Truhuis Cadastre", "TCA") {
         contractURI = _contractURI;
         _updateAddressRegistry(_addressRegistry);
-        //_setDefaultRoyalty(address(this), 100);
     }
 
     event Minted(address to, uint256 tokenId, string tokenURI, address transferTaxReceiver, uint256 transferTaxFraction);
-    event SetTokenURI(uint256 tokenId, string _tokenURI);
+    event SetTokenURI(uint256 tokenId, string tokenURI);
     event SetDefaultRoyalty(address receiver, uint96 fraction);
     event SetTokenRoyalty(uint256 tokenId, address receiver, uint96 fraction);
     event DeletedDefaultRoyalty();
@@ -97,12 +96,13 @@ contract TruhuisCadastre is
 
         _setTokenRoyalty(tokenId, transferTaxReceiver, transferTax);
 
-        //isApprovedForAll(address(marketplace()), tokenId);
-        //approve(address(auction()), tokenId);
-        //setApprovalForAll(address(auction()), true);
-        //setApprovalForAll(address(marketplace()), true);
-
         emit Minted(msg.sender, tokenId, _tokenURI, transferTaxReceiver, transferTax);
+    }
+
+    function approve(address to, uint256 tokenId) public override (
+        ERC721, IERC721
+    ) {
+        return super.approve(to, tokenId);
     }
 
     function setTokenURI(uint256 _tokenId, string memory _tokenURI)

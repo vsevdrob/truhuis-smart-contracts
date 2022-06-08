@@ -22,3 +22,7 @@ def perform_upkeep(_keeper: str, _check_data: int, _marketplace=None):
     else:
         print("Failed to perform upkeep.")
         return False
+
+
+def main():
+    perform_upkeep(_keeper="chainlink_keeper", _check_data=int(input("Token ID: ")))

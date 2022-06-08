@@ -6,16 +6,21 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../citizen/Citizen.sol";
 
 /*
+ * @title   StateGovernment is a contract for storing and retrieving identity information
+ *          in the most decentralized way.
  *
+ * TODO:    Store all the values in encrypted form.
+ * TODO:    Make view functions payable for non official accounts and restrict who
+ *          is allowed to ask for the identity information.
  */
 contract StateGovernment is Ownable {
     struct CitizenContract {
         bool isRegistered;
-        address citizenContract;
+        address ContractAddr;
     }
 
     uint96 internal s_transferTax; // e.g. 100 (1%); 1000 (10%)
-    uint256 internal s_coolingOffPeriod; // usually 3 days. Consumer rights.
+    uint32 internal s_coolingOffPeriod; // usually 3 days. Consumer rights.
 
     /// @dev citizen addr => citizen profile contract
     mapping(address => CitizenContract) internal s_citizens; // citizen addr to the citizen profile.
@@ -28,19 +33,12 @@ contract StateGovernment is Ownable {
     constructor(
         bytes3 _country,
         uint96 _transferTax,
-        uint256 _coolingOffPeriod
+        uint32 _coolingOffPeriod
     ) {
         s_country = _country;
         s_transferTax = _transferTax;
         s_coolingOffPeriod = _coolingOffPeriod;
     }
-
-    //function registerCitizen(address _citizenAccount, address _citizenContract) external onlyOwner {
-    //    s_citizens[_citizenAccount].citizen = _citizenContract;
-    //    s_citizens[_citizenAccount].exists = true;
-    //    
-    //    emit RegisteredCitizen(_citizenAccount);
-    //}
 
     function registerCitizen(
         bytes32[] memory _name,
@@ -59,13 +57,13 @@ contract StateGovernment is Ownable {
             _citizenship
         );
 
-        s_citizens[_account[0]].citizenContract = address(citizenNFT);
+        s_citizens[_account[0]].contractAddr = address(citizenNFT);
         s_citizens[_account[0]].isRegistered = true;
 
         emit RegisteredCitizen(_account[0]);
     }
 
-    function updateCoolingOffPeriod(uint256 _coolingOffPeriod) external onlyOwner {
+    function updateCoolingOffPeriod(uint32 _coolingOffPeriod) external onlyOwner {
         s_coolingOffPeriod = _coolingOffPeriod;
         emit UpdatedCoolingOffPeriod(_coolingOffPeriod);
     }
@@ -80,10 +78,10 @@ contract StateGovernment is Ownable {
     }
 
     function getCitizenContractAddress(address _citizen) public view returns (address) {
-        return s_citizens[_citizen].citizenContract;
+        return s_citizens[_citizen].contractAddr;
     }
 
-    function getCoolingOffPeriod() public view returns (uint256) {
+    function getCoolingOffPeriod() public view returns (uint32) {
         return s_coolingOffPeriod;
     }
 
@@ -91,11 +89,11 @@ contract StateGovernment is Ownable {
         return s_country;
     }
 
-    function getIsCitizenContractRegistered(address _citizen) public view returns (bool) {
-        return s_citizens[_citizen].isRegistered;
-    }
-
     function getTransferTax() public view returns (uint96) {
         return s_transferTax;
+    }
+
+    function isCitizenRegistered(address _citizen) public view returns (bool) {
+        return s_citizens[_citizen].isRegistered;
     }
 }

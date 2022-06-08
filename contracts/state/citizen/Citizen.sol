@@ -4,6 +4,11 @@ pragma solidity 0.8.13;
 
 import "../utils/MultiSig.sol";
 
+/*
+ * @title Citizen contract. Decentralized digital identity.
+ *
+ * @dev This contract is deployed by the StateGovernemnt contract only.
+ */
 contract Citizen is MultiSig {
 
     struct Name {

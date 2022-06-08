@@ -10,12 +10,11 @@ interface IStateGovernment {
         string[] memory _uri,
         bytes3[] memory _citizenship
     ) external;
-    //function registerCitizen(address _citizenAccount, address _citizenContractAddr) external;
-    
+
     function getAddress() external view returns (address);
     function getCitizenContractAddress(address _citizen) external view returns (address);
-    function getCoolingOffPeriod() external view returns (uint256);
+    function getCoolingOffPeriod() external view returns (uint32);
     function getCountry() external view returns (bytes3);
-    function getIsCitizenContractRegistered(address _citizen) external view returns (bool);
     function getTransferTax() external view returns (uint96);
+    function isCitizenRegistered(address _citizen) external view returns (bool);
 }

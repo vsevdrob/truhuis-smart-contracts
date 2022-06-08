@@ -273,11 +273,23 @@ contract TruhuisMarketplace is
         s_listing.currency = _currency;
         s_listing.initialPrice = _newPrice;
 
-        emit ListingUpdated(
+        bytes3 propertyCountry = getPropertyCountry(_tokenId);
+
+        //emit ListingUpdated(
+        //    msg.sender,
+        //    _tokenId,
+        //    _currency,
+        //    _newPrice
+        //);
+        emit RealEstateListed(
             msg.sender,
             _tokenId,
+            propertyCountry,
             _currency,
-            _newPrice
+            s_listing.initialTime,
+            _newPrice,
+            s_listing.coolingOffPeriod,
+            Stage.available
         );
     }
 

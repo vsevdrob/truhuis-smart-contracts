@@ -18,9 +18,15 @@ def list_real_estate(_seller: str, _currency: str, _token_id: int, _price: int, 
     price = Web3.toWei(_price, "ether")
     marketplace = _marketplace if _marketplace else TruhuisMarketplace[-1]
 
+    if network.show_active() in CHAINS["local"]:
+        move_blocks()
+
     interface.IERC721(TruhuisCadastre[-1].address).approve(
         marketplace.address, token_id, {"from": seller}
     )
+
+    if network.show_active() in CHAINS["local"]:
+        move_blocks()
 
     tx = marketplace.listRealEstate(currency_addr, token_id, price, {"from": seller})
     tx.wait(1)

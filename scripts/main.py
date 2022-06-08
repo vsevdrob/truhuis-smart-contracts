@@ -1,6 +1,6 @@
 from brownie import network
 
-from helper_brownie import CHAINS, get_account
+from helper_brownie import CHAINS, get_account, move_blocks, update_front_end
 from helper_chainlink import PRICE_CONSUMER_V3
 from helper_truhuis import TOKEN_URIs
 from scripts.address.register_state_government import register_state_government
@@ -165,3 +165,7 @@ def main():
             _proxy=PRICE_CONSUMER_V3()["0"]["proxy"],
             _deployer=truhuis,
         )
+
+        move_blocks()
+
+        update_front_end()
