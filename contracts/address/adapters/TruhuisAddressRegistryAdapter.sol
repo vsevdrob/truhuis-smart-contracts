@@ -3,7 +3,7 @@
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../../../interfaces/ICitizen.sol";
+import "../../../interfaces/IResident.sol";
 import "../../../interfaces/IStateGovernment.sol";
 import "../../../interfaces/ITruhuisAddressRegistry.sol";
 import "../../../interfaces/ITruhuisAuction.sol";
@@ -43,12 +43,12 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
         return ITruhuisAuction(_addressRegistry.auction());
     }
 
-    /// @notice Returns Citizen smart contract interface specified by
-    ///         the Citizen smart contract address.
+    /// @notice Returns Resident smart contract interface specified by
+    ///         the Resident smart contract address.
     ///
-    /// @param _citizen A Citizen smart contract address.
-    function citizen(address _citizen) public view returns (ICitizen) {
-        return ICitizen(_citizen);
+    /// @param _resident A Resident smart contract address.
+    function resident(address _resident) public view returns (IResident) {
+        return IResident(_resident);
     }
 
     /// @notice Returns Truhuis Currency Registry smart contract interface.
@@ -59,10 +59,9 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
     /// @notice Returns State Government smart contract interface specified by
     ///         the State Government smart contract address.
     ///
-    /// @param _country Country in the form of ISO 3166-1 Alpha-3 code (e.g. "NLD" or "BEL")
-    ///        to which the state government belongs.
-    function stateGovernment(bytes3 _country) public view returns (IStateGovernment) {
-        return IStateGovernment(_addressRegistry.stateGovernment(_country));
+    /// @param _stateGovernmentContractAddr The State Government smart contract address.
+    function stateGovernment(address _stateGovernmentContractAddr) public view returns (IStateGovernment) {
+        return IStateGovernment(_stateGovernmentContractAddr);
     }
 
     /// @notice Returns Truhuis Cadastre smart contract interface.

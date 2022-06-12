@@ -15,9 +15,6 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 error NotOwnerError(address account, uint256 tokenId);
 error ProvidedIdenticalTokenUriError(uint256 tokenId, string tokenURI);
 
-/*
- *
- */
 contract TruhuisCadastre is 
     ERC721,
     Ownable,
@@ -40,7 +37,7 @@ contract TruhuisCadastre is
         address _addressRegistry
     ) ERC721("Truhuis Cadastre", "TCA") {
         contractURI = _contractURI;
-        _updateAddressRegistry(_addressRegistry);
+        updateAddressRegistry(_addressRegistry);
     }
 
     event Minted(address to, uint256 tokenId, string tokenURI, address transferTaxReceiver, uint256 transferTaxFraction);
@@ -76,10 +73,6 @@ contract TruhuisCadastre is
         contractURI = _contractURI;
     }
 
-    /**
-     * @dev It would be more decentralized if the real owner could mint by him/herself.
-     * @dev Think first of all about the validation of the real owner and the property he/she provides.
-     */
     function safeMint(address _to, string memory _tokenURI, bytes3 _realEstateCountry)
         public
         onlyOwner
@@ -91,18 +84,12 @@ contract TruhuisCadastre is
         _safeMint(_to, tokenId);
         _setTokenURI(tokenId, _tokenURI);
 
-        address transferTaxReceiver = stateGovernment(_realEstateCountry).getAddress();
-        uint96 transferTax = stateGovernment(_realEstateCountry).getTransferTax(); 
+        address transferTaxReceiver = addressRegistry().getStateGovernmentContractAddr(_realEstateCountry);
+        uint96 transferTax = stateGovernment(transferTaxReceiver).getTransferTax(); 
 
         _setTokenRoyalty(tokenId, transferTaxReceiver, transferTax);
 
         emit Minted(msg.sender, tokenId, _tokenURI, transferTaxReceiver, transferTax);
-    }
-
-    function approve(address to, uint256 tokenId) public override (
-        ERC721, IERC721
-    ) {
-        return super.approve(to, tokenId);
     }
 
     function setTokenURI(uint256 _tokenId, string memory _tokenURI)

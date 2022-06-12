@@ -3,7 +3,7 @@
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../citizen/Citizen.sol";
+import "../resident/Resident.sol";
 
 /*
  * @title   StateGovernment is a contract for storing and retrieving identity information
@@ -14,19 +14,19 @@ import "../citizen/Citizen.sol";
  *          is allowed to ask for the identity information.
  */
 contract StateGovernment is Ownable {
-    struct CitizenContract {
+    struct ResidentContract {
         bool isRegistered;
-        address ContractAddr;
+        address contractAddr;
     }
 
     uint96 internal s_transferTax; // e.g. 100 (1%); 1000 (10%)
     uint32 internal s_coolingOffPeriod; // usually 3 days. Consumer rights.
 
-    /// @dev citizen addr => citizen profile contract
-    mapping(address => CitizenContract) internal s_citizens; // citizen addr to the citizen profile.
+    /// @dev resident addr => resident profile contract
+    mapping(address => ResidentContract) internal s_residents;
     bytes3 internal s_country;
     
-    event RegisteredCitizen(address citizen);
+    event ResidentRegistered(address resident);
     event UpdatedTransferTax(uint256 tax);
     event UpdatedCoolingOffPeriod(uint256 coolingOffPeriod);
 
@@ -40,27 +40,31 @@ contract StateGovernment is Ownable {
         s_coolingOffPeriod = _coolingOffPeriod;
     }
 
-    function registerCitizen(
+    function registerResident(
         bytes32[] memory _name,
         uint24[] memory _dateOfBirth,
         bytes32[] memory _placeOfBirth,
         address[] memory _account,
         string[] memory _uri,
-        bytes3[] memory _citizenship
+        bytes3[] memory _residencies,
+        bytes3[] memory _citizenship,
+        uint256 _residentialNftId
     ) external onlyOwner {
-        Citizen citizenNFT = new Citizen(
+        Resident resident = new Resident(
             _name,
             _dateOfBirth,
             _placeOfBirth,
             _account,
             _uri,
-            _citizenship
+            _residencies,
+            _citizenship,
+            _residentialNftId
         );
 
-        s_citizens[_account[0]].contractAddr = address(citizenNFT);
-        s_citizens[_account[0]].isRegistered = true;
+        s_residents[_account[0]].contractAddr = address(resident);
+        s_residents[_account[0]].isRegistered = true;
 
-        emit RegisteredCitizen(_account[0]);
+        emit ResidentRegistered(_account[0]);
     }
 
     function updateCoolingOffPeriod(uint32 _coolingOffPeriod) external onlyOwner {
@@ -73,19 +77,19 @@ contract StateGovernment is Ownable {
         emit UpdatedTransferTax(_tax);
     }
 
-    function getAddress() public view returns (address) {
+    function getStateGovernmentAddress() public view returns (address) {
         return address(this);
     }
 
-    function getCitizenContractAddress(address _citizen) public view returns (address) {
-        return s_citizens[_citizen].contractAddr;
+    function getResidentContractAddress(address _resident) public view returns (address) {
+        return s_residents[_resident].contractAddr;
     }
 
     function getCoolingOffPeriod() public view returns (uint32) {
         return s_coolingOffPeriod;
     }
 
-    function getCountry() public view returns (bytes3) {
+    function getStateGovernmentCountry() public view returns (bytes3) {
         return s_country;
     }
 
@@ -93,7 +97,7 @@ contract StateGovernment is Ownable {
         return s_transferTax;
     }
 
-    function isCitizenRegistered(address _citizen) public view returns (bool) {
-        return s_citizens[_citizen].isRegistered;
+    function isResidentRegistered(address _resident) public view returns (bool) {
+        return s_residents[_resident].isRegistered;
     }
 }

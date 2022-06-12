@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "../../address/adapters/TruhuisAddressRegistryAdapter.sol";
-import "../../../interfaces/ICitizen.sol";
-import "../../../interfaces/IStateGovernment.sol";
+//import "../../../interfaces/ICitizen.sol";
+//import "../../../interfaces/IStateGovernment.sol";
 
 contract TruhuisAuction is 
     Ownable,
@@ -87,7 +87,7 @@ contract TruhuisAuction is
     constructor(address _auctionOwner, address _addressRegistry, uint256 _marketplaceCommissionFraction) {
         auctionOwner = _auctionOwner;
         auctionCommissionFranction = _marketplaceCommissionFraction;
-        _updateAddressRegistry(_addressRegistry);
+        updateAddressRegistry(_addressRegistry);
     }
 
     function pause() external onlyOwner {_pause();}
@@ -335,12 +335,12 @@ contract TruhuisAuction is
     // PUBLIC VIEW RETURNS
     //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
 
-    function areSimilarCountries(address _account, uint256 _tokenId) public view returns (bool) {
-        (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, uint256(1));
-        bytes3 realEstateCountry = IStateGovernment(transferTaxReceiver).getCountry();
-        bytes3 citizenship = citizen(_account).citizenship();
-        return realEstateCountry == citizenship;
-    }
+    //function areSimilarCountries(address _account, uint256 _tokenId) public view returns (bool) {
+    //    (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, uint256(1));
+    //    bytes3 realEstateCountry = IStateGovernment(transferTaxReceiver).getCountry();
+    //    bytes3 citizenship = resident(_account).citizenship();
+    //    return realEstateCountry == citizenship;
+    //}
 
     function hasEnoughFunds(address _account, address _currency, uint256 _amount) public view returns (bool) {
         return IERC20(_currency).balanceOf(_account) > _amount;

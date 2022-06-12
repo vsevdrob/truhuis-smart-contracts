@@ -8,8 +8,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "../../address/adapters/TruhuisAddressRegistryAdapter.sol";
-import "../../../interfaces/IStateGovernment.sol";
-import "../../../interfaces/ICitizen.sol";
 
 contract TruhuisMarketplace is
     Ownable,
@@ -17,9 +15,45 @@ contract TruhuisMarketplace is
     ReentrancyGuard,
     KeeperCompatibleInterface
 {
+    /// @notice Reverted if a Real Estate purchase is failed.
+    error TruhuisMarketplace__RealEstatePurchaseFailed();
+    /// @notice Reverted if an auction for a provided token ID didn't finish yet.
+    error TruhuisMarketplace__AuctionIsInAction(uint256 tokenId);
+    /// @notice Reverted if a price is less than zero or equal to zero.
+    error TruhuisMarketplace__PriceMustBeGreaterThanZero(uint256 price);
+    /// @notice Reverted if a buyer has insufficient funds to purhcase a property.
+    error TruhuisMarketplace__InsufficientFunds(uint256 salePrice, uint256 avaliableFunds);
+
+    /// @notice Reverted if an ERC-20 currency is unsupported by the marketplace.
+    error TruhuisMarketplace__InvalidCurrency(address invalidCurrency);
+    /// @notice Reverted if a provided offer is invalid for a particular token ID.
+    error TruhuisMarketplace__InvalidOfferer(address offerer, address invalidOffererd);
+
+    /// @notice Reverted if a provided offer already exists.
+    error TruhuisMarketplace__OfferAlreadyExists(address offerer, uint256 tokenId);
+    /// @notice Reverted if a provided offer is non-existent.
+    error TruhuisMarketplace__OfferNotExists(address offerer, uint256 tokenId);
+    /// @notice Reverted if a provided offer is expired.
+    error TruhuisMarketplace__OfferIsExpired(address offerer, uint256 tokenId);
+
+    /// @notice Reverted if a provided listing is non-existent.
+    error TruhuisMarketplace__ListingNotExists(uint256 tokenId);
+    /// @notice Reverted if a provided listing alrady exists.
+    error TruhuisMarketplace__ListingAlreadyExists(uint256 tokenId);
+
+    /// @notice Reverted if a marketplace owner update fails.
+    error TruhuisMarketplace__MarketplaceOwnerUpdateFailed();
+    /// @notice Reverted if a marketplace commission fraction update fails.
+    error TruhuisMarketplace__MarketplaceCommissionFractionUpdateFailed();
+    error TruhuisMarketplace__BuyerIsNotAllowedToPurchaseRealEstate(address _buyer, uint256 _tokenId);
+    error TruhuisMarketplace__AccountIsPropertyOwner(address account, uint256 tokenId);
+    error TruhuisMarketplace__AccountIsNotPropertyOwner(address account, uint256 tokenId);
+    error TruhuisMarketplace__AccountIsNotHuman(address account);
+    error TruhuisMarketplace__SellerIsNotAllowedToPurchaseRealEstate(address seller, uint256 tokenId);
+
     enum Stage {
         available,
-        negotiation, // @dev Ontbindende voorwaarden opstellen. Vereist aparte contract.
+        negotiation,
         coolingOffPeriod,
         sold
     }
@@ -46,24 +80,26 @@ contract TruhuisMarketplace is
         uint256 expiry;
     }
 
+    /// @dev Marketplace owner and Truhuis Marketplace service fee receiver.
     address public marketplaceOwner;
-    uint96 public marketplaceCommissionFraction; // e.g. 100 (1%); 1000 (10%)
+    /// @dev Truhuis Marketplace service fee (e.g. 100 (1%); 1000 (10%)).
+    uint96 public marketplaceCommissionFraction;
 
-    /// @dev tokenId => buyer => bool
+    /// @dev Token ID => buyer => is or isn't verified.
     mapping(uint256 => mapping(address => bool)) public s_isVerifiedBuyer;
-    /// @dev tokenId => seller => bool
+    /// @dev Token ID => seller => is or isn't verified.
     mapping(uint256 => mapping(address => bool)) public s_isVerifiedSeller;
 
-    /// @dev tokenId => Listing
+    /// @dev Token ID => Listing struct
     mapping(uint256 => Listing) public s_listings;  
-    /// @dev tokenId => offerer => Offer
+    /// @dev Token ID => offerer => Offer struct
     mapping(uint256 => mapping(address => Offer)) public s_offers; 
 
-    /// @dev seller => currency => seller proceeds allowed to withdraw
+    /// @dev seller => supported currency => allowed seller proceeds to withdraw
     mapping(address => mapping(address => uint256)) public s_sellerProceeds;
-    /// @dev transferTaxReceiver => currency => transfer taxes allowed to withdraw
+    /// @dev Transfer Tax Receiver => supported currency => allowed transfer taxes to withdraw
     mapping(address => mapping(address => uint256)) public s_transferTaxes;
-    /// @dev currency => marketplace proceeds allowed to withdraw
+    /// @dev Supported currency => allowed marketplace proceeds to withdraw
     mapping(address => uint256) public s_marketplaceProceeds;
 
     event RealEstateListed(
@@ -93,13 +129,6 @@ contract TruhuisMarketplace is
         uint256 soldTime,
         uint256 soldPrice,
         Stage stage
-    );
-
-    event ListingUpdated(
-        address indexed seller,
-        uint256 indexed tokenId,
-        address currency,
-        uint256 newPrice
     );
 
     event ListingCanceled(
@@ -136,12 +165,10 @@ contract TruhuisMarketplace is
     );
 
     event MarketplaceOwnerUpdated(
-        address oldOwner,
         address newOwner
     );
 
     event MarketplaceCommissionFractionUpdated(
-        uint256 oldCommissionFraction,
         uint256 newCommissionFraction
     );
 
@@ -162,35 +189,24 @@ contract TruhuisMarketplace is
         uint256 indexed marketplaceProceeds
     );
 
-    modifier listingExists(uint256 _tokenId) {
-        require(isListingExistent(_tokenId), "listing must be existent");
-        _;
-    }
-
-    modifier notListed(uint256 _tokenId) {
-        require(!isListingExistent(_tokenId), "listing must be nonexistent");
-        _;
-    }
-
-    modifier notOffered(address _offerer, uint256 _tokenId) {
-        require(!isOfferExistent(_offerer, _tokenId), "offer must be nonexistent");
-        _;
-    }
-
     modifier onlyBuyer(address _buyer, uint256 _tokenId) {
-        verifyBuyer(_buyer, _tokenId);
+        if (!s_isVerifiedBuyer[_tokenId][_buyer]) {
+            verifyBuyer(_buyer, _tokenId);
+        }
         _;
     }
 
     modifier onlySeller(address _seller, uint256 _tokenId) {
-        verifySeller(_seller, _tokenId);
+        if (!s_isVerifiedSeller[_tokenId][_seller]) {
+            verifySeller(_seller, _tokenId);
+        }
         _;
     }
 
     constructor(address _addressRegistry) {
         marketplaceOwner = msg.sender;
         marketplaceCommissionFraction = 250; 
-        _updateAddressRegistry(_addressRegistry);
+        updateAddressRegistry(_addressRegistry);
     }
 
     //      *            *                 *                 *
@@ -199,11 +215,16 @@ contract TruhuisMarketplace is
     
     function listRealEstate(address _currency, uint256 _tokenId, uint256 _price)
         external
-        notListed(_tokenId)
         onlySeller(msg.sender, _tokenId)
     {
-        require(isAllowedCurrency(_currency), "invalid currency");
+        // Validate contract logic.
+        _validateIsNonExistentListing(_tokenId);
 
+        // Validate function arguments.
+        _validateIsAllowedCurrency(_currency);
+        _validateIsPriceGreaterThanZero(_price);
+
+        // List Real Estate for sale.
         Listing storage s_listing = s_listings[_tokenId];
 
         s_listing.exists = true;
@@ -218,8 +239,10 @@ contract TruhuisMarketplace is
         s_listing.purchaseTime = 0;
         s_listing.purchasePrice = 0;
 
-        bytes3 propertyCountry = getPropertyCountry(_tokenId);
+        // Get Real Estate country of location.
+        bytes3 propertyCountry = getRealEstateCountry(_tokenId);
 
+        // Emit Real Estate Listed event.
         emit RealEstateListed(
             msg.sender,
             _tokenId,
@@ -232,55 +255,58 @@ contract TruhuisMarketplace is
         );
     }
 
-    function purchaseRealEstate(address _seller, address _currency, uint256 _tokenId)
+    function purchaseRealEstate(uint256 _tokenId)
         external
         nonReentrant
         onlyBuyer(msg.sender, _tokenId)
-        listingExists(_tokenId)
     {
+        // Validate contract logic.
+        _validateIsExistentListing(_tokenId);
+
         Listing storage s_listing = s_listings[_tokenId];
         
-        require(isAllowedCurrency(_currency), "invalid currency");
-        require(s_listing.currency == _currency, "currencies are not equal");
-        require(hasEnoughFunds(msg.sender, _currency, s_listing.initialPrice), "insufficient funds");
+        // Validate buyer has sufficient funds to purchase the property.
+        _validateHasSufficientFunds(msg.sender, s_listing.currency, s_listing.initialPrice);
 
+        // Purchase Real Estate.
         s_listing.buyer = msg.sender;
         s_listing.purchasePrice = s_listing.initialPrice;
         s_listing.purchaseTime = block.timestamp;
 
-        _purchaseRealEstate(msg.sender, _currency, _tokenId, s_listing.initialPrice);
+        _purchaseRealEstate(msg.sender, _tokenId, s_listing.initialPrice);
 
+        // Emit Real Estate Purchased event.
         emit RealEstatePurchased(
             msg.sender,
-            _seller,
+            s_listing.seller,
             _tokenId,
             s_listing.purchaseTime,
             s_listing.purchasePrice,
-            Stage.coolingOffPeriod
+            s_listing.status
         );
     }
 
     function updateListing(address _currency, uint256 _tokenId, uint256 _newPrice)
         external
         onlySeller(msg.sender, _tokenId)
-        listingExists(_tokenId)
     {
-        require(_newPrice > 0, "price must be above 0");
-        require(isAllowedCurrency(_currency), "invalid currency");
+        // Validate contract logic.
+        _validateIsExistentListing(_tokenId);
 
+        // Validate function arguments.
+        _validateIsAllowedCurrency(_currency);
+        _validateIsPriceGreaterThanZero(_newPrice);
+
+        // Update listing.
         Listing storage s_listing = s_listings[_tokenId];
         
         s_listing.currency = _currency;
         s_listing.initialPrice = _newPrice;
 
-        bytes3 propertyCountry = getPropertyCountry(_tokenId);
+        // Get Real Estate country of location.
+        bytes3 propertyCountry = getRealEstateCountry(_tokenId);
 
-        //emit ListingUpdated(
-        //    msg.sender,
-        //    _tokenId,
-        //    _currency,
-        //    _newPrice
-        //);
+        // Emit Real Estate Listed event.
         emit RealEstateListed(
             msg.sender,
             _tokenId,
@@ -296,9 +322,12 @@ contract TruhuisMarketplace is
     function cancelListing(uint256 _tokenId)
         external
         onlySeller(msg.sender, _tokenId)
-        listingExists(_tokenId)
     {
+        _validateIsExistentListing(_tokenId);
+
         delete s_listings[_tokenId];
+        //delete s_offers[_tokenId];
+        delete s_isVerifiedSeller[_tokenId][msg.sender];
 
         emit ListingCanceled(
             msg.sender,
@@ -318,15 +347,21 @@ contract TruhuisMarketplace is
     )
         external
         onlyBuyer(msg.sender, _tokenId)
-        listingExists(_tokenId)
-        notOffered(msg.sender, _tokenId)
     {
-        require(_price > 0, "price must be greater than zero");
-        require(isOfferExistent(msg.sender, _tokenId), "offer not exists");
-        require(isOfferExpired(msg.sender, _tokenId), "offer is expired");
-        require(isAllowedCurrency(_currency), "invalid currency");
-        require(isAuctionInAction(_tokenId), "auction must be finished first");
+        // Validate contract logic.
+        _validateIsNotAuctionInAction(_tokenId);
+        _validateIsNonExistentOffer(msg.sender, _tokenId);
+        _validateIsExistentListing(_tokenId);
 
+        // Validate function arguments.
+        _validateIsListingCurrency(_currency, _tokenId);
+        _validateIsAllowedCurrency(_currency);
+        _validateIsPriceGreaterThanZero(_price);
+
+        // Validate offerer has sufficient funds to purchase the property.
+        _validateHasSufficientFunds(msg.sender, _currency, _tokenId);
+
+        // Create offer.
         s_offers[_tokenId][msg.sender] = Offer({
             offerer: msg.sender,
             currency: _currency,
@@ -335,6 +370,7 @@ contract TruhuisMarketplace is
             expiry: _expiry
         });
 
+        // Emit Offer Created event.
         emit OfferCreated(
             msg.sender,
             _tokenId,
@@ -344,31 +380,31 @@ contract TruhuisMarketplace is
         );
     }
 
-    /**
-     * @notice Seller accepts the offer.
-     */
     function acceptOffer(uint256 _tokenId, address _offerer)
         external
         nonReentrant
         onlySeller(msg.sender, _tokenId)
     {
-        require(isOfferExistent(_offerer, _tokenId), "offer not exists");
-        require(isOfferExpired(_offerer, _tokenId), "offer is expired");
-        require(!isAuctionInAction(_tokenId), "auction must be finished first");
+        // Validate contract logic.
+        _validateIsNotAuctionInAction(_tokenId);
+        _validateIsExistentOffer(_offerer, _tokenId);
 
         Offer memory offer = s_offers[_tokenId][_offerer];
-        Listing storage s_listing = s_listings[_tokenId];
 
-        require(isAllowedCurrency(offer.currency), "invalid offer currency");
-        require(offer.currency == s_listing.currency, "offer currency is not listing currency");
-        require(hasEnoughFunds(_offerer, offer.currency, offer.price), "offerer has insufficient funds");
+        // Validate offerer still has sufficient funds to purchase the property.
+        _validateHasSufficientFunds(_offerer, offer.currency, offer.price);
+
+        // Accept offer.
+        Listing storage s_listing = s_listings[_tokenId];
 
         s_listing.buyer = _offerer;
         s_listing.purchasePrice = offer.price;
         s_listing.purchaseTime = block.timestamp;
 
-        _purchaseRealEstate(_offerer, offer.currency, _tokenId, offer.price);
+        // Purchase Real Estate.
+        _purchaseRealEstate(_offerer, _tokenId, offer.price);
 
+        // Emit Offer Accepted event.
         emit OfferAccepted(
             s_listing.seller,
             _tokenId,
@@ -378,20 +414,23 @@ contract TruhuisMarketplace is
             Stage.coolingOffPeriod
         );
 
+        // Clean accepted offer.
         delete s_offers[_tokenId][_offerer];
     }
 
     function cancelOffer(uint256 _tokenId)
         external
         onlyBuyer(msg.sender, _tokenId)
-        listingExists(_tokenId)
     {
-        Offer memory offer = s_offers[_tokenId][msg.sender];
+        // Validate contract logic.
+        _validateIsExistentListing(_tokenId);
+        _validateIsExistentOffer(msg.sender, _tokenId);
 
-        require(offer.offerer == msg.sender, "invalid offerer");
-        require(isOfferExistent(msg.sender, _tokenId), "offer not exists");
+        Offer memory offer = s_offers[_tokenId][msg.sender];
+        _validateIsOffererMsgSender(offer.offerer, msg.sender);
 
         delete s_offers[_tokenId][msg.sender];
+        delete s_isVerifiedBuyer[_tokenId][msg.sender];
 
         emit OfferCanceled(
             msg.sender,
@@ -399,29 +438,25 @@ contract TruhuisMarketplace is
         );
     }
 
-    /**
-     * @notice Buyer changed his/her mind during cooling-off period.
-     */
     function cancelPurchase(uint256 _tokenId)
         external
         nonReentrant
         onlyBuyer(msg.sender, _tokenId)
-        listingExists(_tokenId)
     {
-        Listing memory listing = s_listings[_tokenId];
+        _validateIsExistentListing(_tokenId);
+        Listing storage s_listing = s_listings[_tokenId];
 
-        require(listing.buyer == msg.sender, "invalid buyer");
-        require(listing.status == Stage.coolingOffPeriod, "real estate wasn't purchased");
-        require(listing.exists, "nonexistent listing");
+        require(s_listing.buyer == msg.sender, "invalid buyer");
+        require(s_listing.status == Stage.coolingOffPeriod, "real estate wasn't purchased");
+        require(s_listing.exists, "nonexistent listing");
 
-        address currency = listing.currency;
-        uint256 purchasePrice = listing.purchasePrice;
+        uint256 purchasePrice = s_listing.purchasePrice;
 
-        delete s_listings[_tokenId].buyer;
-        delete s_listings[_tokenId].purchasePrice;
-        delete s_listings[_tokenId].purchaseTime;
+        delete s_listing.buyer;
+        delete s_listing.purchasePrice;
+        delete s_listing.purchaseTime;
 
-        require(IERC20(currency).transfer(msg.sender, purchasePrice), "purchase cancelation error");
+        require(IERC20(s_listing.currency).transfer(msg.sender, purchasePrice), "purchase cancelation error");
 
         emit PurchaseCanceled(
             msg.sender,
@@ -434,30 +469,29 @@ contract TruhuisMarketplace is
     // UPDATE ONLY OWNER
     //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
 
-    function updateMarketplaceOwner(address _newOwner)
-        external
-        onlyOwner
-    {
-        address oldOwner = marketplaceOwner;
+    /// @notice Update marketplace owner address.
+    /// @param _newOwner The new marketplace owner address.
+    function updateMarketplaceOwner(address _newOwner) external onlyOwner {
+        if (_newOwner == marketplaceOwner) {
+            revert TruhuisMarketplace__MarketplaceOwnerUpdateFailed();
+        }
+
         marketplaceOwner = _newOwner;
-        
-        emit MarketplaceOwnerUpdated(
-            oldOwner,
-            _newOwner
-        );
+        emit MarketplaceOwnerUpdated(_newOwner);
     }
 
+    /// @notice Update marketplace commission fraction.
+    /// @param _newCommissionFraction The new marketplace commission fraction.
     function updateMarketplaceCommissionFraction(uint96 _newCommissionFraction)
         external
         onlyOwner
     {
-        uint256 oldCommissionFraction = marketplaceCommissionFraction;
-        marketplaceCommissionFraction = _newCommissionFraction;
+        if (_newCommissionFraction == marketplaceCommissionFraction) {
+            revert TruhuisMarketplace__MarketplaceCommissionFractionUpdateFailed();
+        }
 
-        emit MarketplaceCommissionFractionUpdated(
-            oldCommissionFraction,
-            _newCommissionFraction
-        );
+        marketplaceCommissionFraction = _newCommissionFraction;
+        emit MarketplaceCommissionFractionUpdated(_newCommissionFraction);
     }
 
     //          xxxxxxxxxxx                xxxxxxxxxxxxx
@@ -505,36 +539,28 @@ contract TruhuisMarketplace is
         emit MarketplaceProceedsWithdrew(_currency, marketplaceProceeds);
     }
 
-    //function validateItemSold(uint256 _tokenId, address _seller, address _buyer) external onlyAuction {}
-
     //          xxxxxxxxxxx                xxxxxxxxxxxxx
     // PUBLIC
     //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
 
-    /**
-     * @notice Seller verification process.
-     */
     function verifySeller(address _seller, uint256 _tokenId) public {
         if (!s_isVerifiedSeller[_tokenId][_seller]) {
-            require(isHuman(_seller), "seller can not be a contract");
-            require(isPropertyOwner(_seller, _tokenId), "seller must be the property owner");
-            require(areSimilarCountries(_seller, _tokenId), "seller is not from the same country as the property");
+            _validateIsHuman(_seller);
+            _validateIsPropertyOwner(_seller, _tokenId);
+            _validateSeller(_seller, _tokenId);
             require(isMarketplaceApproved(_tokenId), "marketplace must be approved");
-            //require(isAuctionApproved(_seller), "auction must be approved");
+            //require(isAuctionApproved(_tokenId), "auction must be approved");
             s_isVerifiedSeller[_tokenId][_seller] = true;
         }
     }
 
-    /**
-     * @notice Buyer verification process.
-     */
     function verifyBuyer(address _buyer, uint256 _tokenId) public {
         if (!s_isVerifiedBuyer[_tokenId][_buyer]) {
-            require(isHuman(_buyer), "buyer can not be a contract");
-            require(!isPropertyOwner(_buyer, _tokenId), "buyer can not be the property owner");
-            require(areSimilarCountries(_buyer, _tokenId), "buyer is not from the same country as the property");
+            _validateIsHuman(_buyer);
+            _validateIsNotPropertyOwner(_buyer, _tokenId);
+            _validateBuyer(_buyer, _tokenId);
             require(isMarketplaceApproved(_tokenId), "marketplace must be approved");
-            //require(isAuctionApproved(_buyer), "auction must be approved");
+            //require(isAuctionApproved(_tokenId), "auction must be approved");
             s_isVerifiedBuyer[_tokenId][_buyer] = true;
         }
     }
@@ -543,20 +569,8 @@ contract TruhuisMarketplace is
     // PUBLIC VIEW RETURNS
     //                          xxxxxxxxxxxxx               xxxxxxxxxxxxx
 
-    /**
-     * @notice Check whether `_account` and `_tokenId` can be relatered to the similar State Government.
-     */
-    function areSimilarCountries(address _account, uint256 _tokenId) public view returns (bool) {
-        (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, uint256(1));
-        bool isRegistered = IStateGovernment(transferTaxReceiver).getIsCitizenContractRegistered(_account);
-        return isRegistered;
-    }
-
-    /**
-     * @dev During cooling-off period the buyer can verify himself as the new potential property owner.
-     */
     function getBuyer(uint256 _tokenId) public view returns (address) {
-        require(isListingExistent(_tokenId), "nonexistent listing");
+        _validateIsExistentListing(_tokenId);
         return s_listings[_tokenId].buyer;
     }
 
@@ -567,10 +581,12 @@ contract TruhuisMarketplace is
     }
 
     function getInitialTime(uint256 _tokenId) public view returns (uint256) {
+        _validateIsExistentListing(_tokenId);
         return s_listings[_tokenId].initialTime;
     }
 
     function getListing(uint256 _tokenId) public view returns (Listing memory) {
+        _validateIsExistentListing(_tokenId);
         return s_listings[_tokenId];
     }
 
@@ -580,9 +596,9 @@ contract TruhuisMarketplace is
         return _salePrice * marketplaceCommissionFraction / 10000;
     }
 
-    function getPropertyCountry(uint256 _tokenId) public view returns (bytes3) {
-        (address stateGovernment,) = cadastre().royaltyInfo(_tokenId, uint256(1));
-        bytes3 country = IStateGovernment(stateGovernment).getCountry();
+    function getRealEstateCountry(uint256 _tokenId) public view returns (bytes3) {
+        (address transferTaxReceiver,) = cadastre().royaltyInfo(_tokenId, uint256(1));
+        bytes3 country = stateGovernment(transferTaxReceiver).getStateGovernmentCountry();
         return country;
     }
 
@@ -599,7 +615,7 @@ contract TruhuisMarketplace is
     }
 
     function getTransferTaxInfo(address _buyer, uint256 _tokenId, uint256 _salePrice) public view returns (address, uint256) {
-        require(areSimilarCountries(_buyer, _tokenId), "buyer must be from the same country as the property");
+        _validateBuyer(_buyer, _tokenId);
         (address transferTaxReceiver, uint256 transferTax) = cadastre().royaltyInfo(_tokenId, _salePrice);
         require(transferTaxReceiver != address(0) && transferTax > 0, "invalid transfer tax information");
         return (transferTaxReceiver, transferTax);
@@ -609,22 +625,17 @@ contract TruhuisMarketplace is
         return auction().getStartTime(_tokenId) > 0;
     }
 
-    function hasEnoughFunds(address _buyer, address _currency, uint256 _salePrice) public view returns (bool) {
-        return IERC20(_currency).balanceOf(_buyer) > _salePrice ? true : false;
-    }
-
     function isHuman(address _account) public view returns (bool) {
         uint256 codeLength;
         assembly {codeLength := extcodesize(_account)}
         return codeLength == 0 && _account != address(0);
     }
 
-    function isAllowedCurrency(address _currency) public view returns (bool) {
-        return currencyRegistry().isAllowed(_currency);
-    }
-
-    //function isAuctionApproved(address _account) public view returns (bool) {
-    //    return cadastre().getApproved(_tokenId) == address(auction());
+    //function isAuctionApproved(uint256 _tokenId) public view returns (bool) {
+    //    return (
+    //        cadastre().isApprovedForAll(cadastre().ownerOf(_tokenId), address(auction()))
+    //        || cadastre().getApproved(_tokenId) == address(auction())
+    //    );
     //}
 
     function isListingExistent(uint256 _tokenId) public view returns (bool) {
@@ -632,16 +643,19 @@ contract TruhuisMarketplace is
     }
     
     function isMarketplaceApproved(uint256 _tokenId) public view returns (bool) {
-        return cadastre().getApproved(_tokenId) == address(this);
+        return (
+            cadastre().isApprovedForAll(cadastre().ownerOf(_tokenId), address(this))
+            || cadastre().getApproved(_tokenId) == address(this)
+        );
     }
 
     function isOfferExistent(address _offerer, uint256 _tokenId) public view returns (bool) {
         return s_offers[_tokenId][_offerer].exists;
     }
 
-    function isOfferExpired(address _offerer, uint256 _tokenId) public view returns (bool) {
-        return s_offers[_tokenId][_offerer].expiry > _getNow();
-    }
+    //function isOfferExpired(address _offerer, uint256 _tokenId) public view returns (bool) {
+    //    return s_offers[_tokenId][_offerer].expiry > _getNow();
+    //}
 
     function isPropertyOwner(address _account, uint256 _tokenId) public view returns (bool) {
         return cadastre().isOwner(_account, _tokenId);
@@ -663,12 +677,22 @@ contract TruhuisMarketplace is
         return block.timestamp;
     }
 
-    function _purchaseRealEstate(address _buyer, address _currency, uint256 _tokenId, uint256 _price) private {
-        s_listings[_tokenId].status = Stage.coolingOffPeriod;
-        require(IERC20(_currency).transferFrom(_buyer, address(this), _price), "failed to purchase real estate");
+    function _purchaseRealEstate(address _buyer, uint256 _tokenId, uint256 _salePrice) internal {
+        Listing storage s_listing = s_listings[_tokenId];
+
+        s_listing.status = Stage.coolingOffPeriod;
+
+        if (
+            IERC20(s_listing.currency).transferFrom(
+                _buyer,
+                address(this),
+                _salePrice
+            ) == false) {
+            revert TruhuisMarketplace__RealEstatePurchaseFailed();
+        }
     }
 
-    function _transferNftFrom(address _seller, address _buyer, uint256 _tokenId) private {
+    function _transferNftFrom(address _seller, address _buyer, uint256 _tokenId) internal {
         IERC721(cadastre()).transferFrom(_seller, _buyer, _tokenId);
     }
 
@@ -676,7 +700,8 @@ contract TruhuisMarketplace is
         external
         view
         override
-        returns (bool upkeepNeeded, bytes memory performData) {
+        returns (bool upkeepNeeded, bytes memory performData)
+    {
         uint256 tokenId = abi.decode(_checkData, (uint256));
         Listing memory listing = s_listings[tokenId];
 
@@ -693,7 +718,7 @@ contract TruhuisMarketplace is
         Listing memory listing = s_listings[tokenId];
 
         require(msg.sender != address(0), "invalid caller");
-        require(isListingExistent(tokenId), "invalid listing");
+        _validateIsExistentListing(tokenId);
         require(listing.status == Stage.coolingOffPeriod, "invalid status");
         require(block.timestamp > (listing.purchaseTime + listing.coolingOffPeriod), "invalid time");
 
@@ -723,6 +748,151 @@ contract TruhuisMarketplace is
         );
 
         delete s_listings[tokenId];
+    }
+
+    function _validateIsAllowedCurrency(address _currency) internal view {
+        if (currencyRegistry().isAllowed(_currency) == false) {
+            revert TruhuisMarketplace__InvalidCurrency(_currency);
+        }
+    }
+
+    function _validateHasSufficientFunds(address _buyer, address _currency, uint256 _salePrice)
+        internal
+        view
+    {
+        uint256 availableFunds = IERC20(_currency).balanceOf(_buyer);
+
+        if (_salePrice > availableFunds) {
+            revert TruhuisMarketplace__InsufficientFunds(_salePrice, availableFunds);
+        }
+    }
+
+    function _validateIsPriceGreaterThanZero(uint256 _price) internal pure {
+        if (0 >= _price) {
+            revert TruhuisMarketplace__PriceMustBeGreaterThanZero(_price);
+        }
+    }
+
+    function _validateIsNotAuctionInAction(uint256 _tokenId) internal view {
+        if (auction().getStartTime(_tokenId) > 0) { revert TruhuisMarketplace__AuctionIsInAction(_tokenId); }
+    }
+
+    function _validateIsListingCurrency(address _currency, uint256 _tokenId) internal view {
+        Listing memory listing = s_listings[_tokenId];
+
+        if (listing.currency != _currency) {
+            revert TruhuisMarketplace__InvalidCurrency(_currency);
+        }
+    }
+
+    function _validateIsExistentOffer(address _offerer, uint256 _tokenId) internal view {
+        Offer memory offer = s_offers[_tokenId][_offerer];
+
+        if (
+            !offer.exists
+            || offer.offerer == address(0)
+            || offer.currency == address(0)
+            || 0 >= offer.price
+            || _getNow() > offer.expiry
+        ) {
+            revert TruhuisMarketplace__OfferNotExists(_offerer, _tokenId);
+        }
+    }
+
+    function _validateIsNonExistentOffer(address _offerer, uint256 _tokenId) internal view {
+        Offer memory offer = s_offers[_tokenId][_offerer];
+
+        if (
+            offer.exists
+            || offer.offerer != address(0)
+            || offer.currency != address(0)
+            || offer.price > 0
+            || offer.expiry > _getNow()
+        ) {
+            revert TruhuisMarketplace__OfferAlreadyExists(_offerer, _tokenId);
+        }
+    }
+
+    function _validateIsExistentListing(uint256 _tokenId) internal view {
+        Listing memory listing = s_listings[_tokenId];
+
+        if (
+            !listing.exists
+            || 0 >= listing.initialPrice
+            || listing.currency == address(0)
+            || listing.seller == address(0)
+        ) {
+            revert TruhuisMarketplace__ListingNotExists(_tokenId);
+        }
+    }
+
+    function _validateIsNonExistentListing(uint256 _tokenId) internal view {
+        Listing memory listing = s_listings[_tokenId];
+
+        if (
+            listing.exists
+            || listing.initialPrice > 0
+            || listing.currency != address(0)
+            || listing.seller != address(0)
+        ) {
+            revert TruhuisMarketplace__ListingAlreadyExists(_tokenId);
+        }
+    }
+
+    function _validateIsOffererMsgSender(address _offerer, address _msgSender) internal pure {
+        if (_offerer != _msgSender) {
+            revert TruhuisMarketplace__InvalidOfferer(_msgSender, _offerer);
+        }
+    }
+
+    function _validateIsHuman(address _account) internal view {
+        if (!isHuman(_account)) {
+            revert TruhuisMarketplace__AccountIsNotHuman(_account);
+        }
+    }
+
+    function _validateIsNotPropertyOwner(address _account, uint256 _tokenId) internal view {
+        if (cadastre().isOwner(_account, _tokenId)) {
+            revert TruhuisMarketplace__AccountIsPropertyOwner(_account, _tokenId);
+        }
+    }
+
+    function _validateIsPropertyOwner(address _account, uint256 _tokenId) internal view {
+        if (!cadastre().isOwner(_account, _tokenId)) {
+            revert TruhuisMarketplace__AccountIsNotPropertyOwner(_account, _tokenId);
+        }
+    }
+
+    function _validateSeller(address _seller, uint256 _tokenId) internal view {
+        (address transferTaxReceiver, /*uint256 transferTax*/) = cadastre().royaltyInfo(_tokenId, uint256(1));
+        address residentContractAddr = stateGovernment(transferTaxReceiver).getResidentContractAddr(_seller);
+        bytes3 stateGovernmentCountry = stateGovernment(transferTaxReceiver).getStateGovernmentCountry();
+
+        bool sellerIsRegistered = stateGovernment(transferTaxReceiver).isResidentRegistered(_seller);
+        bool sellerIsAllowedToPurchaseRealEstate = resident(residentContractAddr).isAllowedToPurchaseRealEstate(stateGovernmentCountry);
+
+        if (
+            !sellerIsRegistered
+            || !sellerIsAllowedToPurchaseRealEstate
+        ) {
+            revert TruhuisMarketplace__SellerIsNotAllowedToPurchaseRealEstate(_seller, _tokenId);
+        }
+    }
+
+    function _validateBuyer(address _buyer, uint256 _tokenId) internal view {
+        (address transferTaxReceiver, /*uint256 transferTax*/) = cadastre().royaltyInfo(_tokenId, uint256(1));
+        address residentContractAddr = stateGovernment(transferTaxReceiver).getResidentContractAddr(_buyer);
+        bytes3 stateGovernmentCountry = stateGovernment(transferTaxReceiver).getStateGovernmentCountry();
+
+        bool buyerIsRegistered = stateGovernment(transferTaxReceiver).isResidentRegistered(_buyer);
+        bool buyerIsAllowedToPurchaseRealEstate = resident(residentContractAddr).isAllowedToPurchaseRealEstate(stateGovernmentCountry);
+
+        if (
+            !buyerIsRegistered
+            || !buyerIsAllowedToPurchaseRealEstate
+        ) {
+            revert TruhuisMarketplace__BuyerIsNotAllowedToPurchaseRealEstate(_buyer, _tokenId);
+        }
     }
 }
 

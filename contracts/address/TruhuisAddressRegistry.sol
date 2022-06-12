@@ -171,7 +171,7 @@ contract TruhuisAddressRegistry is Ownable {
     ///
     /// @param _country Country in the form of ISO 3166-1 Alpha-3 code (e.g. "NLD" or "BEL")
     ///        to which the state government belongs.
-    function stateGovernment(bytes3 _country) external view returns (address) {
+    function getStateGovernmentContractAddr(bytes3 _country) external view returns (address) {
         return s_stateGovernments[_country].contractAddr;
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-Licence-Identifier: MIT
 pragma solidity 0.8.13;
 
-interface ICitizen {
+interface IResident {
     function updateFirstName(bytes32 _firstName, uint256 _txIndex) external;
 
     function updateLastName(bytes32 _lastName, uint256 _txIndex) external;
@@ -26,7 +26,13 @@ interface ICitizen {
 
     function updatePhotoURI(string memory _uri, uint256 _txIndex) external;
 
-    function updateCitizenship(bytes3 _citizenship, uint256 _txIndex) external;
+    function addCitizenship(bytes3 _citizenship, uint256 _txIndex) external;
+
+    function deleteCitizenship(bytes3 _citizenship, uint256 _txIndex) external;
+
+    function addResidency(bytes3 _residency, uint256 _txIndex) external;
+
+    function deleteResidency(bytes3 _residency, uint256 _txIndex) external;
 
     function fullName() external view returns (bytes32, bytes32);
 
@@ -54,5 +60,15 @@ interface ICitizen {
 
     function photoURI() external view returns (string memory);
 
-    function citizenship() external view returns (bytes3);
+    function citizenships() external view returns (bytes3[] memory);
+
+    function residencies() external view returns (bytes3[] memory);
+
+    function isCitizenOf(bytes3 _country) external view returns (bool);
+
+    function isResidentOf(bytes3 _country) external view returns (bool);
+
+    function isAllowedToPurchaseRealEstate(bytes3 _country) external view returns (bool);
+
+    function residentialNftId() external view returns (uint256);
 }
