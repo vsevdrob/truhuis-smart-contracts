@@ -1,3 +1,10 @@
+project_structure:
+    build: build
+    contracts: contracts
+    interfaces: contracts/interfaces
+    reports: reports
+    scripts: scripts
+    tests: tests
 dependencies:
     # - <organization(github account)/repo>@<version>
     - OpenZeppelin/openzeppelin-contracts@4.5.0
