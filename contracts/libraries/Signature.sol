@@ -1,9 +1,7 @@
 // SPDX-Licence-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "./Authentication.sol";
-
-contract MultiSig is Authentication {
+contract Signature {
     struct Transaction {
         bool isExecuted;
         uint256 timesConfirmed;
@@ -13,7 +11,7 @@ contract MultiSig is Authentication {
 
     mapping(uint256 => mapping(address => bool)) public isConfirmed;
 
-    uint256 public constant TIMES_TO_CONFIRM = 2; // citizen & government
+    uint256 public constant TIMES_TO_CONFIRM = 1; // person
 
     event TransactionSubmited(address caller, uint256 txIndex);
     event TransactionConfirmed(address caller, uint256 txIndex);
@@ -35,11 +33,7 @@ contract MultiSig is Authentication {
         _;
     }
 
-    constructor(address _citizen, address _government) Authentication(_citizen, _government) {
-        require(_citizen != address(0) && _government != address(0), "invalid zero address");
-    }
-
-    function submitTransaction() public onlyOwner {
+    function submitTransaction() public {
         uint256 txIndex = transactions.length;
 
         transactions.push(
@@ -54,7 +48,6 @@ contract MultiSig is Authentication {
 
     function confirmTransaction(uint256 _txIndex)
         public
-        onlyOwner
         txExists(_txIndex)
         notExecuted(_txIndex)
         notConfirmed(_txIndex)
@@ -69,7 +62,6 @@ contract MultiSig is Authentication {
 
     function revokeConfirmation(uint256 _txIndex)
         public
-        onlyOwner
         txExists(_txIndex)
         notExecuted(_txIndex)
     {

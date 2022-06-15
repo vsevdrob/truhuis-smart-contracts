@@ -2,50 +2,40 @@
 
 pragma solidity 0.8.13;
 
-import "../address/adapters/TruhuisAddressRegistryAdapter.sol";
+import "../address/TruhuisAddressRegistryAdapter.sol";
+import {TruhuisCadastreStorage as Storage} from "./TruhuisCadastreStorage.sol";
+import "../../interfaces/ITruhuisCadastre.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-error NotOwnerError(address account, uint256 tokenId);
-error ProvidedIdenticalTokenUriError(uint256 tokenId, string tokenURI);
-
-contract TruhuisCadastre is 
+abstract contract TruhuisCadastre is 
     ERC721,
     Ownable,
     Pausable,
-    ERC721Royalty,
     ERC721Burnable,
     ERC721URIStorage,
     ERC721Enumerable,
-    TruhuisAddressRegistryAdapter
+    TruhuisAddressRegistryAdapter,
+    Storage,
+    ITruhuisCadastre
 {
 
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
 
-    string public contractURI;
-
     constructor(
         string memory _contractURI,
         address _addressRegistry
     ) ERC721("Truhuis Cadastre", "TCA") {
-        contractURI = _contractURI;
+        _sContractURI = _contractURI;
         updateAddressRegistry(_addressRegistry);
     }
-
-    event Minted(address to, uint256 tokenId, string tokenURI, address transferTaxReceiver, uint256 transferTaxFraction);
-    event SetTokenURI(uint256 tokenId, string tokenURI);
-    event SetDefaultRoyalty(address receiver, uint96 fraction);
-    event SetTokenRoyalty(uint256 tokenId, address receiver, uint96 fraction);
-    event DeletedDefaultRoyalty();
-    event ResetTokenRoyalty(uint256 tokenId);
 
     modifier isValidTokenURI(uint256 _tokenId, string memory _tokenURI) {
         bytes32 bTokenURI = keccak256(bytes(_tokenURI));
@@ -69,11 +59,11 @@ contract TruhuisCadastre is
 
     function unpause() external onlyOwner {_unpause();}
 
-    function setContractURI(string memory _contractURI) external onlyOwner {
-        contractURI = _contractURI;
+    function updateContractURI(string memory _contractURI) external onlyOwner {
+        _sContractURI = _contractURI;
     }
 
-    function safeMint(address _to, string memory _tokenURI, bytes3 _realEstateCountry)
+    function safeMint(address _to, string memory _tokenURI)
         public
         onlyOwner
         isValidTokenURI(_tokenIdCounter.current(), _tokenURI)
@@ -84,12 +74,7 @@ contract TruhuisCadastre is
         _safeMint(_to, tokenId);
         _setTokenURI(tokenId, _tokenURI);
 
-        address transferTaxReceiver = addressRegistry().getStateGovernmentContractAddr(_realEstateCountry);
-        uint96 transferTax = stateGovernment(transferTaxReceiver).getTransferTax(); 
-
-        _setTokenRoyalty(tokenId, transferTaxReceiver, transferTax);
-
-        emit Minted(msg.sender, tokenId, _tokenURI, transferTaxReceiver, transferTax);
+        emit Minted(msg.sender, tokenId, _tokenURI);
     }
 
     function setTokenURI(uint256 _tokenId, string memory _tokenURI)
@@ -101,45 +86,9 @@ contract TruhuisCadastre is
         emit SetTokenURI(_tokenId, _tokenURI);
     }
 
-    function setDefaultRoyalty(address _receiver, uint96 _feeNumerator)
-        public
-        onlyOwner
-    {
-        _setDefaultRoyalty(_receiver, _feeNumerator);
-        emit SetDefaultRoyalty(_receiver, _feeNumerator);
-    }
-
-    function setTokenRoyalty(
-        uint256 _tokenId,
-        address _receiver,
-        uint96 _feeNumerator
-    ) 
-        public
-        onlyOwner
-    {
-        _setTokenRoyalty(_tokenId, _receiver, _feeNumerator);
-        emit SetTokenRoyalty(_tokenId, _receiver, _feeNumerator);
-    }
-
-    function deleteDefaultRoyalty() public onlyOwner {
-        _deleteDefaultRoyalty();
-        emit DeletedDefaultRoyalty();
-    }
-
-    function resetTokenRoyalty(uint256 _tokenId)
-        public
-        onlyOwner
-    {
-        _resetTokenRoyalty(_tokenId);
-        emit ResetTokenRoyalty(_tokenId);
-    }
-
-    function isOwner(address _account, uint256 _tokenId) public view returns (bool) {
-        return (_account == ownerOf(_tokenId) ? true : false);
-    }
-
-    function _validatePropertyOwner(address _account, uint256 _tokenId) internal view {
-        if (!isOwner(_account, _tokenId)) revert NotOwnerError(_account, _tokenId);
+    /// @inheritdoc ITruhuisCadastre
+    function isOwner(address _account, uint256 _tokenId) public view override returns (bool) {
+        return _account == ownerOf(_tokenId);
     }
 
     // The following functions are overrides required by Solidity.
@@ -153,7 +102,7 @@ contract TruhuisCadastre is
 
     function _burn(uint256 tokenId)
         internal
-        override(ERC721, ERC721URIStorage, ERC721Royalty)
+        override(ERC721, ERC721URIStorage)
     {
         require(_exists(tokenId), "Token ID set of nonexistent token.");
         super._burn(tokenId);
@@ -171,7 +120,7 @@ contract TruhuisCadastre is
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721, ERC721Enumerable, ERC721Royalty)
+        override(ERC721, ERC721Enumerable, IERC165)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
