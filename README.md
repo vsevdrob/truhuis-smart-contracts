@@ -2,7 +2,7 @@
 
 <br/>
 <p align="center">
-<img src="Truhuis_logo.png" width="225" alt="Truhuis logo">
+<img src="img/Truhuis_logo.png" width="225" alt="Truhuis logo">
 </a>
 </p>
 <br/>
