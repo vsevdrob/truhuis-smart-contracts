@@ -30,19 +30,44 @@ Please install or have installed the following:
 
 ## Installation
 
+Clone the repository
+
 ```bash
-# clone the repository
-git clone https://github.com/truhuis/truhuis-smart-contracts.git && \
-# change current working directory
-cd truhuis-smart-contracts && \
-# have installed python virtual environment
-python3 install virtualenv && \
-# create a fresh virtual environment
-python3 -m virtualenv venv && \
-# source the virtual environment
-source venv/bin/activate && \
-# install all Python requirements
-pip3 install -r requirements.txt && \
-# install all Yarn requirements
+git clone https://github.com/truhuis/truhuis-smart-contracts.git
+```
+
+Change current working directory
+
+```bash
+cd truhuis-smart-contracts 
+```
+
+Install Python vertual environment
+
+```bash
+python3 install virtualenv
+```
+
+Create a fresh virtual environment
+
+```bash
+python3 -m virtualenv venv
+```
+
+Source the virtual environment
+
+```bash
+source venv/bin/activate
+```
+
+Install all Python requirements
+
+```bash
+pip3 install -r requirements.txt
+```
+
+Install all Yarn requirements
+
+```bash
 yarn
 ```
