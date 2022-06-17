@@ -17,9 +17,7 @@ error SellerIsNotAllowedToSellRealEstate(address seller, uint256 tokenId);
 /// @notice Reverted if marketplace is not approved to transfer `tokenId`.
 error MarketplaceIsNotApproved(uint256 tokenId);
 
-abstract contract IdentificationLogic is
-    TruhuisAddressRegistryAdapter
-{
+abstract contract IdentificationLogic is TruhuisAddressRegistryAdapter {
     modifier onlyBuyer(address _buyer, uint256 _tokenId) {
         _identifyBuyer(_buyer, _tokenId);
         _;
@@ -32,7 +30,7 @@ abstract contract IdentificationLogic is
 
     /// @notice Identify `_buyer` as a resident of a state and ensure that
     ///         `_buyer` is allowed to purchase `_tokenId` Real Estatte within the state.
-    /// 
+    ///
     /// @param _buyer Buyer account address. `_buyer` is not allowed to be a smart contract.
     /// @param _tokenId NFT ID that was issued by Truhuis Cadastre smart contract.
     ///
@@ -48,12 +46,16 @@ abstract contract IdentificationLogic is
         // Ensure that `_buyer` is not a smart contract, but a human.
 
         uint256 codeLength;
-        assembly {codeLength := extcodesize(_buyer)}
-        if (codeLength != 0 || _buyer == address(0)) revert AccountIsNotHuman(_buyer);
+        assembly {
+            codeLength := extcodesize(_buyer)
+        }
+        if (codeLength != 0 || _buyer == address(0))
+            revert AccountIsNotHuman(_buyer);
 
         // Ensure that `_buyer` is not (already) `_tokenId` property owner.
 
-        if (cadastre().isOwner(_buyer, _tokenId)) revert AccountIsPropertyOwner(_buyer, _tokenId);
+        if (cadastre().isOwner(_buyer, _tokenId))
+            revert AccountIsPropertyOwner(_buyer, _tokenId);
 
         // Ensure that `_buyer` is allowed to purchase `_tokenId` Real Estate.
 
@@ -81,12 +83,16 @@ abstract contract IdentificationLogic is
         // Ensure that `_seller` is not a smart contract, but a human.
 
         uint256 codeLength;
-        assembly {codeLength := extcodesize(_seller)}
-        if (codeLength != 0 || _seller == address(0)) revert AccountIsNotHuman(_seller);
+        assembly {
+            codeLength := extcodesize(_seller)
+        }
+        if (codeLength != 0 || _seller == address(0))
+            revert AccountIsNotHuman(_seller);
 
         // Validate that `_seller` is the `_tokenId` property owner.
 
-        if (!cadastre().isOwner(_seller, _tokenId)) revert AccountIsNotPropertyOwner(_seller, _tokenId);
+        if (!cadastre().isOwner(_seller, _tokenId))
+            revert AccountIsNotPropertyOwner(_seller, _tokenId);
 
         // Ensure that `_seller` is a resident of the country wherein `_tokenId` Real Estate is located.
         // Ensure that `_seller` is allowed to sell `_tokenId` Real Estate.
@@ -98,9 +104,10 @@ abstract contract IdentificationLogic is
         // Ensure that Truhuis Marketplace is approved to transfer `_tokenId`.
 
         if (
-            cadastre().isApprovedForAll(cadastre().ownerOf(_tokenId), address(this))
-            || cadastre().getApproved(_tokenId) == address(this)
+            cadastre().isApprovedForAll(
+                cadastre().ownerOf(_tokenId),
+                address(this)
+            ) || cadastre().getApproved(_tokenId) == address(this)
         ) revert MarketplaceIsNotApproved(_tokenId);
-
     }
 }

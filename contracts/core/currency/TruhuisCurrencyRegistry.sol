@@ -40,4 +40,3 @@ contract TruhuisCurrencyRegistry is Ownable {
         return s_allowed[_tokenAddr];
     }
 }
-

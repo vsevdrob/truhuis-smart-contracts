@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-abstract contract TruhuisCadastre is 
+abstract contract TruhuisCadastre is
     ERC721,
     Ownable,
     Pausable,
@@ -24,22 +24,13 @@ abstract contract TruhuisCadastre is
     Storage,
     ITruhuisCadastre
 {
-
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor(
-        string memory _contractURI,
-        address _addressRegistry
-    ) ERC721("Truhuis Cadastre", "TCA") {
-        _sContractURI = _contractURI;
-        updateAddressRegistry(_addressRegistry);
-    }
-
     modifier isValidTokenURI(uint256 _tokenId, string memory _tokenURI) {
         bytes32 bTokenURI = keccak256(bytes(_tokenURI));
-        
+
         require(
             bTokenURI.length > 0,
             "validTokenURI: Token URI can not be empty string."
@@ -55,9 +46,20 @@ abstract contract TruhuisCadastre is
         _;
     }
 
-    function pause() external onlyOwner {_pause();}
+    constructor(string memory _contractURI, address _addressRegistry)
+        ERC721("Truhuis Cadastre", "TCA")
+    {
+        _sContractURI = _contractURI;
+        updateAddressRegistry(_addressRegistry);
+    }
 
-    function unpause() external onlyOwner {_unpause();}
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
+    }
 
     function updateContractURI(string memory _contractURI) external onlyOwner {
         _sContractURI = _contractURI;
@@ -73,8 +75,6 @@ abstract contract TruhuisCadastre is
 
         _safeMint(_to, tokenId);
         _setTokenURI(tokenId, _tokenURI);
-
-        emit Minted(msg.sender, tokenId, _tokenURI);
     }
 
     function setTokenURI(uint256 _tokenId, string memory _tokenURI)
@@ -87,21 +87,33 @@ abstract contract TruhuisCadastre is
     }
 
     /// @inheritdoc ITruhuisCadastre
-    function isOwner(address _account, uint256 _tokenId) public view override returns (bool) {
+    function isOwner(address _account, uint256 _tokenId)
+        public
+        view
+        override
+        returns (bool)
+    {
         return _account == ownerOf(_tokenId);
     }
 
+    /* INTERNAL & PRIVATE FUNCTIONS */
+
     // The following functions are overrides required by Solidity.
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
-        internal
-        override(ERC721, ERC721Enumerable)
-    {
+    /**
+     *
+     */
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
     function _burn(uint256 tokenId)
         internal
+        virtual
         override(ERC721, ERC721URIStorage)
     {
         require(_exists(tokenId), "Token ID set of nonexistent token.");
@@ -111,20 +123,20 @@ abstract contract TruhuisCadastre is
     function tokenURI(uint256 tokenId)
         public
         view
+        virtual
         override(ERC721, ERC721URIStorage)
         returns (string memory)
     {
         return super.tokenURI(tokenId);
     }
-    
+
     function supportsInterface(bytes4 interfaceId)
         public
         view
+        virtual
         override(ERC721, ERC721Enumerable, IERC165)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
     }
 }
-
-

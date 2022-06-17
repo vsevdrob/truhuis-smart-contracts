@@ -10,7 +10,10 @@ import {
 } from "./PersonalRecordsDatabaseStorage.sol";
 
 error MunicipalityIsNotRegistered();
-error InvalidPersonResidency(uint16 residencyMunicipalityCBSCode, uint16 municipalityCBSCode);
+error InvalidPersonResidency(
+    uint16 residencyMunicipalityCBSCode,
+    uint16 municipalityCBSCode
+);
 
 /*
  * @title PersonalRecordsDatabase
@@ -23,7 +26,8 @@ contract PersonalRecordsDatabase is
 {
     modifier onlyMunicipality(address _person, uint16 _cbsCode) {
         bool isRegistered = addressRegistry().isRegisteredMunicipality(
-            msg.sender, _cbsCode
+            msg.sender,
+            _cbsCode
         );
 
         if (!isRegistered) {
@@ -35,7 +39,7 @@ contract PersonalRecordsDatabase is
         if (cbsCode != _cbsCode) {
             revert InvalidPersonResidency(cbsCode, _cbsCode);
         }
-        
+
         _;
     }
 
@@ -62,15 +66,21 @@ contract PersonalRecordsDatabase is
     }
 
     function updateFirstName(
-        address _person, bytes32 _firstName, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        bytes32 _firstName,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].name.first = _firstName;
@@ -78,105 +88,147 @@ contract PersonalRecordsDatabase is
     }
 
     function updateLastName(
-        address _person, bytes32 _lastName, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        bytes32 _lastName,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].name.last = _lastName;
     }
 
     function updateBirthDay(
-        address _person, uint24 _birthDay, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        uint24 _birthDay,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].dateOfBirth.day = _birthDay;
     }
 
     function updateBirthMonth(
-        address _person, uint24 _birthMonth, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        uint24 _birthMonth,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].dateOfBirth.month = _birthMonth;
     }
 
     function updateBirthYear(
-        address _person, uint24 _birthYear, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        uint24 _birthYear,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].dateOfBirth.year = _birthYear;
     }
 
     function updateBirthCity(
-        address _person, bytes32 _city, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        bytes32 _city,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].placeOfBirth.city = _city;
     }
 
     function updateBirthProvince(
-        address _person, bytes32 _province, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        bytes32 _province,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].placeOfBirth.province = _province;
     }
 
     function updateBirthCountry(
-        address _person, bytes3 _country, uint16 _cbsCode, uint256 _txIndex
+        address _person,
+        bytes3 _country,
+        uint16 _cbsCode,
+        uint256 _txIndex
     )
-        public 
+        public
         onlyMunicipality(_person, _cbsCode)
         txExists(_txIndex)
         notExecuted(_txIndex)
     {
         Transaction storage transaction = transactions[_txIndex];
-        require(transaction.timesConfirmed >= TIMES_TO_CONFIRM, "cannot execute tx");
+        require(
+            transaction.timesConfirmed >= TIMES_TO_CONFIRM,
+            "cannot execute tx"
+        );
         transaction.isExecuted = true;
 
         _sPersonalRecords[_person].placeOfBirth.country = _country;
@@ -185,7 +237,7 @@ contract PersonalRecordsDatabase is
     //function updateAccount(
     //    address _prevAccount, address _account, uint16 _cbsCode, uint256 _txIndex
     //)
-    //    public 
+    //    public
     //    onlyMunicipality(_prevAccount, _cbsCode)
     //    txExists(_txIndex)
     //    notExecuted(_txIndex)
@@ -198,7 +250,7 @@ contract PersonalRecordsDatabase is
     //}
 
     //function addResidency(bytes3 _residency, uint256 _txIndex)
-    //    public 
+    //    public
     //    onlyOwner
     //    txExists(_txIndex)
     //    notExecuted(_txIndex)
@@ -228,7 +280,7 @@ contract PersonalRecordsDatabase is
     //}
 
     //function addCitizenship(bytes3 _citizenship, uint256 _txIndex)
-    //    public 
+    //    public
     //    onlyOwner
     //    txExists(_txIndex)
     //    notExecuted(_txIndex)
@@ -258,7 +310,10 @@ contract PersonalRecordsDatabase is
     //}
 
     function fullName(address _person) public view returns (bytes32, bytes32) {
-        return (_sPersonalRecords[_person].name.first, _sPersonalRecords[_person].name.last);
+        return (
+            _sPersonalRecords[_person].name.first,
+            _sPersonalRecords[_person].name.last
+        );
     }
 
     function firstName(address _person) public view returns (bytes32) {
@@ -302,7 +357,8 @@ contract PersonalRecordsDatabase is
     }
 
     function isDutchNationality(address _person) public view returns (bool) {
-        return _sPersonalRecords[_person].residency == Residency.DUTCH_NATIONALITY; 
+        return
+            _sPersonalRecords[_person].residency == Residency.DUTCH_NATIONALITY;
     }
 
     //function citizenships() public view returns (bytes3[] memory) {
@@ -347,4 +403,3 @@ contract PersonalRecordsDatabase is
     //    return _sPersonalRecords.residentialNftId;
     //}
 }
-

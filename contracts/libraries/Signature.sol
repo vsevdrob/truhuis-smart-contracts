@@ -36,12 +36,7 @@ contract Signature {
     function submitTransaction() public {
         uint256 txIndex = transactions.length;
 
-        transactions.push(
-            Transaction({
-                isExecuted: false,
-                timesConfirmed: 0
-            })
-        );
+        transactions.push(Transaction({isExecuted: false, timesConfirmed: 0}));
 
         emit TransactionSubmited(msg.sender, txIndex);
     }
@@ -82,16 +77,10 @@ contract Signature {
     function getTransaction(uint256 _txIndex)
         public
         view
-        returns (
-            bool isExecuted,
-            uint256 timesConfirmed
-        )
+        returns (bool isExecuted, uint256 timesConfirmed)
     {
         Transaction memory transaction = transactions[_txIndex];
 
-        return (
-            transaction.isExecuted,
-            transaction.timesConfirmed
-        );
+        return (transaction.isExecuted, transaction.timesConfirmed);
     }
 }

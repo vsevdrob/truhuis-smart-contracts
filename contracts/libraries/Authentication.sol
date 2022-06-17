@@ -6,11 +6,13 @@ abstract contract Authentication {
     address private s_government;
 
     event CitizenOwnershipTransferred(
-        address indexed previousCitizen, address indexed newCitizen
+        address indexed previousCitizen,
+        address indexed newCitizen
     );
 
     event GovernmentOwnershipTransferred(
-        address indexed previousGovernment, address indexed newGovernment
+        address indexed previousGovernment,
+        address indexed newGovernment
     );
 
     modifier onlyOwner() {
@@ -23,17 +25,34 @@ abstract contract Authentication {
         s_government = _government;
     }
 
-    function transferCitizenOwnership(address _newCitizen) public virtual onlyOwner {
-        require(_newCitizen != address(0), "Authentication: new citizen is the zero address");
+    function transferCitizenOwnership(address _newCitizen)
+        public
+        virtual
+        onlyOwner
+    {
+        require(
+            _newCitizen != address(0),
+            "Authentication: new citizen is the zero address"
+        );
         _transferCitizenOwnership(_newCitizen);
     }
 
-    function transferGovernmentOwnership(address _newGovernment) public virtual onlyOwner {
-        require(_newGovernment != address(0), "Authentication: new government is the zero address");
+    function transferGovernmentOwnership(address _newGovernment)
+        public
+        virtual
+        onlyOwner
+    {
+        require(
+            _newGovernment != address(0),
+            "Authentication: new government is the zero address"
+        );
         _transferGovernmentOwnership(_newGovernment);
     }
 
-    function _transferGovernmentOwnership(address _newGovernment) internal virtual {
+    function _transferGovernmentOwnership(address _newGovernment)
+        internal
+        virtual
+    {
         address oldGovernment = _newGovernment;
         s_government = _newGovernment;
         emit GovernmentOwnershipTransferred(oldGovernment, _newGovernment);

@@ -22,30 +22,23 @@ abstract contract Municipality is
     Storage,
     TruhuisAddressRegistryAdapter
 {
-
     //function updateCoolingOffPeriod(uint32 _coolingOffPeriod) external override onlyOwner {
     //    s_coolingOffPeriod = _coolingOffPeriod;
     //    emit UpdatedCoolingOffPeriod(_coolingOffPeriod);
     //}
-
     //function getStateGovernmentAddress() public view override returns (address) {
     //    return address(this);
     //}
-
     //function getResidentContractAddress(address _resident) public view override returns (address) {
     //    return s_residents[_resident].contractAddr;
     //}
-
     //function getCoolingOffPeriod() public view override returns (uint32) {
     //    return s_coolingOffPeriod;
     //}
-
     //function getStateGovernmentCountry() public view override returns (bytes3) {
     //    return s_country;
     //}
-
     //function isResidentRegistered(address _resident) public view override returns (bool) {
     //    return s_residents[_resident].isRegistered;
     //}
 }
-

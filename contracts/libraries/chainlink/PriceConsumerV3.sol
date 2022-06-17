@@ -52,11 +52,7 @@ contract PriceConsumerV3 is Ownable {
         return _s_priceFeedIdCounter.current();
     }
 
-    function getPair(uint256 _id)
-        public
-        view
-        returns (string memory)
-    {
+    function getPair(uint256 _id) public view returns (string memory) {
         return s_priceFeeds[_id].pair;
     }
 
@@ -79,11 +75,12 @@ contract PriceConsumerV3 is Ownable {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(proxy);
 
         (
-            /*uint80 roundID*/,
-            int256 price,
-            /*uint startedAt*/,
-            /*uint timeStamp*/,
-            /*uint80 answeredInRound*/
+            ,
+            /*uint80 roundID*/
+            int256 price, /*uint startedAt*/ /*uint timeStamp*/ /*uint80 answeredInRound*/
+            ,
+            ,
+
         ) = priceFeed.latestRoundData();
 
         return uint256(price);

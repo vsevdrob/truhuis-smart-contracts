@@ -1,43 +1,74 @@
 // SPDX-Licence-Identifier: MIT
+
 pragma solidity 0.8.13;
 
-// Can always:
-// - Update Marketplace Owner
-// - Update Marketplace Commission Fraction
 enum Stage {
-    // - List Real Estate X
-    // ! Create Offer
-    // ! Create Offer
-    // ! Create Offer X
-    //      !! Accept Offer -> 
-    // - Update Listing Currency X
-    // - Update Listing Price X
-    // - Cancel Offer X
-    // - Cancel Listing X
+    /**
+     * @notice Owner always can:
+     *
+     *         v | Transfer marketplace ownership
+     *         v | Update marketplace service fee
+     */
+
+    /**
+     * @notice During availability period
+     *
+     *         v | * Accept offer
+     *         v | Cancel listing
+     *         v | Cancel offer
+     *         v | Create offer
+     *         v | * List real estate
+     *         v | * Update listing currency
+     *         v | * Update listing price
+     */
     available,
-    // ! Create Offer
-    //      !! Accept Offer
-    // - Update Listing Currency
-    // - Update Listing Price
-    // - Cancel Offer
-    // - Cancel Listing
-    //
-    // - Set Purchase Agreement,
-        // - Transfer ERC721 to Bank
-        // - Transfer ERC20 to Bank
+    /**
+     * @notice During negotiation period
+     *
+     *         v | * Cancel accepted offer
+     *         v | Cancel listing
+     *         v | Cancel offer
+     *         v | Create offer
+     *         X | * Create purchase agreement
+     */
     negotiation,
-    // - Cancel Purchase
+    /**
+     * @notice During cooling off period
+     *
+     *         X | * Cancel purchase
+     */
     coolingOffPeriod,
-    // - Cancel Purchase
+    /**
+     * @notice During resolutive conditions period
+     *
+     *         X | * Cancel purchase
+     */
     resolutiveConditions,
-    // - Transfer ERC721
-    // - Transfer ERC20
+    /**
+     * @notice During deed of delivery period
+     *
+     *         X | * Transfer ERC721
+     *         X | * Transfer ERC20
+     */
     deedOfDelivery
-    // - Withdraw Marketplace Proceeds
-    // - Withdraw Transfer Taxes
-    // - Withdraw Seller Proceeds
+
+    /**
+     * @notice During after deed of delivery
+     *
+     *         * Withdraw seller proceeds
+     *         * Withdraw transfer taxes
+     *         * Withdraw marketplace proceeds
+     */
 }
 
+struct AcceptedOffer {
+    address currency;
+    address offerer;
+    bool exists;
+    uint256 offerId;
+    uint256 price;
+    uint256 timeAccepted;
+}
 
 struct Listing {
     address buyer;
@@ -45,15 +76,14 @@ struct Listing {
     address purchaseAgreement;
     address seller;
     bool exists;
-    mapping(address => Offer) offer;
-    Stage stage;
+    mapping(address => mapping(uint256 => Offer)) madeOffers;
     uint256 endTime;
-    uint256 highestPriceOffer;
+    uint256 freeOfferId;
     uint256 initialPrice;
     uint256 startTime;
-    //uint256 purchasePrice;
-    //uint256 purchaseTime;
     uint256 tokenId;
+    AcceptedOffer acceptedOffer;
+    Stage stage;
 }
 
 struct Offer {
@@ -62,8 +92,9 @@ struct Offer {
     bool exists;
     uint256 expiry;
     uint256 price;
-    uint256 tokenId;
 }
+
+error AcceptedOfferNotExists();
 
 ///// @notice Reverted if `account` is equal to actual `tokenId` property owner.
 //error AccountIsPropertyOwner(address account, uint256 tokenId);
@@ -93,7 +124,7 @@ error InvalidListingStage(Stage current, Stage required);
 /// @notice Reverted if a provided offer already exists.
 error OfferAlreadyExists(address offerer, uint256 tokenId);
 /// @notice Reverted if a provided offer is non-existent.
-error OfferNotExists(address offerer, uint256 tokenId);
+error OfferNotExists(address offerer, uint256 offerId, uint256 tokenId);
 /// @notice Reverted if a provided offer is expired.
 error OfferIsExpired(address offerer, uint256 tokenId);
 
@@ -108,15 +139,18 @@ error ListingMustBeAtAvailableStage();
 
 /// @notice Reverted if marketplace owner update fails.
 error MarketplaceOwnerUpdateFailed();
-/// @notice Reverted if marketplace commission fraction update fails.
-error MarketplaceCommissionFractionUpdateFailed();
+/// @notice Reverted if marketplace service fee update fails.
+error MarketplaceServiceFeeUpdateFailed();
 ///// @notice Reverted if marketplace is not approved to transfer `tokenId`.
 //error MarketplaceIsNotApproved(uint256 tokenId);
 
 /// Price
-error NotHighestPriceOffer(uint256 highestPriceOffer, uint256 madePriceOffer);
+//error NotHighestPriceOffer(uint256 highestPriceOffer, uint256 madePriceOffer);
 
-error OfferCurrencyIsNotListingCurrency(address offerCurrency, address listingCurrency);
+error OfferCurrencyIsNotListingCurrency(
+    address offerCurrency,
+    address listingCurrency
+);
 
 error ExpiryMustBeHigherThanNow(uint256 timeNow, uint256 expiry);
 
@@ -125,22 +159,33 @@ error ExpiryMustBeHigherThanNow(uint256 timeNow, uint256 expiry);
 ///// @notice Reverted if `seller` is not allowed to sell `tokenId` Real Estate.
 //error SellerIsNotAllowedToSellRealEstate(address seller, uint256 tokenId);
 /// @notice Reverted if purchase cancelation of `tokenId` Real Estate fails.
-error UnableToCancelPurchase(uint256 tokenId);
-
+//error UnableToCancelPurchase(uint256 tokenId);
 
 interface ITruhuisMarketplace {
-
+    /**
+     * @dev _
+     */
+    function acceptOffer(
+        address _offerer,
+        uint256 _offerId,
+        uint256 _tokenId
+    ) external;
 
     /**
      * @dev _
      */
-     function cancelListing(uint256 _tokenId) external;
+    function cancelAcceptedOffer(uint256 _tokenId) external;
 
     /**
      * @dev _
      */
-     function cancelOffer(uint256 _tokenId) external;
-    
+    function cancelListing(uint256 _tokenId) external;
+
+    /**
+     * @dev _
+     */
+    function cancelOffer(uint256 _offerId, uint256 _tokenId) external;
+
     /**
      * @dev _
      */
@@ -163,16 +208,25 @@ interface ITruhuisMarketplace {
     /**
      * @dev _
      */
-    function updateListingCurrency(address _currency, uint256 _tokenId)
+    function updateListingCurrency(address _newCurrency, uint256 _tokenId)
         external;
 
     /**
      * @dev _
      */
-    function updateListingPrice(uint256 _tokenId, uint256 _newPrice)
-        external;
+    function updateListingPrice(uint256 _tokenId, uint256 _newPrice) external;
 
+    /**
+     * @dev Update marketplace service fee.
+     * @param _newServiceFee The new marketplace service fee.
+     */
+    function updateMarketplaceServiceFee(uint96 _newServiceFee) external;
 
+    ///**
+    // * @dev Update marketplace owner address.
+    // * @param _newOwner The new marketplace owner address.
+    // */
+    //function updateMarketplaceOwner(address _newOwner) external;
 
     //event RealEstateListed(
     //    address indexed seller,
@@ -240,9 +294,7 @@ interface ITruhuisMarketplace {
     //    address newOwner
     //);
 
-    //event MarketplaceCommissionFractionUpdated(
-    //    uint256 newCommissionFraction
-    //);
+    event MarketplaceServiceFeeUpdated(uint256 newServiceFee);
 
     //event SellerProceedsWithdrew(
     //    address indexed seller,
@@ -261,7 +313,6 @@ interface ITruhuisMarketplace {
     //    uint256 indexed marketplaceProceeds
     //);
 
-
     //function verifySeller(address _seller, uint256 _tokenId) external;
     //function verifyBuyer(address _buyer, uint256 _tokenId) external;
     //function getMarketplaceCommission(uint256 _salePrice) external view returns (uint256);
@@ -277,5 +328,4 @@ interface ITruhuisMarketplace {
     //function isVerifiedBuyer(address _buyer, uint256 _tokenId) external view returns (bool);
 
     //function isVerifiedSeller(address _seller, uint256 _tokenId) external view returns (bool);
-
 }

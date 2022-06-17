@@ -12,15 +12,8 @@ import {Listing} from "../../interfaces/ITruhuisMarketplace.sol";
 ///         storage layout. Adding storage variables should be done solely at
 ///         the bottom of this smart contract.
 contract TruhuisMarketplaceStorage {
-    ///// @dev Token ID => buyer => is or isn't verified.
-    //mapping(uint256 => mapping(address => bool)) public s_isVerifiedBuyer;
-    ///// @dev Token ID => seller => is or isn't verified.
-    //mapping(uint256 => mapping(address => bool)) public s_isVerifiedSeller;
-
     /// @dev Token ID => Listing struct
-    mapping(uint256 => Listing) internal _sListings;  
-    ///// @dev Token ID => offerer => Offer struct
-    //mapping(uint256 => mapping(address => DataTypes.Offer)) public s_offers; 
+    mapping(uint256 => Listing) internal _sListings;
 
     ///// @dev seller => supported currency => allowed seller proceeds to withdraw
     //mapping(address => mapping(address => uint256)) public s_sellerProceeds;
@@ -29,9 +22,8 @@ contract TruhuisMarketplaceStorage {
     ///// @dev Supported currency => allowed marketplace proceeds to withdraw
     //mapping(address => uint256) public s_marketplaceProceeds;
 
-    /// @dev Marketplace owner and Truhuis Marketplace service fee receiver.
-    address internal _marketplaceOwner;
+    ///// @dev Marketplace owner and Truhuis Marketplace service fee receiver.
+    //address internal _sMarketplaceOwner;
     /// @dev Truhuis Marketplace service fee (e.g. 100 (1%); 1000 (10%)).
-    uint96 internal _marketplaceCommissionFraction;
-
+    uint96 internal _sMarketplaceServiceFee;
 }

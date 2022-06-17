@@ -22,7 +22,8 @@ interface IResident {
 
     function updateAccount(address _account, uint256 _txIndex) external;
 
-    function updateBiometricInfoURI(string memory _uri, uint256 _txIndex) external;
+    function updateBiometricInfoURI(string memory _uri, uint256 _txIndex)
+        external;
 
     function updatePhotoURI(string memory _uri, uint256 _txIndex) external;
 
@@ -68,7 +69,10 @@ interface IResident {
 
     function isResidentOf(bytes3 _country) external view returns (bool);
 
-    function isAllowedToPurchaseRealEstate(bytes3 _country) external view returns (bool);
+    function isAllowedToPurchaseRealEstate(bytes3 _country)
+        external
+        view
+        returns (bool);
 
     function residentialNftId() external view returns (uint256);
 }

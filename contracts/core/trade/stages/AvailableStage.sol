@@ -14,20 +14,67 @@ import "./AbstractAvailableStage.sol";
  *         5. Create offer (also while negotiation)
  *         6. Cancel offer (also while negotiation)
  */
-abstract contract AvailableStage is AbstractAvailableStage {
-
+contract AvailableStage is AbstractAvailableStage {
     ///@inheritdoc AbstractAvailableStage
+    function _acceptOffer__AvailableStage(
+        address _offerer,
+        uint256 _offerId,
+        Listing storage _sListing
+    ) internal override {
+        /* ARRANGE */
 
+        // Get token ID.
+        uint256 tokenId = _sListing.tokenId;
+
+        // Get offer accepted time.
+        uint256 timeAccepted = block.timestamp;
+
+        // Get offer.
+        Offer storage sOffer = _sListing.madeOffers[_offerer][_offerId];
+
+        /* PERFORM ASSERTIONS */
+
+        // Auction must be not in action.
+        if (auction().getStartTime(tokenId) > 0) {
+            revert AuctionIsInAction(tokenId);
+        }
+
+        // Offer must be existent.
+        if (!sOffer.exists) {
+            revert OfferNotExists(msg.sender, _offerId, tokenId);
+        }
+
+        /* ACCEPT OFFER */
+
+        // address
+        _sListing.acceptedOffer.currency = sOffer.currency;
+        _sListing.acceptedOffer.offerer = _offerer;
+
+        // bool
+        _sListing.acceptedOffer.exists = true;
+
+        // enum
+        _sListing.stage = Stage.negotiation;
+
+        // uint256
+        _sListing.acceptedOffer.offerId = _offerId;
+        _sListing.acceptedOffer.price = sOffer.price;
+        _sListing.acceptedOffer.timeAccepted = timeAccepted;
+
+        // Emit an {OfferAccepted__AvailableStage} event.
+        emit OfferAccepted__AvailableStage(
+            _offerer,
+            _offerId,
+            timeAccepted,
+            tokenId
+        );
+    }
 
     /// @inheritdoc AbstractAvailableStage
     function _cancelListing__AvailableStage(
         uint256 _tokenId,
         Listing storage _sListing
-    ) 
-        internal
-        override
-    {
-
+    ) internal override {
         /* PERFORM ASSERTIONS */
 
         // Listing must be existent.
@@ -37,62 +84,89 @@ abstract contract AvailableStage is AbstractAvailableStage {
 
         /* CANCEL LISTING */
 
-        //delete _sListing;
+        // address
+        delete _sListing.buyer;
+        delete _sListing.currency;
+        delete _sListing.purchaseAgreement;
+        delete _sListing.seller;
+
+        // bool
+        delete _sListing.exists;
+
+        //// mapping
+        //delete _sListing.offer;
+
+        // struct
+        delete _sListing.acceptedOffer;
+        delete _sListing.stage;
+
+        // uint256
+        delete _sListing.endTime;
+        delete _sListing.freeOfferId;
+        delete _sListing.initialPrice;
+        delete _sListing.startTime;
+        delete _sListing.tokenId;
 
         // Emit a {ListingCancelled__AvailableStage} event.
-        emit ListingCancelled__AvailableStage(
-            msg.sender,
-            _tokenId
-        );
+        emit ListingCancelled__AvailableStage(msg.sender, _tokenId);
     }
 
     /// @inheritdoc AbstractAvailableStage
     function _cancelOffer__AvailableStage(
-        uint256 _tokenId,
-        Offer storage _sOffer
-    )
-        internal
-        override
-    {
+        uint256 _offerId,
+        Listing storage _sListing
+    ) internal override {
+        /* ARRANGE */
+
+        // Get listing token ID.
+        uint256 tokenId = _sListing.tokenId;
+
+        // Get existent offer.
+        Offer memory offer = _sListing.madeOffers[msg.sender][_offerId];
 
         /* PERFORM ASSERTIONS */
 
         // Offer must be existent.
-        if (!_sOffer.exists) {
-            revert OfferNotExists(msg.sender, _tokenId);
+        if (!offer.exists) {
+            revert OfferNotExists(msg.sender, _offerId, tokenId);
         }
 
         // Caller must be the offerer.
-        if (_sOffer.offerer != msg.sender) {
-            revert MsgSenderIsNotOfferer(msg.sender, _sOffer.offerer);
+        if (offer.offerer != msg.sender) {
+            revert MsgSenderIsNotOfferer(msg.sender, offer.offerer);
         }
 
         /* CANCEL OFFER */
 
-        //delete _sOffer;
+        delete _sListing.madeOffers[msg.sender][_offerId];
 
         // Emit an {OfferCancelled__AvailableStage} event.
-        emit OfferCancelled__AvailableStage(msg.sender, _tokenId);
+        emit OfferCancelled__AvailableStage(msg.sender, _offerId, tokenId);
     }
 
     /// @inheritdoc AbstractAvailableStage
     function _createOffer__AvailableStage(
         address _currency,
-        address _listingCurrency,
         uint256 _expiry,
-        uint256 _highestPriceOffer,
-        uint256 _priceOffer,
+        uint256 _price,
         uint256 _tokenId,
-        Listing storage _sListing,
-        Offer storage _sOffer
+        Listing storage _sListing
     ) internal override {
+        /* ARRANGE */
+
+        // Get current time.
+        uint256 currentTime = block.timestamp;
+
+        // Get free offer ID.
+        uint256 offerId = _sListing.freeOfferId;
+
+        // Get initialized offer.
+        Offer storage sOffer = _sListing.madeOffers[msg.sender][offerId];
+
+        // Get listing currency.
+        address listingCurrency = _sListing.currency;
 
         /* PERFORM ASSERTIONS */
-
-        // Offer must be non-existent.
-        if (_sOffer.exists) {
-            revert OfferAlreadyExists(msg.sender, _tokenId);
-        }
 
         // Auction must be not in action.
         if (auction().getStartTime(_tokenId) > 0) {
@@ -100,44 +174,42 @@ abstract contract AvailableStage is AbstractAvailableStage {
         }
 
         // Expiry must be greater than current time.
-        if (block.timestamp > _expiry) {
-            revert ExpiryMustBeHigherThanNow(block.timestamp, _expiry);
+        if (currentTime > _expiry) {
+            revert ExpiryMustBeHigherThanNow(currentTime, _expiry);
         }
 
         // Offer currency must be equal to listing currency.
-        if (_currency != _listingCurrency) {
-            revert OfferCurrencyIsNotListingCurrency(_currency, _listingCurrency);
+        if (_currency != listingCurrency) {
+            revert OfferCurrencyIsNotListingCurrency(
+                _currency,
+                listingCurrency
+            );
         }
-
-        // Made price offer must be greater than current highest price offer.
-        if (_highestPriceOffer >= _priceOffer) {
-            revert NotHighestPriceOffer(_highestPriceOffer, _priceOffer);
-        }
-
-        /* UPDATE HIGHEST PRICE OFFER */
-
-        _sListing.highestPriceOffer = _priceOffer;
 
         /* CREATE OFFER */
 
         // address
-        _sOffer.currency =_currency;
-        _sOffer.offerer = msg.sender;
+        sOffer.currency = _currency;
+        sOffer.offerer = msg.sender;
 
         // bool
-        _sOffer.exists = true;
+        sOffer.exists = true;
 
         // uint256
-        _sOffer.expiry = _expiry;
-        _sOffer.price = _priceOffer;
-        _sOffer.tokenId = _tokenId;
+        sOffer.expiry = _expiry;
+        sOffer.price = _price;
+
+        /* INCREMENT FREE OFFER ID */
+
+        _sListing.freeOfferId++;
 
         // Emit an {OfferCreated__AvailableStage} event.
         emit OfferCreated__AvailableStage(
             _currency,
             msg.sender,
             _expiry,
-            _priceOffer,
+            offerId,
+            _price,
             _tokenId
         );
     }
@@ -149,14 +221,13 @@ abstract contract AvailableStage is AbstractAvailableStage {
         uint256 _price,
         Listing storage _sListing
     ) internal override {
-
         /* PERFORM ASSERTIONS */
 
         // Listing must be non-existent.
         if (_sListing.exists) {
             revert ListingAlreadyExists(_tokenId);
         }
-    
+
         // Caller cannot be a smart contract.
         if (msg.sender.code.length > 0) {
             revert AccountMustBeHuman(msg.sender);
@@ -186,9 +257,8 @@ abstract contract AvailableStage is AbstractAvailableStage {
         // struct
         _sListing.stage = Stage.available;
 
-        // uint256 
+        // uint256
         _sListing.endTime = 0;
-        _sListing.highestPriceOffer = 0;
         _sListing.initialPrice = _price;
         _sListing.startTime = block.timestamp;
         _sListing.tokenId = _tokenId;
@@ -209,7 +279,6 @@ abstract contract AvailableStage is AbstractAvailableStage {
         uint256 _tokenId,
         Listing storage _sListing
     ) internal override {
-    
         /* PERFORM ASSERTIONS */
 
         // Listing must be existent.
@@ -241,7 +310,6 @@ abstract contract AvailableStage is AbstractAvailableStage {
         uint256 _newPrice,
         Listing storage _sListing
     ) internal override {
-
         /* PERFORM ASSERTIONS */
 
         // Listing must be existent.

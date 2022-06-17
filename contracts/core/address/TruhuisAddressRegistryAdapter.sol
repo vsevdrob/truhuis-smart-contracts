@@ -24,9 +24,7 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
     ITruhuisAddressRegistry private _addressRegistry;
 
     /// @notice Event emitted when an address registry update occurs.
-    event AddressRegistryUpdated(
-        address contractAddr
-    );
+    event AddressRegistryUpdated(address contractAddr);
 
     /// @notice Update Truhuis Address Registry smart contract address.
     /// @param _registry The new Truhuis Address Registry smart contract address.
@@ -36,7 +34,12 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
     }
 
     /// @notice Returns Truhuis Address Registry smart contract interface.
-    function addressRegistry() public view virtual returns (ITruhuisAddressRegistry) {
+    function addressRegistry()
+        public
+        view
+        virtual
+        returns (ITruhuisAddressRegistry)
+    {
         return _addressRegistry;
     }
 
@@ -51,7 +54,12 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
     }
 
     /// @notice Returns Truhuis Currency Registry smart contract interface.
-    function currencyRegistry() public view virtual returns (ITruhuisCurrencyRegistry) {
+    function currencyRegistry()
+        public
+        view
+        virtual
+        returns (ITruhuisCurrencyRegistry)
+    {
         return ITruhuisCurrencyRegistry(_addressRegistry.currencyRegistry());
     }
 
@@ -66,20 +74,38 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
     }
 
     /// @notice Returns Tax Administration smart contract interface.
-    function taxAdministration() public view virtual returns (ITaxAdministration) {
+    function taxAdministration()
+        public
+        view
+        virtual
+        returns (ITaxAdministration)
+    {
         return ITaxAdministration(_addressRegistry.taxAdministration());
     }
 
     /// @notice Returns Personal Records Database smart contract interface.
-    function personalRecordsDatabase() public view virtual returns (IPersonalRecordsDatabase) {
-        return IPersonalRecordsDatabase(_addressRegistry.personalRecordsDatabase());
+    function personalRecordsDatabase()
+        public
+        view
+        virtual
+        returns (IPersonalRecordsDatabase)
+    {
+        return
+            IPersonalRecordsDatabase(
+                _addressRegistry.personalRecordsDatabase()
+            );
     }
 
     /// @notice Returns State Government smart contract interface specified by
     ///         the State Government smart contract address.
     ///
     /// @param _municipalityContractAddr The State Government smart contract address.
-    function municipality(address _municipalityContractAddr) public view virtual returns (IMunicipality) {
+    function municipality(address _municipalityContractAddr)
+        public
+        view
+        virtual
+        returns (IMunicipality)
+    {
         return IMunicipality(_municipalityContractAddr);
     }
 }

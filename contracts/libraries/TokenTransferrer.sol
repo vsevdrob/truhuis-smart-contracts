@@ -16,12 +16,12 @@ error ERC721TransferFailed();
  *         transfers, used by Truhuis Bank Truhuis Marketplace and Truhuis
  *         Auction.
  */
-abstract contract TokenTransferrer is TruhuisAddressRegistryAdapter {
+contract TokenTransferrer is TruhuisAddressRegistryAdapter {
     /**
      * @dev Internal function to transfer ERC20 tokens from a given originator
      *      to a given recipient. Sufficient approvals must be set on the
      *      contract performing the transfer.
-     * 
+     *
      * @param _token  The ERC20 token to transfer.
      * @param _from   The originator of the transfer.
      * @param _to     The recipient of the transfer.
@@ -54,11 +54,7 @@ abstract contract TokenTransferrer is TruhuisAddressRegistryAdapter {
         address _to,
         uint256 _tokenId
     ) internal {
-        IERC721(address(cadastre())).safeTransferFrom(
-            _from,
-            _to,
-            _tokenId
-        );
+        IERC721(address(cadastre())).safeTransferFrom(_from, _to, _tokenId);
 
         if (cadastre().ownerOf(_tokenId) != _to) {
             revert ERC721TransferFailed();

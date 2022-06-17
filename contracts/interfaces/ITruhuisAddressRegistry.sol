@@ -2,6 +2,13 @@
 
 pragma solidity 0.8.13;
 
+/// @notice Municipality struct.
+struct Municipality {
+    address contractAddr;
+    bool isRegistered;
+    uint16 cbsCode;
+}
+
 interface ITruhuisAddressRegistry {
     /// @notice Reverted if auction update fails.
     error AuctionUpdateFailed();
@@ -14,7 +21,7 @@ interface ITruhuisAddressRegistry {
 
     /// @notice Reverted if currency registry update fails.
     error CurrencyRegistryUpdateFailed();
-    
+
     /// @notice Reverted if tax administration update fails.
     error TaxAdministrationUpdateFailed();
 
@@ -22,67 +29,40 @@ interface ITruhuisAddressRegistry {
     error MarketplaceUpdateFailed();
 
     /// @notice Reverted if municipality registration fails.
-    error MunicipalityRegistrationFailed(); 
+    error MunicipalityRegistrationFailed();
 
     /// @notice Reverted if municipality update fails.
     error MunicipalityUpdateFailed();
-    
+
     /// @notice Reverted if personal records database update fails.
     error PersonalRecordsDatabaseUpdateFailed();
 
-    /// @notice Municipality struct.
-    struct Municipality {
-        address contractAddr;
-        bool isRegistered;
-        uint16 cbsCode;
-    }
-
     /// @notice Event emitted when an auction update occurs.
-    event AuctionUpdated(
-        address newContractAddr
-    );
+    event AuctionUpdated(address newContractAddr);
 
     /// @notice Event emitted when bank update occurs.
-    event BankUpdated(
-        address newContractAddr
-    );
+    event BankUpdated(address newContractAddr);
 
     /// @notice Event emitted when a cadastre update occurs.
-    event CadastreUpdated(
-        address newContractAddr
-    );
+    event CadastreUpdated(address newContractAddr);
 
     /// @notice Event emitted when a currency registry update occurs.
-    event CurrencyRegistryUpdated(
-        address newContractAddr
-    );
+    event CurrencyRegistryUpdated(address newContractAddr);
 
     /// @notice Event emitted when a marketplace update occurs.
-    event MarketplaceUpdated(
-        address newContractAddr
-    );
+    event MarketplaceUpdated(address newContractAddr);
 
     /// @notice Event emitted when a municipality registration occurs.
-    event MunicipalityRegistered(
-        address contractAddr,
-        uint16 cbsCode
-    );
+    event MunicipalityRegistered(address contractAddr, uint16 cbsCode);
 
     /// @notice Event emitted when a municipality update occurs.
-    event MunicipalityUpdated(
-        address newContractAddr,
-        uint16 municipality
-    );
+    event MunicipalityUpdated(address newContractAddr, uint16 municipality);
 
     /// @notice Event emitted when a personal records database update occurs.
-    event PersonalRecordsDatabaseUpdated(
-        address newContractAddr
-    );
+    event PersonalRecordsDatabaseUpdated(address newContractAddr);
 
     /// @notice Event emitted when a tax administration update occurs.
-    event TaxAdministrationUpdated(
-        address newContractAddr
-    );
+    event TaxAdministrationUpdated(address newContractAddr);
 
     /// @notice Register a supported state government smart contract.
     /// @param _contractAddr Smart contract address of the state government.
@@ -98,10 +78,8 @@ interface ITruhuisAddressRegistry {
     ///
     /// Emits a {MunicipalityRegistered} event.
     ///
-    function registerMunicipality(
-        address _contractAddr,
-        uint16 _cbsCode
-    ) external;
+    function registerMunicipality(address _contractAddr, uint16 _cbsCode)
+        external;
 
     /// @notice Update Truhuis Auction smart contract address.
     /// @param _auction The new Truhuis Auction smart contract address.
@@ -155,12 +133,11 @@ interface ITruhuisAddressRegistry {
     ///
     function updateCurrencyRegistry(address _currencyRegistry) external;
 
-    function updatePersonalRecordsDatabase(address _personalRecordsDatabase) external;
+    function updatePersonalRecordsDatabase(address _personalRecordsDatabase)
+        external;
 
     /// @notice Update Internal Revenue Service (IRS) smart contract address.
-    function updateTaxAdministration(
-        address _newContractAddr
-    ) external;
+    function updateTaxAdministration(address _newContractAddr) external;
 
     /// @notice Update Truhuis Marketplace smart contract address.
     /// @param _marketplace The new Truhuis Marketplace smart contract address.
@@ -188,7 +165,8 @@ interface ITruhuisAddressRegistry {
     ///
     /// Emits a {MunicipalityUpdated} event.
     ///
-    function updateMunicipality(address _newContractAddr, uint16 _cbsCode) external;
+    function updateMunicipality(address _newContractAddr, uint16 _cbsCode)
+        external;
 
     /// @notice Truhuis Auction contract address.
     function auction() external view returns (address);
@@ -213,8 +191,13 @@ interface ITruhuisAddressRegistry {
 
     /// @notice Returns a state government smart contract address that
     ///         belogns to the specified country.
-    function getMunicipalityContractAddr(uint16 _cbsCode) external view returns (address);
+    function getMunicipalityContractAddr(uint16 _cbsCode)
+        external
+        view
+        returns (address);
 
     function isRegisteredMunicipality(address _municipality, uint16 _cbsCode)
-        external view returns (bool);
+        external
+        view
+        returns (bool);
 }

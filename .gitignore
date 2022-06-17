@@ -1,7 +1,7 @@
 .history
 .hypothesis/
 
-# Secrets
+# Personal
 
 secret.env
 .env
@@ -28,21 +28,8 @@ deployments
 .pytest_cache
 __pycache__
 
-
 # Environments
 
 venv
 env
-
-# NFT
-
-hashlips_art_engine
-img/
-metadata/*
-!metadata/nft-spreadsheet-data.xlsx
-!metadata/logo.png
-hashlips_art_engine/layers/*
-!hashlips_art_engine/layers/.ignore_this_file
-
-
 

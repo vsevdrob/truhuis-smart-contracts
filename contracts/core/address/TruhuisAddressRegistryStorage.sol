@@ -2,13 +2,13 @@
 
 pragma solidity 0.8.13;
 
-import "../../interfaces/ITruhuisAddressRegistry.sol";
+import {Municipality} from "../../interfaces/ITruhuisAddressRegistry.sol";
 
-/** 
+/**
  * @title TruhuisAddressRegistryStorage
  * @author
  *
- * @notice This is an abstract contract that *only* contains storage for the
+ * @notice This is a contract that *only* contains storage for the
  *         Truhuis Address Registry smart contract. This *must* be inherited
  *         last (bar interfaces) in order to preserve the Truhuis Address
  *         Registry storage layout. Adding storage variables should be done
@@ -16,7 +16,7 @@ import "../../interfaces/ITruhuisAddressRegistry.sol";
  */
 contract TruhuisAddressRegistryStorage {
     /// @dev CBS-code => Municipality
-    mapping(uint16 => ITruhuisAddressRegistry.Municipality)
+    mapping(uint16 => Municipality)
         internal _sMunicipalities;
 
     address internal _sAuction;
@@ -27,4 +27,3 @@ contract TruhuisAddressRegistryStorage {
     address internal _sPersonalRecordsDatabase;
     address internal _sTaxAdministration;
 }
-
