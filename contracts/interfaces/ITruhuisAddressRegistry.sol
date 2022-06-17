@@ -3,7 +3,8 @@
 pragma solidity 0.8.13;
 
 /// @notice Municipality struct.
-struct Municipality {
+/// @notice Avoid DeclarationError by naming it MunicipalityStruct
+struct MunicipalityStruct {
     address contractAddr;
     bool isRegistered;
     uint16 cbsCode;

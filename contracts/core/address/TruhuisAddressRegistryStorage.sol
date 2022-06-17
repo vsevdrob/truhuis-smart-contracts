@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.13;
 
-import {Municipality} from "../../interfaces/ITruhuisAddressRegistry.sol";
+import {MunicipalityStruct} from "../../interfaces/ITruhuisAddressRegistry.sol";
 
 /**
  * @title TruhuisAddressRegistryStorage
@@ -16,7 +16,7 @@ import {Municipality} from "../../interfaces/ITruhuisAddressRegistry.sol";
  */
 contract TruhuisAddressRegistryStorage {
     /// @dev CBS-code => Municipality
-    mapping(uint16 => Municipality)
+    mapping(uint16 => MunicipalityStruct)
         internal _sMunicipalities;
 
     address internal _sAuction;

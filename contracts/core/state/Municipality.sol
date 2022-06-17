@@ -16,7 +16,7 @@ import {MunicipalityStorage as Storage} from "./MunicipalityStorage.sol";
  * TODO:    Make view functions payable for non official accounts and restrict who
  *          is allowed to ask for the identity information.
  */
-abstract contract Municipality is
+contract Municipality is
     Ownable,
     IMunicipality,
     Storage,

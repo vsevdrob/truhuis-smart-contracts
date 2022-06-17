@@ -21,8 +21,28 @@
 - [Infura](https://docs.infura.io/infura/) (Blockchain API to connect to a Testnet or a Mainnet; no need to run own Blockchain node)
 - [Alchemy](https://docs.alchemy.com/alchemy/) (Blockchain API to connect to a Testnet or a Mainnet; no need to run own Blockchain node)
 
-## Requirements For Initial Setup
+## Prerequisite
 Please install or have installed the following:
 
-- [NodeJS and NPM](https://nodejs.org/en/download/)
-- [Python](https://www.python.org/downloads/)
+- [Python](https://python.org/downloads/)
+- [NodeJS](https://nodejs.org/en/download/)
+- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/)
+
+## Installation
+
+```bash
+# clone the repository
+git clone https://github.com/truhuis/truhuis-smart-contracts.git && \
+# change current working directory
+cd truhuis-smart-contracts && \
+# have installed python virtual environment
+python3 install virtualenv && \
+# create a fresh virtual environment
+python3 -m virtualenv venv && \
+# source the virtual environment
+source venv/bin/activate && \
+# install all Python requirements
+pip3 install -r requirements.txt && \
+# install all Yarn requirements
+yarn
+```

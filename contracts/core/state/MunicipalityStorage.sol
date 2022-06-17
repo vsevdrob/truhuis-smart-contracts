@@ -7,7 +7,5 @@ import "../../interfaces/IMunicipality.sol";
 import {PersonalRecords} from "../../interfaces/IPersonalRecordsDatabase.sol";
 
 abstract contract MunicipalityStorage {
-    uint32 internal _sColingOffPeriod; // usually 3 days. Consumer rights.
-
     uint16 internal _sMunicipalityCBSCode;
 }

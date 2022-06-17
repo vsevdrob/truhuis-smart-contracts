@@ -17,7 +17,7 @@ contract TruhuisAddressRegistry is Ownable, Storage, ITruhuisAddressRegistry {
         external
         onlyOwner
     {
-        Municipality storage sMunicipality = _sMunicipalities[_cbsCode];
+        MunicipalityStruct storage sMunicipality = _sMunicipalities[_cbsCode];
 
         if (
             _contractAddr == address(0) ||
@@ -91,7 +91,7 @@ contract TruhuisAddressRegistry is Ownable, Storage, ITruhuisAddressRegistry {
         external
         onlyOwner
     {
-        Municipality storage sMunicipality = _sMunicipalities[_cbsCode];
+        MunicipalityStruct storage sMunicipality = _sMunicipalities[_cbsCode];
 
         if (
             sMunicipality.contractAddr == _newContractAddr ||
@@ -185,7 +185,7 @@ contract TruhuisAddressRegistry is Ownable, Storage, ITruhuisAddressRegistry {
         view
         returns (bool)
     {
-        Municipality memory municipality = _sMunicipalities[_cbsCode];
+        MunicipalityStruct memory municipality = _sMunicipalities[_cbsCode];
 
         if (
             municipality.contractAddr != _municipality ||
