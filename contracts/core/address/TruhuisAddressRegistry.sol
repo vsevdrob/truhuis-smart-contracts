@@ -105,6 +105,16 @@ contract TruhuisAddressRegistry is Ownable, Storage, ITruhuisAddressRegistry {
     }
 
     /// @inheritdoc ITruhuisAddressRegistry
+    function updateNotary(address _notary) external onlyOwner {
+        if (_sNotary == _notary || _notary == address(0)) {
+            revert NotaryUpdateFailed();
+        }
+
+        _sNotary = _notary;
+        emit NotaryUpdated(_notary);
+    }
+
+    /// @inheritdoc ITruhuisAddressRegistry
     function updatePersonalRecordsDatabase(address _personalRecordsDatabase)
         external
         onlyOwner
@@ -159,6 +169,11 @@ contract TruhuisAddressRegistry is Ownable, Storage, ITruhuisAddressRegistry {
     /// @inheritdoc ITruhuisAddressRegistry
     function marketplace() external view returns (address) {
         return _sMarketplace;
+    }
+
+    /// @inheritdoc ITruhuisAddressRegistry
+    function notary() external view returns (address) {
+        return _sNotary;
     }
 
     /// @inheritdoc ITruhuisAddressRegistry

@@ -2,9 +2,18 @@
 
 pragma solidity 0.8.13;
 
-import {
-    PurchaseAgreementStorage as Storage
-} from "./PurchaseAgreementStorage.sol";
+import "./PurchaseAgreementStorage.sol";
+import "../../../interfaces/IPurchaseAgreement.sol";
+import "./Article01SellAndPurchase.sol";
+import "./Article02Costs.sol";
+import "./Article03Payment.sol";
+import "./Article04TransferOfOwnership.sol";
+import "./Article05BankGuaranteeOrDeposit.sol";
+import "./Article14Identity.sol";
+import "./Article15ResolutiveConditions.sol";
+import "./Article16CoolingOffPeriod.sol";
+import "./Article17WrittenRecord.sol";
+import "./Article18DutchLaw.sol";
 
 /**
  * @title PurchaseAgreement
@@ -12,84 +21,58 @@ import {
  * @notice If you buy or sell an NFT real estate, the agreements are recorded in
  *         a purchase agreement.
  */
-contract PurchaseAgreement is Storage {
-    enum Party {
-        BUYER,
-        SELLER
+contract PurchaseAgreement is
+    PurchaseAgreementStorage,
+    IPurchaseAgreement,
+    Article01SellAndPurchase,
+    Article02Costs,
+    Article04TransferOfOwnership,
+    Article05BankGuaranteeOrDeposit,
+    Article14Identity,
+    Article15ResolutiveConditions,
+    Article16CoolingOffPeriod,
+    Article17WrittenRecord,
+    Article18DutchLaw
+{
+    function _drawUpPurchaseAgreement(
+        PurchaseAgreementStruct memory _purchaseAgreement
+    ) internal {
+        uint256 id = _sPurchaseAgreementIds;
+
+        _validatePurchaseAgreement(_purchaseAgreement);
+        _sPurchaseAgreements[id] = _purchaseAgreement;
+
+        _sPurchaseAgreementIds++;
     }
 
-    struct TransferTax {
-        address receiver;
-        uint256 amount;
-        Party party;
-    }
-
-    struct Marketplace {
-        address receiver;
-        uint256 amount;
-        Party party;
-    }
-
-    struct Costs {
-        TransferTax transferTax;
-        Marketplace marketplace;
-    }
-
-    struct DeedOfDelivery {
-        bool isFulfilled;
-        uint256 date;
-    }
-
-    struct RealEstate {
-        uint256 price;
-        uint256 tokenId;
-    }
-
-    struct Vault {
-        address vault;
-    }
-
-    struct ResolutiveConditions {
-        bool isDissolved;
-        uint256 deadline;
-    }
-
-    struct Buyer {
-        address buyer;
-    }
-
-    struct coolingOffPeriod {
-        uint256 deadline;
-    }
-
-    /**
-     * @notice Article 18
-     *         This provision has been included to prevent ambiguity about
-     *         parties with different nationalities who are involved in the
-     *         purchase agreement. By declaring Dutch law applicable, the Dutch
-     *         court has authority to settle any disputes arising from the
-     *         purchase agreement.
-     */
-    struct Law {
-        bool isDutchLawApplied;
-    }
-
-    struct PurchaseAgreement {
-        address buyer;
-        address seller;
-        uint256 coolingOffPeriod;
-        Costs costs;
-        DeedOfDelivery deedOfDelivery;
-        RealEstate realEstate;
-        ResolutiveConditions resolutiveConditions;
-    }
-
-    constructor(
-        address _buyer,
-        address _seller,
-        uint256 _tokenId
-    ) {
-        _sBuyer = _buyer;
-        _sSeller = _seller;
+    function _validatePurchaseAgreement(
+        PurchaseAgreementStruct memory _purchaseAgreement
+    ) private {
+        // Article 1
+        _validateSellAndPurchase(_purchaseAgreement.sellAndPurchase);
+        // Article 2
+        _validateCosts(_purchaseAgreement.costs);
+        // Article 4
+        _validateTransferOfOwnership(_purchaseAgreement.transferOfOwnership);
+        // Article 5
+        _validateBankGuaranteeOrDeposit(
+            _purchaseAgreement.sellAndPurchase.immovableProperty.purchasePrice,
+            _purchaseAgreement.bankGuaranteeOrDeposit
+        );
+        // Article 14
+        _validateIdentity(
+            _purchaseAgreement.sellAndPurchase.immovableProperty.tokenId,
+            _purchaseAgreement.identity
+        );
+        // Article 15
+        _validateResolutiveConditions(_purchaseAgreement.resolutiveConditions);
+        // Article 16
+        _validateCoolingOffPeriod(
+            _purchaseAgreement.coolingOffPeriod
+        );
+        // Article 17
+        _validateWrittenRecord(_purchaseAgreement.writtenRecord);
+        // Article 18
+        _validateDutchLaw(_purchaseAgreement.dutchLaw);
     }
 }

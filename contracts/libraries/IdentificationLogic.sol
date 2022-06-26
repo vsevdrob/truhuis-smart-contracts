@@ -42,7 +42,7 @@ abstract contract IdentificationLogic is TruhuisAddressRegistryAdapter {
     ///     - `StateGovernment` wherein the `_buyer` residents.
     ///     - `TruhuisBank`
     ///     - `TruhuisCadastre`
-    function _identifyBuyer(address _buyer, uint256 _tokenId) private view {
+    function _identifyBuyer(address _buyer, uint256 _tokenId) internal view {
         // Ensure that `_buyer` is not a smart contract, but a human.
 
         uint256 codeLength;
@@ -54,7 +54,7 @@ abstract contract IdentificationLogic is TruhuisAddressRegistryAdapter {
 
         // Ensure that `_buyer` is not (already) `_tokenId` property owner.
 
-        if (cadastre().isOwner(_buyer, _tokenId))
+        if (cadastre().isNFTOwner(_buyer, _tokenId))
             revert AccountIsPropertyOwner(_buyer, _tokenId);
 
         // Ensure that `_buyer` is allowed to purchase `_tokenId` Real Estate.
@@ -79,7 +79,7 @@ abstract contract IdentificationLogic is TruhuisAddressRegistryAdapter {
     ///     - `TruhuisBank`
     ///     - `TruhuisCadastre`
     /// - `TruhuisMarketplace` must be approved by `_seller` to transfer `_tokenId`.
-    function _identifySeller(address _seller, uint256 _tokenId) private view {
+    function _identifySeller(address _seller, uint256 _tokenId) internal view {
         // Ensure that `_seller` is not a smart contract, but a human.
 
         uint256 codeLength;
@@ -91,7 +91,7 @@ abstract contract IdentificationLogic is TruhuisAddressRegistryAdapter {
 
         // Validate that `_seller` is the `_tokenId` property owner.
 
-        if (!cadastre().isOwner(_seller, _tokenId))
+        if (!cadastre().isNFTOwner(_seller, _tokenId))
             revert AccountIsNotPropertyOwner(_seller, _tokenId);
 
         // Ensure that `_seller` is a resident of the country wherein `_tokenId` Real Estate is located.

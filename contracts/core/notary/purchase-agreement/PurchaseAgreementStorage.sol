@@ -2,14 +2,12 @@
 
 pragma solidity 0.8.13;
 
-contract PurchaseAgreementStorage {
-    /**
-     * @dev _
-     */
-    address internal _sBuyer;
+import {
+    PurchaseAgreementStruct
+} from "../../../interfaces/IPurchaseAgreement.sol";
 
-    /**
-     * @dev _
-     */
-    address internal _sSeller;
+contract PurchaseAgreementStorage {
+    mapping(uint256 => PurchaseAgreementStruct) internal _sPurchaseAgreements;
+
+    uint256 internal _sPurchaseAgreementIds;
 }

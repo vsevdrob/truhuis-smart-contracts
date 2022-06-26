@@ -24,6 +24,7 @@ contract TruhuisAddressRegistryStorage {
     address internal _sCadastre;
     address internal _sCurrencyRegistry;
     address internal _sMarketplace;
+    address internal _sNotary;
     address internal _sPersonalRecordsDatabase;
     address internal _sTaxAdministration;
 }

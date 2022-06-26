@@ -3,13 +3,16 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-error NotOwnerError(address account, uint256 tokenId);
-error ProvidedIdenticalTokenUriError(uint256 tokenId, string tokenURI);
-
 interface ITruhuisCadastre is IERC721 {
+    /**
+     * @dev _
+     */
+    function allotTokenURI(string memory _tokenURI, uint256 _tokenId) external;
 
-    //event Minted(address to, uint256 tokenId, string tokenURI);
-    event SetTokenURI(uint256 tokenId, string tokenURI);
+    /**
+     * @dev _
+     */
+    function confirmTransfer(uint256 _tokenId, uint256 _txId) external;
 
     /**
      * @dev _
@@ -19,12 +22,34 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function unpause() external;
+    function produceNFT(address _to, string memory _tokenURI) external;
 
     /**
      * @dev _
      */
-    function safeMint(address _to, string memory _tokenURI) external;
+    function submitTransfer(uint256 _tokenId) external;
+
+    /**
+     * @dev _
+     */
+    function revokeTransferConfirmation(uint256 _tokenId, uint256 _txId)
+        external;
+
+    /**
+     * @dev _
+     */
+    function transferNFTOwnership(
+        address _from,
+        address _to,
+        bytes memory _data,
+        uint256 _tokenId,
+        uint256 _txId
+    ) external;
+
+    /**
+     * @dev _
+     */
+    function unpause() external;
 
     /**
      * @dev _
@@ -34,7 +59,12 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function isOwner(address _account, uint256 _tokenId)
+    function exists(uint256 _tokenId) external view returns (bool);
+
+    /**
+     * @dev _
+     */
+    function isNFTOwner(address _account, uint256 _tokenId)
         external
         view
         returns (bool);

@@ -35,6 +35,9 @@ interface ITruhuisAddressRegistry {
     /// @notice Reverted if municipality update fails.
     error MunicipalityUpdateFailed();
 
+    /// @notice Reverted if notary update fails.
+    error NotaryUpdateFailed();
+
     /// @notice Reverted if personal records database update fails.
     error PersonalRecordsDatabaseUpdateFailed();
 
@@ -58,6 +61,9 @@ interface ITruhuisAddressRegistry {
 
     /// @notice Event emitted when a municipality update occurs.
     event MunicipalityUpdated(address newContractAddr, uint16 municipality);
+
+    /// @notice Event emitted when a notary update occurs.
+    event NotaryUpdated(address newContractAddr);
 
     /// @notice Event emitted when a personal records database update occurs.
     event PersonalRecordsDatabaseUpdated(address newContractAddr);
@@ -169,6 +175,9 @@ interface ITruhuisAddressRegistry {
     function updateMunicipality(address _newContractAddr, uint16 _cbsCode)
         external;
 
+    /// @notice _
+    function updateNotary(address _newContractAddr) external;
+
     /// @notice Truhuis Auction contract address.
     function auction() external view returns (address);
 
@@ -183,6 +192,9 @@ interface ITruhuisAddressRegistry {
 
     /// @notice Truhuis Marketplace contract address.
     function marketplace() external view returns (address);
+
+    /// @notice Truhuis Notary contract address.
+    function notary() external view returns (address);
 
     /// @notice Personal Records Database contract address.
     function personalRecordsDatabase() external view returns (address);

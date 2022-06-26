@@ -12,6 +12,7 @@ import "../../interfaces/ITruhuisBank.sol";
 import "../../interfaces/ITruhuisCurrencyRegistry.sol";
 import "../../interfaces/ITruhuisCadastre.sol";
 import "../../interfaces/ITruhuisMarketplace.sol";
+import "../../interfaces/ITruhuisNotary.sol";
 
 /// @title Truhuis AddressRegistry Adapter abstract smart contract.
 /// @notice This contract deployed in order to be able to perform the necessary
@@ -107,5 +108,10 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
         returns (IMunicipality)
     {
         return IMunicipality(_municipalityContractAddr);
+    }
+
+    /// @notice _
+    function notary() public view virtual returns (ITruhuisNotary) {
+        return ITruhuisNotary(_addressRegistry.notary());
     }
 }

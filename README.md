@@ -42,7 +42,7 @@ Change current working directory
 cd truhuis-smart-contracts 
 ```
 
-Install Python vertual environment
+Install Python virtual environment
 
 ```bash
 python3 install virtualenv
