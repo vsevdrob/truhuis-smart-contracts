@@ -11,7 +11,7 @@ contract DeployMunicipality is Script {
     {
         vm.startBroadcast();
 
-        new Municipality(bytes4(_identifier));
+        new Municipality(_identifier);
 
         vm.stopBroadcast();
     }
