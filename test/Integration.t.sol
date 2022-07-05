@@ -313,7 +313,7 @@ contract TruhuisTest is Test {
 
     function _deploy() private {
         addressRegistry = new TruhuisAddressRegistry();
-        appraiser = new TruhuisAppraiser();
+        appraiser = new TruhuisAppraiser(address(addressRegistry));
         bank = new TruhuisBank(address(addressRegistry));
         cadastre = new TruhuisCadastre(
             address(addressRegistry),

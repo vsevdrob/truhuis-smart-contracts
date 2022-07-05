@@ -2,4 +2,10 @@
 
 pragma solidity 0.8.13;
 
-abstract contract ATruhuisAppraiser {}
+import "../address/TruhuisAddressRegistryAdapter.sol";
+
+abstract contract ATruhuisAppraiser is TruhuisAddressRegistryAdapter {
+    constructor(address _addressRegistry) {
+        updateAddressRegistry(_addressRegistry);
+    }
+}
