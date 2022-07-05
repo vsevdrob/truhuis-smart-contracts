@@ -139,7 +139,7 @@ struct BankGuarantee {
 }
 
 struct BankGuaranteeOrDeposit {
-    bool isPerformed;
+    bool isFulfilled;
     BankGuarantee bankGuarantee;
     Deposit deposit;
     TypeOfGuarantee typeOfGuarantee;
