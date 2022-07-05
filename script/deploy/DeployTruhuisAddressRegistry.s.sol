@@ -9,7 +9,7 @@ contract DeployTruhuisAddressRegistry is Script {
     function deploy() external {
         vm.startBroadcast();
 
-        TruhuisAddressRegistry addressRegistry = new TruhuisAddressRegistry();
+        new TruhuisAddressRegistry();
 
         vm.stopBroadcast();
     }

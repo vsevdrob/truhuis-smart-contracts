@@ -11,10 +11,7 @@ contract DeployTruhuisCadastre is Script {
     {
         vm.startBroadcast();
 
-        TruhuisCadastre cadastre = new TruhuisCadastre(
-            _addressRegistry,
-            _contractURI
-        );
+        new TruhuisCadastre(_addressRegistry, _contractURI);
 
         vm.stopBroadcast();
     }

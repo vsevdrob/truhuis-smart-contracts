@@ -3,14 +3,15 @@
 pragma solidity 0.8.13;
 
 import "forge-std/Script.sol";
-import "@core/appraiser/TruhuisAppraiser.sol";
+import "@core/bank/TruhuisBank.sol";
 
-contract DeployTruhuisAppraiser is Script {
+contract DeployTruhuisBank is Script {
     function deploy(address _addressRegistry) external {
         vm.startBroadcast();
 
-        new TruhuisAppraiser(_addressRegistry);
+        new TruhuisBank(_addressRegistry);
 
         vm.stopBroadcast();
     }
 }
+
