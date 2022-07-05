@@ -9,9 +9,7 @@ out/
 broadcast/
 cache/
 
-commands/
 Makefile
-pyproject.toml
 
 # HARDHAT
 
@@ -26,7 +24,7 @@ deployments
 env
 .env
 secret.env
-.env
+.secret.env
 
 # VIRTUAL ENVIRONMENTS
 
