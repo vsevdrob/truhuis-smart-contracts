@@ -22,9 +22,13 @@ call-local contract_addr function_sig:
 clean:
     {{source}} && forge clean
 
+deploy-local:
+    #{{source}} && source venv/bin/activate && python3 commands/31337/deploy.py -da development
+    {{source}} && forge script --sig "{{function_sig}}" --fork-url http://127.0.0.1:8545 --private-key {{private_key}} --broadcast -vv script/deploy/Deploy.s.sol:Deploy
+
 install repository:
     # $ forge install Openzeppelin/openzeppelin-contracts --no-commit
-    {{source}} && forge install {{repository}} --no-commit
+    {{source}} && forge install {{repository}}
 
 send-local private_key contract_addr function_sig:
     # $ cast call 0x5fbdb2315678afecb367f032d93f642f64180aa3 "transfer(address,uint256)" --rpc-url http://127.0.0.1:8545 
@@ -32,9 +36,6 @@ send-local private_key contract_addr function_sig:
 
 test-local:
     {{source}} && forge test -vvvv
-
-deploy-local:
-    {{source}} && source venv/bin/activate && python3 commands/31337/deploy.py -da development
 
 lint-check:
     yarn solhint src/**/*.sol --config .solhint.json -- ignore-path .solhintignore
