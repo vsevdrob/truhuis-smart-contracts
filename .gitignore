@@ -1,2 +1,49 @@
-cache/
+# Brownie
+
+build/
+reports/
+
+# FOUNDRY
+
 out/
+broadcast/
+cache/
+
+commands/
+Makefile
+pyproject.toml
+
+# HARDHAT
+
+artifacts/
+cache/
+node_modules/
+coverage.json
+deployments
+
+# PRIVATE
+
+env
+.env
+secret.env
+.env
+
+# VIRTUAL ENVIRONMENTS
+
+venv
+.venv
+
+# MAC OS
+
+.DS_Store
+
+# PYTHON
+
+.pytest_cache
+__pycache__
+
+
+
+
+.history
+.hypothesis/
