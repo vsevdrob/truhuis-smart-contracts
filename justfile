@@ -212,7 +212,7 @@ send-local private_key contract_addr function_sig:
 
 # [TEST]: Run the project's tests.
 test-local:
-    {{source}} && forge test -vvvv
+    {{source}} && forge test -vvv
 
 # [LINT]: Check for Solidity lintings with Prettier and Solhint.
 lint-check:
