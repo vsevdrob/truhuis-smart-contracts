@@ -3,59 +3,67 @@ alias b := build
 alias i := install
 alias cl := call-local
 ## DEPLOY CONTRACTS (local)
-alias dla := deploy-local-all
-alias dltar := deploy-local-truhuis-address-registry
-alias dlta := deploy-local-truhuis-appraiser
-alias dltb := deploy-local-truhuis-bank
-alias dltc := deploy-local-truhuis-cadastre
-alias dltcr := deploy-local-truhuis-currency-registry
-alias dlti := deploy-local-truhuis-inspector
-alias dltn := deploy-local-truhuis-notary
+alias dlall := deploy-local-all
+alias dlar := deploy-local-address-registry
+alias dla := deploy-local-appraiser
+alias dlb := deploy-local-bank
+alias dlc := deploy-local-cadastre
+alias dlcr := deploy-local-currency-registry
+alias dli := deploy-local-inspector
+alias dln := deploy-local-notary
 alias dlm := deploy-local-municipality
 alias dlprd := deploy-local-personal-records-database
-alias dltadmin := deploy-local-tax-administration
-alias dltt := deploy-local-truhuis-trade
+alias dlta := deploy-local-tax-administration
+alias dlt := deploy-local-trade
 ## LINT CONTRACTS
 alias lc := lint-check
 alias lw := lint-write
 alias tl := test-local
 
-# load .env file
+# Load .env file.
 set dotenv-load := true
-# pass justfile recipe args as positional arguments to commands
+# Pass justfile recipe args as positional arguments to commands.
 set positional-arguments := true
+
+default:
+    @just --list
 
 source := "export PATH=$PATH:$HOME/.foundry/bin"
 
+# [DEBUG]: Run anvil local Ethereum development node
 anvil:
     {{source}} && anvil
 
+# [BUILD]: Build the project's smart contracts.
 build:
     {{source}} && forge build
 
+# [CALL]: Perform a call on an account without publishing a transaction.
 call-local contract_addr function_sig:
-    # $ cast call 0x5fbdb2315678afecb367f032d93f642f64180aa3 "totalSupply()(uint256)" --rpc-url http://127.0.0.1:8545 
     {{source}} && cast call {{contract_addr}} "{{function_sig}}" --rpc-url http://127.0.0.1:8545
 
+# [CLEAN]: Remove the build artifacts and cache directories.
 clean:
     {{source}} && forge clean
 
+# [DEPLOY]: Deploy all smart contracts.
 deploy-local-all:
-    just deploy-local-truhuis-address-registry
-    just deploy-local-truhuis-appraiser
-    just deploy-local-truhuis-bank
-    just deploy-local-truhuis-cadastre
-    just deploy-local-truhuis-currency-registry
-    just deploy-local-truhuis-inspector
-    just deploy-local-truhuis-notary
+    just deploy-local-address-registry
+    just deploy-local-appraiser
+    just deploy-local-bank
+    just deploy-local-cadastre
+    just deploy-local-currency-registry
+    just deploy-local-inspector
+    just deploy-local-notary
     just deploy-local-municipality
     just deploy-local-personal-records-database
     just deploy-local-tax-administration
-    just deploy-local-truhuis-trade
+    just deploy-local-trade
 
 # ADDRESS
 
-deploy-local-truhuis-address-registry:
+# [DEPLOY]: Deploy TruhuisAddressRegistry.sol on local network.
+deploy-local-address-registry:
     {{source}} && forge script \
     script/deploy/DeployTruhuisAddressRegistry.s.sol:DeployTruhuisAddressRegistry \
     --sig "deploy()" \
@@ -66,7 +74,8 @@ deploy-local-truhuis-address-registry:
 
 # APPRAISER
 
-deploy-local-truhuis-appraiser:
+# [DEPLOY]: Deploy TruhuisAppraiser.sol on local network.
+deploy-local-appraiser:
     {{source}} && forge script \
     --sig "deploy(address)" \
     --rpc-url http://127.0.0.1:8545 \
@@ -78,7 +87,8 @@ deploy-local-truhuis-appraiser:
 
 # BANK
 
-deploy-local-truhuis-bank:
+# [DEPLOY]: Deploy TruhuisBank.sol on local network.
+deploy-local-bank:
     {{source}} && forge script \
     --sig "deploy(address)" \
     --rpc-url http://127.0.0.1:8545 \
@@ -90,7 +100,8 @@ deploy-local-truhuis-bank:
 
 # CADASTRE
 
-deploy-local-truhuis-cadastre:
+# [DEPLOY]: Deploy TruhuisCadastre.sol on local network.
+deploy-local-cadastre:
     {{source}} && forge script \
     --sig "deploy(address,string)" \
     --rpc-url http://127.0.0.1:8545 \
@@ -103,7 +114,8 @@ deploy-local-truhuis-cadastre:
     
 # CURRENCY
 
-deploy-local-truhuis-currency-registry:
+# [DEPLOY]: Deploy TruhuisCurrencyRegistry.sol on local network.
+deploy-local-currency-registry:
     {{source}} && forge script \
     script/deploy/DeployTruhuisCurrencyRegistry.s.sol:DeployTruhuisCurrencyRegistry \
     --sig "deploy()" \
@@ -114,7 +126,8 @@ deploy-local-truhuis-currency-registry:
 
 # INSPECTOR
 
-deploy-local-truhuis-inspector:
+# [DEPLOY]: Deploy TruhuisInspector.sol on local network.
+deploy-local-inspector:
     {{source}} && forge script \
     --sig "deploy(address)" \
     --rpc-url http://127.0.0.1:8545 \
@@ -126,7 +139,8 @@ deploy-local-truhuis-inspector:
 
 # NOTARY
 
-deploy-local-truhuis-notary:
+# [DEPLOY]: Deploy TruhuisNotary.sol on local network.
+deploy-local-notary:
     {{source}} && forge script \
     --sig "deploy(address)" \
     --rpc-url http://127.0.0.1:8545 \
@@ -138,6 +152,7 @@ deploy-local-truhuis-notary:
 
 # STATE
 
+# [DEPLOY]: Deploy Municipality.sol on local network.
 deploy-local-municipality:
     {{source}} && forge script \
     --sig "deploy(bytes4)" \
@@ -148,6 +163,7 @@ deploy-local-municipality:
     script/deploy/DeployMunicipality.s.sol:DeployMunicipality \
     0x30333633
 
+# [DEPLOY]: Deploy PersonalRecordsDatabase.sol on local network.
 deploy-local-personal-records-database:
     {{source}} && forge script \
     --sig "deploy(address)" \
@@ -158,6 +174,7 @@ deploy-local-personal-records-database:
     script/deploy/DeployPersonalRecordsDatabase.s.sol:DeployPersonalRecordsDatabase \
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json`
 
+# [DEPLOY] deploy TaxAdministration.sol on local network.
 deploy-local-tax-administration:
     {{source}} && forge script \
     script/deploy/DeployTaxAdministration.s.sol:DeployTaxAdministration \
@@ -169,7 +186,8 @@ deploy-local-tax-administration:
 
 # TRADE
 
-deploy-local-truhuis-trade:
+# [DEPLOY]: Deploy TruhuisTrade.sol on local network.
+deploy-local-trade:
     {{source}} && forge script \
     --sig "deploy(address,uint96)" \
     --rpc-url http://127.0.0.1:8545 \
@@ -180,25 +198,32 @@ deploy-local-truhuis-trade:
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json` \
     250
 
-install repository:
-    # $ forge install Openzeppelin/openzeppelin-contracts --no-commit
-    {{source}} && forge install {{repository}}
+# [HELP]: Run help for a certain command.
+help *commands="":
+    {{source}} && {{commands}} --help
 
+# [INSTALL]: Install one or multiple dependencies. If no arguments are provided, then existing dependencies will be installed.
+install *repositories="":
+    {{source}} && forge install {{repositories}}
+
+# [SEND]: Sign and publish a transaction.
 send-local private_key contract_addr function_sig:
-    # $ cast call 0x5fbdb2315678afecb367f032d93f642f64180aa3 "transfer(address,uint256)" --rpc-url http://127.0.0.1:8545 
     {{source}} && cast send --private-key {{private_key}} {{contract_addr}} "{{function_sig}}" --rpc-url http://127.0.0.1:8545
 
+# [TEST]: Run the project's tests.
 test-local:
     {{source}} && forge test -vvvv
 
+# [LINT]: Check for Solidity lintings with Prettier and Solhint.
 lint-check:
     yarn solhint src/**/*.sol --config .solhint.json -- ignore-path .solhintignore
     yarn prettier --check src/**/*.sol
 
+# [LINT]: Write Solidity lintings with Prettier.
 lint-write:
     yarn prettier --write src/
 
-#verify-truhuis-address-registry chain_id contract_addr constructor_args:
+#verify-address-registry chain_id contract_addr constructor_args:
 #    {{source}} && forge verify-contract \
 #    --chain-id {{chain_id}} \
 #    --num-of-optimatizations 100000 \
@@ -208,7 +233,7 @@ lint-write:
 #    {{contract_addr}} \
 #    src/core/address/TruhuisAddressRegistry.sol:TruhuisAddressRegistry \
 #
-#verify-truhuis-bank chain_id contract_addr constructor_args:
+#verify-bank chain_id contract_addr constructor_args:
 #    {{source}} && forge verify-contract \
 #    --chain-id {{chain_id}} \
 #    --num-of-optimatizations 100000 \
