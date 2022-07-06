@@ -2,6 +2,21 @@
 
 pragma solidity 0.8.13;
 
+/// @dev Reverted if municipality registration is failed.
+error MUNICIPALITY_REGISTRATION_FAILED();
+
+/// @dev Reverted if municipality update is failed.
+error MUNICIPALITY_UPDATE_FAILED();
+
+/// @dev Reverted if provided address is identical to old address.
+error IDENTICAL_ADDRESS_PROVIDED();
+
+/// @dev Reverted if attempted to update Truhuis Address Registry address.
+error UPDATE_ADDRESS_REGISTRY_NOT_ALLOWED();
+
+/// @dev Reverted if provided address is the zero address.
+error ZERO_ADDRESS_PROVIDED();
+
 /// @notice Municipality struct.
 struct MunicipalityStruct {
     address contractAddr;
@@ -10,21 +25,6 @@ struct MunicipalityStruct {
 }
 
 interface ITruhuisAddressRegistry {
-    /// @dev Reverted if municipality registration is failed.
-    error MUNICIPALITY_REGISTRATION_FAILED();
-
-    /// @dev Reverted if municipality update is failed.
-    error MUNICIPALITY_UPDATE_FAILED();
-
-    /// @dev Reverted if provided address is identical to old address.
-    error IDENTICAL_ADDRESS_PROVIDED();
-
-    /// @dev Reverted if attempted to update Truhuis Address Registry address.
-    error UPDATE_ADDRESS_REGISTRY_NOT_ALLOWED();
-
-    /// @dev Reverted if provided address is the zero address.
-    error ZERO_ADDRESS_PROVIDED();
-
     /// @notice Event emitted when an address update takes place.
     event AddressUpdated(address newAddr, address oldAddr, bytes32 id);
 
@@ -59,10 +59,10 @@ interface ITruhuisAddressRegistry {
     /**
      * @dev _
      */
-    function getMunicipalityContractAddr(bytes4 _cbsCode)
+    function getMunicipality(bytes4 _cbsCode)
         external
         view
-        returns (address);
+        returns (MunicipalityStruct memory);
 
     /**
      * @dev _
