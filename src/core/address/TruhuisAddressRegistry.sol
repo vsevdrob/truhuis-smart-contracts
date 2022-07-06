@@ -38,29 +38,4 @@ contract TruhuisAddressRegistry is ATruhuisAddressRegistry {
     {
         _updateMunicipality(_newAddr, _cbsCode);
     }
-
-    /// @inheritdoc ITruhuisAddressRegistry
-    function getAddress(bytes32 _id) external view override returns (address) {
-        return _getAddress(_id);
-    }
-
-    /// @inheritdoc ITruhuisAddressRegistry
-    function getMunicipalityContractAddr(bytes4 _cbsCode)
-        external
-        view
-        override
-        returns (address)
-    {
-        return _getMunicipalityContractAddr(_cbsCode);
-    }
-
-    /// @inheritdoc ITruhuisAddressRegistry
-    function isRegisteredMunicipality(address _addr, bytes4 _cbsCode)
-        external
-        view
-        override
-        returns (bool)
-    {
-        return _isRegisteredMunicipality(_addr, _cbsCode);
-    }
 }
