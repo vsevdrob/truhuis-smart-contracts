@@ -264,7 +264,7 @@ contract TruhuisTest is Test {
                     dateOfLegalTransfer: block.timestamp + 10
                 }),
                 bankGuaranteeOrDeposit: BankGuaranteeOrDeposit({
-                    isFulfilled: true,
+                    isFulfilled: false,
                     bankGuarantee: BankGuarantee({
                         amountToApprove: ((690000) / 100) * 10,
                         dateWhenApproved: 0,
