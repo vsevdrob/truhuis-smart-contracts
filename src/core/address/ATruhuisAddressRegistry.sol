@@ -42,6 +42,46 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
     /// @dev Identifier for Truhuis Trade smart contract.
     bytes32 private constant _S_TRADE = "TRADE";
 
+    /* EXTERNAL VIEW FUNCTIONS */
+
+    ///@inheritdoc ITruhuisAddressRegistry
+    function getAddress(bytes32 _id) external view returns (address) {
+        return _sAddresses[_id];
+    }
+
+    ///@inheritdoc ITruhuisAddressRegistry
+    function getMunicipality(bytes4 _cbsCode)
+        internal
+        view
+        returns (MunicipalityStruct memory)
+    {
+        return _sMunicipalities[_cbsCode];
+    }
+
+    ///@inheritdoc ITruhuisAddressRegistry
+    function isRegisteredMunicipality(address _addr, bytes4 _cbsCode)
+        external
+        view
+        returns (bool)
+    {
+        /* ARRANGE */
+
+        // Get municipality data specified by `_cbsCode`.
+        MunicipalityStruct memory municipality = _sMunicipalities[_cbsCode];
+
+        // Return false if not registered.
+        if (
+            municipality.contractAddr == _addr &&
+            municipality.isRegistered &&
+            municipality.cbsCode == _cbsCode
+        ) {
+            return true;
+        }
+
+        // Return false if not registered.
+        return false;
+    }
+
     /* INTERNAL FUNCTIONS */
 
     /**
@@ -143,51 +183,5 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
 
         // Emit a {MunicipalityUpdated} event.
         emit MunicipalityUpdated(_newAddr, oldAddr, _cbsCode);
-    }
-
-    /* INTERNAL VIEW FUNCTIONS */
-
-    /**
-     * @dev _
-     */
-    function _getAddress(bytes32 _id) internal view returns (address) {
-        return _sAddresses[_id];
-    }
-
-    /**
-     * @dev _
-     */
-    function _getMunicipalityContractAddr(bytes4 _cbsCode)
-        internal
-        view
-        returns (address)
-    {
-        return _sMunicipalities[_cbsCode].contractAddr;
-    }
-
-    /**
-     * @dev _
-     */
-    function _isRegisteredMunicipality(address _addr, bytes4 _cbsCode)
-        internal
-        view
-        returns (bool)
-    {
-        /* ARRANGE */
-
-        // Get municipality data specified by `_cbsCode`.
-        MunicipalityStruct memory municipality = _sMunicipalities[_cbsCode];
-
-        // Return false if not registered.
-        if (
-            municipality.contractAddr == _addr &&
-            municipality.isRegistered &&
-            municipality.cbsCode == _cbsCode
-        ) {
-            return true;
-        }
-
-        // Return false if not registered.
-        return false;
     }
 }
