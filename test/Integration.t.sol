@@ -2,79 +2,30 @@
 
 pragma solidity 0.8.13;
 
-import "forge-std/Test.sol";
-import "@core/address/TruhuisAddressRegistry.sol";
-import "@core/appraiser/TruhuisAppraiser.sol";
-import "@core/bank/TruhuisBank.sol";
-import "@core/cadastre/TruhuisCadastre.sol";
-import "@core/currency/TruhuisCurrencyRegistry.sol";
-import "@core/inspector/TruhuisInspector.sol";
-import "@core/notary/TruhuisNotary.sol";
-import "@core/state/Municipality.sol";
-import "@core/state/PersonalRecordsDatabase.sol";
-import "@core/state/TaxAdministration.sol";
-import "@core/trade/TruhuisTrade.sol";
-import "@mocks/MockERC20EURT.sol";
-import "@interfaces/IPersonalRecordsDatabase.sol";
-import "@interfaces/IPurchaseAgreement.sol";
+import "@test/Conftest.sol";
 
 /**
  * @title TruhuisTest
  * @author vsevdrob
  * @notice Integration test contract. Only on development network.
  */
-contract TruhuisTest is Test {
-    // Truhuis account.
-    address public truhuis;
-    // Sellers accounts.
-    address public alice = address(0x1);
-    address public bob = address(0x2);
-    address public charlie = address(0x3);
-    // Buyers accounts.
-    address public dave = address(0x4);
-    address public eve = address(0x5);
-    address public ferdie = address(0x6);
-
+contract TruhuisTest is Conftest {
     uint256 public immovablePropertyPrice = 690000;
     uint256 public movablePropertyPrice = 15000;
     uint256 public salesTaxCosts = (movablePropertyPrice / 100) * 21;
     uint256 public transferTaxCosts = (immovablePropertyPrice / 100) * 2;
-    uint256 public amountToArrange = immovablePropertyPrice +
-        movablePropertyPrice +
-        salesTaxCosts +
-        transferTaxCosts +
-        (100 * 3);
+    uint256 public amountToArrange =
+        immovablePropertyPrice +
+            movablePropertyPrice +
+            salesTaxCosts +
+            transferTaxCosts +
+            (100 * 3);
 
-
-    // Truhuis contracts as well as state contracts.
-    TruhuisAddressRegistry public addressRegistry;
-    TruhuisAppraiser public appraiser;
-    TruhuisBank public bank;
-    TruhuisCadastre public cadastre;
-    TruhuisCurrencyRegistry public currencyRegistry;
-    TruhuisInspector public inspector;
-    TruhuisNotary public notary;
-    MockERC20EURT public mockERC20EURT;
-    Municipality public municipalityA;
-    Municipality public municipalityR;
-    Municipality public municipalityH;
-    PersonalRecordsDatabase public personalRecordsDatabase;
-    TaxAdministration public taxAdministration;
-    TruhuisTrade public trade;
-
-    // Municipalites with their unique CBS-code identifier.
-    bytes4 public constant AMSTERDAM = bytes4("0363");
-    bytes4 public constant ROTTERDAM = bytes4("0599");
-    bytes4 public constant THE_HAGUE = bytes4("0518");
-
-    constructor() {
-        truhuis = msg.sender;
+    function setUp() public {
+        _deploy();
     }
 
     function testTruhuis() public {
-        // Deploy all contracts.
-        _deploy();
-
         // Update addresses in the address registry.
         _updateAddresses();
 
@@ -112,9 +63,6 @@ contract TruhuisTest is Test {
         // Draw deed of delivery.
         _drawUpDeedOfDelivery();
 
-        //vm.startPrank(truhuis);
-        //vm.stopPrank();
-        
         _withdrawProceeds();
 
         assertEq(cadastre.ownerOf(1), dave);
@@ -240,7 +188,7 @@ contract TruhuisTest is Test {
                     }),
                     notary: NotaryCosts({
                         isPaid: false,
-                        amount: 100 ,
+                        amount: 100,
                         payer: Party.BUYER
                     }),
                     taxAdministration: TaxAdministrationCosts({
@@ -303,68 +251,34 @@ contract TruhuisTest is Test {
                     hasBuyerSigned: true,
                     hasSellerSigned: true
                 }),
-                dutchLaw: DutchLaw({
-                    isApplied: true
-                })
+                dutchLaw: DutchLaw({isApplied: true})
             });
 
         notary.drawUpPurchaseAgreement(purchaseAgreementAliceDave);
     }
 
-    function _deploy() private {
-        addressRegistry = new TruhuisAddressRegistry();
-        appraiser = new TruhuisAppraiser(address(addressRegistry));
-        bank = new TruhuisBank(address(addressRegistry));
-        cadastre = new TruhuisCadastre(
-            address(addressRegistry),
-            "Truhuis Cadastre"
-        );
-        currencyRegistry = new TruhuisCurrencyRegistry();
-        inspector = new TruhuisInspector(address(addressRegistry));
-        notary = new TruhuisNotary(address(addressRegistry));
-        mockERC20EURT = new MockERC20EURT(truhuis, 1 * 1000000 * 1000000);
-        municipalityA = new Municipality(AMSTERDAM);
-        municipalityR = new Municipality(ROTTERDAM);
-        municipalityH = new Municipality(THE_HAGUE);
-        personalRecordsDatabase = new PersonalRecordsDatabase(
-            address(addressRegistry)
-        );
-        taxAdministration = new TaxAdministration();
-        trade = new TruhuisTrade(address(addressRegistry), 50);
-
-        // Send EURT to the accounts.
-        vm.startPrank(truhuis);
-        mockERC20EURT.transfer(alice, 10000000);
-        mockERC20EURT.transfer(bob, 10000000);
-        mockERC20EURT.transfer(charlie, 10000000);
-        mockERC20EURT.transfer(dave, 10000000);
-        mockERC20EURT.transfer(eve, 10000000);
-        mockERC20EURT.transfer(ferdie, 10000000);
-        vm.stopPrank();
-    }
-
     function _updateAddresses() private {
-        addressRegistry.updateAddress(address(appraiser), bytes32("APPRAISER"));
-        addressRegistry.updateAddress(address(bank), bytes32("BANK"));
-        addressRegistry.updateAddress(address(cadastre), bytes32("CADASTRE"));
+        addressRegistry.updateAddress(address(appraiser), APPRAISER);
+        addressRegistry.updateAddress(address(bank), BANK);
+        addressRegistry.updateAddress(address(cadastre), CADASTRE);
         addressRegistry.updateAddress(
             address(currencyRegistry),
-            bytes32("CURRENCY_REGISTRY")
+            CURRENCY_REGISTRY
         );
-        addressRegistry.updateAddress(address(inspector), bytes32("INSPECTOR"));
-        addressRegistry.updateAddress(address(notary), bytes32("NOTARY"));
+        addressRegistry.updateAddress(address(inspector), INSPECTOR);
+        addressRegistry.updateAddress(address(notary), NOTARY);
         addressRegistry.registerMunicipality(address(municipalityA), AMSTERDAM);
         addressRegistry.registerMunicipality(address(municipalityR), ROTTERDAM);
         addressRegistry.registerMunicipality(address(municipalityH), THE_HAGUE);
         addressRegistry.updateAddress(
             address(personalRecordsDatabase),
-            bytes32("PERSONAL_RECORDS_DATABASE")
+            PERSONAL_RECORDS_DATABASE
         );
         addressRegistry.updateAddress(
             address(taxAdministration),
-            bytes32("TAX_ADMINISTRATION")
+            TAX_ADMINISTRATION
         );
-        addressRegistry.updateAddress(address(trade), bytes32("TRADE"));
+        addressRegistry.updateAddress(address(trade), TRADE);
     }
 
     function _addNewCurrency() private {
