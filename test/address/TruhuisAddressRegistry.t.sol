@@ -8,14 +8,14 @@ import "@interfaces/ITruhuisAddressRegistry.sol";
 /**
  * @title TruhuisAddressRegistryTest
  * @author vsevdrob
- * @notice List of functions that must be written and tested at first place:
- *         | + | constructor()
- *         | + | getAddress(bytes32)
- *         | + | getMunicipality(bytes4)
- *         | + | isRegisteredMunicipality(address,bytes4)
- *         | + | registerMunicipality(address,bytes4)
- *         | + | updateAddress(address,bytes32)
- *         | + | updateMunicipality(address,bytes4)
+ * @dev List of implemented functions to test (PASS | FAIL | TODO):
+ *      [PASS] constructor()
+ *      [PASS] getAddress(bytes32)
+ *      [PASS] getMunicipality(bytes4)
+ *      [PASS] isRegisteredMunicipality(address,bytes4)
+ *      [PASS] registerMunicipality(address,bytes4)
+ *      [PASS] updateAddress(address,bytes32)
+ *      [PASS] updateMunicipality(address,bytes4)
  */
 contract TruhuisAddressRegistryTest is Conftest {
     TruhuisAddressRegistry public addressRegistryNew;
