@@ -8,7 +8,7 @@ import "@test/Conftest.sol";
  * @title TruhuisAppraiserTest
  * @author vsevdrob
  * @dev List of implemented functions to test (PASS | FAIL | TODO):
- *      [PASS] constructor()
+ *      [TODO] constructor()
  */
 contract TruhuisAppraiserTest is Conftest {
     function setUp() public {
@@ -16,20 +16,19 @@ contract TruhuisAppraiserTest is Conftest {
     }
 
     function testConstructor() external {
-        /* ARRANGE */
-
-        // Deploy a new TruhuisAppraiser contract.
-        appraiser = new TruhuisAppraiser(address(addressRegistry));
-
         /* ACT */
         
         // Get address registry contract address.
         address addressRegistryAddr = address(appraiser.addressRegistry());
+        // Get contract owner address.
+        address contractOwnerAddr = appraiser.owner();
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
         assertEq(address(addressRegistry), addressRegistryAddr);
+        // Actual contract owner address must be equal to the expected.
+        assertEq(truhuis, contractOwnerAddr);
     }
 }
 
