@@ -88,11 +88,15 @@ contract TruhuisTest is Conftest {
 
         vm.warp(4 days);
 
+        vm.startPrank(truhuis);
         notary.drawUpDeedOfDelivery(1, 1);
+        vm.stopPrank();
     }
 
     function _carryOutStructuralInspection() private {
+        vm.startPrank(truhuis);
         inspector.carryOutStructuralInspection(1);
+        vm.stopPrank();
     }
 
     function _fulfillPayment() private {
@@ -159,9 +163,11 @@ contract TruhuisTest is Conftest {
     }
 
     function _produceNFT() private {
+        vm.startPrank(truhuis);
         cadastre.produceNFT(alice, "ipfs://0");
         cadastre.produceNFT(bob, "ipfs://1");
         cadastre.produceNFT(charlie, "ipfs://2");
+        vm.stopPrank();
     }
 
     function _drawUpPurchaseAgreement() private {
@@ -254,10 +260,13 @@ contract TruhuisTest is Conftest {
                 dutchLaw: DutchLaw({isApplied: true})
             });
 
+        vm.startPrank(truhuis);
         notary.drawUpPurchaseAgreement(purchaseAgreementAliceDave);
+        vm.stopPrank();
     }
 
     function _updateAddresses() private {
+        vm.startPrank(truhuis);
         addressRegistry.updateAddress(address(appraiser), APPRAISER);
         addressRegistry.updateAddress(address(bank), BANK);
         addressRegistry.updateAddress(address(cadastre), CADASTRE);
@@ -279,10 +288,13 @@ contract TruhuisTest is Conftest {
             TAX_ADMINISTRATION
         );
         addressRegistry.updateAddress(address(trade), TRADE);
+        vm.stopPrank();
     }
 
     function _addNewCurrency() private {
+        vm.startPrank(truhuis);
         currencyRegistry.add(address(mockERC20EURT));
+        vm.stopPrank();
     }
 
     function _storePersonalDataBuyers() private {
