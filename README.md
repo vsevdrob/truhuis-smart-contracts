@@ -16,10 +16,29 @@
 - [OpenZeppelin](https://docs.openzeppelin.com/contracts/4.x/) (A library for secure smart contract development)
 - [Solidity](https://docs.soliditylang.org/en/latest/index.html) (High-level language for implementing smart contracts)
 
-<!---
+# Getting Started
+
 ## Prerequisite
 Please install or have installed the following:
 
+- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+    - You'll know you've done it right if you can run `git --version`
 - [Foundry](https://github.com/foundry-rs/foundry#installation)
+    - You can test you've installed them right by running `forge --version`
 - [Just](https://github.com/casey/just#packages)
--->
+    - `just` is an improved command runner and equivalent to `make`. You can check if you have it by running `just --version`
+
+## Quickstart
+
+```bash
+git clone https://github.com/truhuis/truhuis-smart-contracts.git
+cd truhuis-smart-contracts
+just test-local
+```
+
+## Testing
+
+```bash
+just test-local # or just tl
+```
+
