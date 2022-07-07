@@ -17,20 +17,19 @@ contract TruhuisInspectorTest is Conftest {
     }
 
     function testConstructor() external {
-        /* ARRANGE */
-
-        // Deploy a new TruhuisInspector contract.
-        inspector = new TruhuisInspector(address(addressRegistry));
-
         /* ACT */
 
         // Get address registry contract address.
         address addressRegistryAddr = address(appraiser.addressRegistry());
+        // Get contract owner address.
+        address contractOwnerAddr = appraiser.owner();
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
         assertEq(address(addressRegistry), addressRegistryAddr);
+        // Actual owner address must be equal to the expected.
+        assertEq(truhuis, contractOwnerAddr);
     }
 
     //function testCarryOutStructuralInspection(uint256 _purchaseAgreementId)
