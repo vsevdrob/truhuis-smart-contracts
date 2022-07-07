@@ -122,7 +122,7 @@ contract Conftest is Test {
         );
         vm.stopPrank();
 
-        vm.startPrank(ministryOfFin)
+        vm.startPrank(ministryOfFin);
         taxAdministration = new TaxAdministration();
         vm.stopPrank();
 
