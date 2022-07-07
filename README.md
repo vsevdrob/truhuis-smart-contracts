@@ -33,6 +33,7 @@ Please install or have installed the following:
 ```bash
 git clone https://github.com/truhuis/truhuis-smart-contracts.git
 cd truhuis-smart-contracts
+just install # installs dependencies
 just test-local
 ```
 
