@@ -23,8 +23,13 @@ contract TruhuisAddressRegistryTest is Conftest {
 
     function setUp() public {
         _deploy();
+
+        vm.startPrank(truhuis);
+
         addressRegistryNew = new TruhuisAddressRegistry();
         municipalityANew = new Municipality(AMSTERDAM);
+
+        vm.stopPrank();
     }
 
     function testConstructor() public {
@@ -35,17 +40,26 @@ contract TruhuisAddressRegistryTest is Conftest {
             ADDRESS_REGISTRY
         );
 
+        // Get contract owner address.
+        address contractOwnerAddr = addressRegistry.owner();
+
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
         assertEq(address(addressRegistry), addressRegistryAddr);
+        // Actual contract owner must be equal to the expected.
+        assertEq(truhuis, contractOwnerAddr);
     }
 
     function testGetAddress() public {
         /* ARRANGE */
 
+        vm.startPrank(truhuis);
+
         // Update Truhuis Trade contract address.
         addressRegistry.updateAddress(address(trade), TRADE);
+
+        vm.stopPrank();
 
         /* ACT */
 
@@ -65,8 +79,12 @@ contract TruhuisAddressRegistryTest is Conftest {
     function testGetMunicipality() public {
         /* ARRANGE */
 
+        vm.startPrank(truhuis);
+
         // Register municipality of Amsterdam.
         addressRegistry.registerMunicipality(address(municipalityA), AMSTERDAM);
+
+        vm.stopPrank();
 
         /* ACT */
 
@@ -88,8 +106,12 @@ contract TruhuisAddressRegistryTest is Conftest {
     function testIsRegisteredMunicipality() public {
         /* ARRANGE */
 
+        vm.startPrank(truhuis);
+
         // Register municipality of Amsterdam.
         addressRegistry.registerMunicipality(address(municipalityA), AMSTERDAM);
+
+        vm.stopPrank();
 
         /* ACT */
 
@@ -116,8 +138,12 @@ contract TruhuisAddressRegistryTest is Conftest {
     function testRegisterMunicipality() public {
         /* ARRANGE */
 
+        vm.startPrank(truhuis);
+
         // Register municipality of Amsterdam.
         addressRegistry.registerMunicipality(address(municipalityA), AMSTERDAM);
+
+        vm.stopPrank();
 
         /* ACT */
 
@@ -137,6 +163,8 @@ contract TruhuisAddressRegistryTest is Conftest {
 
         /* REVERT ERRORS */
 
+        vm.startPrank(truhuis);
+
         // Must fail because of default value of an address.
         vm.expectRevert(MUNICIPALITY_REGISTRATION_FAILED.selector);
         addressRegistry.registerMunicipality(address(0), AMSTERDAM);
@@ -151,15 +179,27 @@ contract TruhuisAddressRegistryTest is Conftest {
             address(municipalityR),
             0x00000000
         );
+
+        vm.stopPrank();
+
+        // Must fail because caller is not contract owner.
+        vm.startPrank(alice);
+        vm.expectRevert("Ownable: caller is not the owner");
+        addressRegistry.registerMunicipality(address(municipalityH), THE_HAGUE);
+        vm.stopPrank();
     }
 
     function testUpdateAddress() public {
         /* ARRANGE */
 
+        vm.startPrank(truhuis);
+
         // Store updated appraiser contract address.
         addressRegistry.updateAddress(address(appraiser), APPRAISER);
         // Store updated inspector contract address.
         addressRegistry.updateAddress(address(inspector), INSPECTOR);
+
+        vm.stopPrank();
 
         /* ACT */
 
@@ -177,6 +217,8 @@ contract TruhuisAddressRegistryTest is Conftest {
 
         /* REVERT ERRORS */
 
+        vm.startPrank(truhuis);
+
         // Must fail because updating the address registry contract address
         // is not allowed.
         vm.expectRevert(UPDATE_ADDRESS_REGISTRY_NOT_ALLOWED.selector);
@@ -193,10 +235,20 @@ contract TruhuisAddressRegistryTest is Conftest {
         // Must fail because providing the zero address is not permitted.
         vm.expectRevert(ZERO_ADDRESS_PROVIDED.selector);
         addressRegistry.updateAddress(address(0), APPRAISER);
+
+        vm.stopPrank();
+
+        // Must fail because caller is not contract owner.
+        vm.startPrank(bob);
+        vm.expectRevert("Ownable: caller is not the owner");
+        addressRegistry.updateAddress(address(inspector), INSPECTOR);
+        vm.stopPrank();
     }
 
     function testUpdateMunicipality() public {
         /* ARRANGE */
+
+        vm.startPrank(truhuis);
 
         // Register municipality of Amsterdam.
         addressRegistry.registerMunicipality(address(municipalityA), AMSTERDAM);
@@ -206,6 +258,8 @@ contract TruhuisAddressRegistryTest is Conftest {
             address(municipalityANew),
             AMSTERDAM
         );
+
+        vm.stopPrank();
 
         /* ACT */
 
@@ -223,6 +277,8 @@ contract TruhuisAddressRegistryTest is Conftest {
 
         /* REVERT ERRORS */
 
+        vm.startPrank(truhuis);
+
         // Must fail because new address is equal to old address.
         vm.expectRevert(MUNICIPALITY_UPDATE_FAILED.selector);
         addressRegistry.updateMunicipality(
@@ -233,5 +289,13 @@ contract TruhuisAddressRegistryTest is Conftest {
         // Must fail because providing the zero address is not permitted.
         vm.expectRevert(ZERO_ADDRESS_PROVIDED.selector);
         addressRegistry.updateMunicipality(address(0), AMSTERDAM);
+
+        vm.stopPrank();
+
+        // Must fail because caller is not contract owner.
+        vm.startPrank(ministryOfIKR);
+        vm.expectRevert("Ownable: caller is not the owner");
+        addressRegistry.updateMunicipality(address(municipalityH), THE_HAGUE);
+        vm.stopPrank();
     }
 }
