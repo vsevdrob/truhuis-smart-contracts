@@ -51,8 +51,9 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
 
     ///@inheritdoc ITruhuisAddressRegistry
     function getMunicipality(bytes4 _cbsCode)
-        internal
+        external
         view
+        override
         returns (MunicipalityStruct memory)
     {
         return _sMunicipalities[_cbsCode];
@@ -62,6 +63,7 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
     function isRegisteredMunicipality(address _addr, bytes4 _cbsCode)
         external
         view
+        override
         returns (bool)
     {
         /* ARRANGE */
