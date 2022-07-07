@@ -34,6 +34,14 @@ contract Conftest is Test {
     address public dave = address(0x4);
     address public eve = address(0x5);
     address public ferdie = address(0x6);
+    // Municipalities accounts.
+    address public amsterdam = address(0x7);
+    address public rotterdam = address(0x8);
+    address public theHague = address(0x9);
+    // Ministry of the Interior and Kingdom Relations (IKR).
+    address public ministryOfIKR = address(0x10);
+    // Ministry of Finance (Fin).
+    address public ministryOfFin = address(0x11);
 
     // Truhuis contracts as well as state and currency contracts.
     TruhuisAddressRegistry public addressRegistry;
@@ -95,13 +103,29 @@ contract Conftest is Test {
         inspector = new TruhuisInspector(address(addressRegistry));
         notary = new TruhuisNotary(address(addressRegistry));
         mockERC20EURT = new MockERC20EURT(truhuis, 1 * 1000000 * 1000000);
+
+        vm.startPrank(amsterdam);
         municipalityA = new Municipality(AMSTERDAM);
+        vm.stopPrank();
+
+        vm.startPrank(rotterdam);
         municipalityR = new Municipality(ROTTERDAM);
+        vm.stopPrank();
+
+        vm.startPrank(theHague);
         municipalityH = new Municipality(THE_HAGUE);
+        vm.stopPrank();
+
+        vm.startPrank(ministryOfIKR);
         personalRecordsDatabase = new PersonalRecordsDatabase(
             address(addressRegistry)
         );
+        vm.stopPrank();
+
+        vm.startPrank(ministryOfFin)
         taxAdministration = new TaxAdministration();
+        vm.stopPrank();
+
         trade = new TruhuisTrade(address(addressRegistry), 50);
 
         _refuelAccountsERC20();
