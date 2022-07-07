@@ -92,6 +92,7 @@ contract Conftest is Test {
     }
 
     function _deploy() internal {
+        vm.startPrank(truhuis);
         addressRegistry = new TruhuisAddressRegistry();
         appraiser = new TruhuisAppraiser(address(addressRegistry));
         bank = new TruhuisBank(address(addressRegistry));
@@ -103,6 +104,7 @@ contract Conftest is Test {
         inspector = new TruhuisInspector(address(addressRegistry));
         notary = new TruhuisNotary(address(addressRegistry));
         mockERC20EURT = new MockERC20EURT(truhuis, 1 * 1000000 * 1000000);
+        vm.stopPrank();
 
         vm.startPrank(amsterdam);
         municipalityA = new Municipality(AMSTERDAM);
@@ -132,8 +134,8 @@ contract Conftest is Test {
     }
 
     function _refuelAccountsERC20() private {
-        // Send EURT to the accounts.
         vm.startPrank(truhuis);
+        // Send EURT to the accounts.
         mockERC20EURT.transfer(alice, 10000000);
         mockERC20EURT.transfer(bob, 10000000);
         mockERC20EURT.transfer(charlie, 10000000);
