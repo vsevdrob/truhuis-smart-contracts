@@ -2,4 +2,9 @@
 
 pragma solidity 0.8.13;
 
-interface IMunicipality {}
+interface IMunicipality {
+    /**
+     * @dev _
+     */
+    function getId() external view returns (bytes4);
+}

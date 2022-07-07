@@ -2,14 +2,28 @@
 
 pragma solidity 0.8.13;
 
-//import "../address/TruhuisAddressRegistryAdapter.sol";
-//import "../../interfaces/IMunicipality.sol";
-//import "@openzeppelin/contracts/access/Ownable.sol";
+import "../address/TruhuisAddressRegistryAdapter.sol";
+import "../../interfaces/IMunicipality.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract AMunicipality {
-    bytes4 private _sIdentifier;
+/**
+ * @title AMunicipality
+ * @author vsevdrob
+ * @notice _
+ */
+abstract contract AMunicipality is
+    Ownable,
+    IMunicipality,
+    TruhuisAddressRegistryAdapter
+{
+    bytes4 private _sId;
 
-    constructor(bytes4 _cbsCode) {
-        _sIdentifier = _cbsCode;
+    constructor(bytes4 _id) {
+        _sId = _id;
+    }
+
+    /// @inheritdoc IMunicipality
+    function getId() external view override returns (bytes4) {
+        return _sId;
     }
 }
