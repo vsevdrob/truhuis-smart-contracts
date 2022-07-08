@@ -38,7 +38,7 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function pause() external;
+    function pauseContract() external;
 
     /**
      * @dev _
@@ -48,13 +48,13 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId) external;
+    function revokeTransferConfirmation(uint256 _tokenId, uint256 _txId)
+        external;
 
     /**
      * @dev _
      */
-    function revokeTransferConfirmation(uint256 _tokenId, uint256 _txId)
-        external;
+    function submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId) external;
 
     /**
      * @dev _
@@ -70,7 +70,7 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function unpause() external;
+    function unpauseContract() external;
 
     /**
      * @dev _

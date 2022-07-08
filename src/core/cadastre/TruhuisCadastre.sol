@@ -27,12 +27,12 @@ contract TruhuisCadastre is ATruhuisCadastre {
         external
         onlyPermitted(_tokenId)
     {
-        _confirmTransaction(_tokenId, _txId);
+        _confirmTransfer(_tokenId, _txId);
     }
 
     /// @inheritdoc ITruhuisCadastre
-    function pause() external onlyOwner {
-        _pause();
+    function pauseContract() external onlyOwner {
+        _pauseContract();
     }
 
     /// @inheritdoc ITruhuisCadastre
@@ -44,22 +44,19 @@ contract TruhuisCadastre is ATruhuisCadastre {
     }
 
     /// @inheritdoc ITruhuisCadastre
-    function submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId)
-        external
-        onlyNFTOwner(_tokenId)
-    {
-        _submitTransaction(
-            _getConfirmers(_purchaseAgreementId, _tokenId),
-            _tokenId
-        );
-    }
-
-    /// @inheritdoc ITruhuisCadastre
     function revokeTransferConfirmation(uint256 _tokenId, uint256 _txId)
         external
         onlyPermitted(_tokenId)
     {
-        _revokeConfirmation(_tokenId, _txId);
+        _revokeTransferConfirmation(_tokenId, _txId);
+    }
+
+    /// @inheritdoc ITruhuisCadastre
+    function submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId)
+        external
+        onlyNFTOwner(_tokenId)
+    {
+        _submitTransfer(_purchaseAgreementId, _tokenId);
     }
 
     /// @inheritdoc ITruhuisCadastre
@@ -74,27 +71,12 @@ contract TruhuisCadastre is ATruhuisCadastre {
     }
 
     /// @inheritdoc ITruhuisCadastre
-    function unpause() external onlyOwner {
-        _unpause();
+    function unpauseContract() external onlyOwner {
+        _unpauseContract();
     }
 
     /// @inheritdoc ITruhuisCadastre
     function updateContractURI(string memory _contractURI) external onlyOwner {
         _updateContractURI(_contractURI);
-    }
-
-    /// @inheritdoc ITruhuisCadastre
-    function exists(uint256 _tokenId) external view returns (bool) {
-        return _exists(_tokenId);
-    }
-
-    /// @inheritdoc ITruhuisCadastre
-    function isNFTOwner(address _account, uint256 _tokenId)
-        external
-        view
-        override
-        returns (bool)
-    {
-        return _isNFTOwner(_account, _tokenId);
     }
 }
