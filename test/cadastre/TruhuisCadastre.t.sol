@@ -26,4 +26,28 @@ import "@test/Conftest.sol";
  *      [TODO] unpause()
  *      [TODO] updateContractURI(string)
  */
-contract TruhuisCadastreTest is Conftest {}
+contract TruhuisCadastreTest is Conftest {
+    function setUp() external {
+        _deploy();
+    }
+
+    function testConstructor() external {
+        /* ACT */
+
+        // Get address registry contract address.
+        address addressRegistryAddr = address(cadastre.addressRegistry());
+        // Get contract owner address.
+        address contractOwnerAddr = cadastre.owner();
+        // Get contract URI.
+        string memory contractURI = cadastre.getContractURI();
+
+        /* PERFORM ASSERTIONS */
+
+        // Actual contract address must be equal to the expected.
+        assertEq(address(addressRegistry), addressRegistryAddr);
+        // Actual owner address must be equal to the expected.
+        assertEq(truhuis, contractOwnerAddr);
+        // Actual contract URI must be identical to the expected.
+        assertEq(cadastreContractURI, contractURI);
+    }
+}
