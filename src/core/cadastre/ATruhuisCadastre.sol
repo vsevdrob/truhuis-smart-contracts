@@ -64,6 +64,11 @@ abstract contract ATruhuisCadastre is
         return _exists(_tokenId);
     }
 
+    // @inheritdoc ITruhuisCadastre
+    function getContractURI() external view override returns (string memory) {
+        return _sContractURI;
+    }
+
     /// @inheritdoc ITruhuisCadastre
     function isNFTOwner(address _account, uint256 _tokenId)
         external

@@ -85,6 +85,11 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
+    function getContractURI() external view returns (string memory);
+
+    /**
+     * @dev _
+     */
     function isNFTOwner(address _account, uint256 _tokenId)
         external
         view
