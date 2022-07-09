@@ -48,17 +48,19 @@ clean:
 
 # [DEPLOY]: Deploy all smart contracts.
 deploy-local-all:
-    just deploy-local-address-registry
-    just deploy-local-appraiser
-    just deploy-local-bank
-    just deploy-local-cadastre
-    just deploy-local-currency-registry
-    just deploy-local-inspector
-    just deploy-local-notary
-    just deploy-local-municipality
-    just deploy-local-personal-records-database
-    just deploy-local-tax-administration
-    just deploy-local-trade
+    just deploy-local-address-registry && \
+    just deploy-local-appraiser && \
+    just deploy-local-bank && \
+    just deploy-local-cadastre && \
+    just deploy-local-currency-registry && \
+    just deploy-local-inspector && \
+    just deploy-local-notary && \
+    just deploy-local-municipality && \
+    just deploy-local-personal-records-database && \
+    just deploy-local-tax-administration && \
+    just deploy-local-trade && \
+    cp -r broadcast/* ../truhuis-address-client/contracts/deployments && \
+    cp -r out/* ../truhuis-address-client/contracts/abi
 
 # ADDRESS
 
