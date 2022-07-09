@@ -19,6 +19,9 @@ interface ITruhuisCadastre is IERC721 {
     ///      Instead, use `transferNFTOwnership` function.
     error INACTIVE_FUNCTION();
 
+    /// @dev Reverted if caller provided identical contract URI to the old.
+    error PROVIDED_IDENTICAL_CONTRACT_URI();
+
     /// @dev Event emiited when contract URI is updated.
     event ContractURIUpdated(string contractURI);
 
