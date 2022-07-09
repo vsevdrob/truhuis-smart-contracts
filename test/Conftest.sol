@@ -88,6 +88,10 @@ contract Conftest is Test {
     bytes32 public constant TRADE = "TRADE";
 
     string public cadastreContractURI = "ipfs://";
+    /// @dev Token URI of token ID 1.
+    string public sTokenURI1 = "ipfs://1";
+    /// @dev Token URI of token ID 2.
+    string public sTokenURI2 = "ipfs://2";
 
     constructor() {
         truhuis = msg.sender;
