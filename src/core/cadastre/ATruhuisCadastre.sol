@@ -278,6 +278,13 @@ abstract contract ATruhuisCadastre is
      * @dev _
      */
     function _updateContractURI(string memory _contractURI) internal virtual {
+        /* PERFORM ASSERTIONS */
+
+        // New contract URI must be not identical to the old.
+        if (keccak256(bytes(_contractURI)) == keccak256(bytes(_sContractURI))) {
+            revert PROVIDED_IDENTICAL_CONTRACT_URI();
+        }
+
         /* UPDATE CONTRACT URI */
 
         _sContractURI = _contractURI;
