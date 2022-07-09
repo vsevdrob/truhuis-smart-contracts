@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.13;
 
+import "@interfaces/ITruhuisCadastre.sol";
 import "@test/Conftest.sol";
 
 /**
@@ -13,7 +14,7 @@ import "@test/Conftest.sol";
  *      [TODO] confirmTransfer(uint256,uint256)
  *      [TODO] exists(uint256)
  *      [TODO] isNFTOwner(uint256)
- *      [TODO] pause()
+ *      [TODO] pauseContract()
  *      [TODO] produceNFT(address,string)
  *      [TODO] safeTransferFrom(address,address,uint256)
  *      [TODO] safeTransferFrom(address,address,uint256,bytes)
@@ -23,8 +24,8 @@ import "@test/Conftest.sol";
  *      [TODO] tokenURI(uint256)
  *      [TODO] transferFrom(address,address,uint256)
  *      [TODO] transferNFTOwnership(address,address,bytes,uint256,uint256)
- *      [TODO] unpause()
- *      [TODO] updateContractURI(string)
+ *      [TODO] unpauseContract()
+ *      [PASS] updateContractURI(string)
  */
 contract TruhuisCadastreTest is Conftest {
     function setUp() external {
@@ -85,5 +86,69 @@ contract TruhuisCadastreTest is Conftest {
         // Except the owner nobody can call the function.
         vm.expectRevert("Ownable: caller is not the owner");
         cadastre.allotTokenURI("ipfs://1-new-new", 1);
+    }
+
+    //function testConfirmTransfer() external {}
+
+    //function testExists() external {}
+
+    //function testIsNFTOwner() external {}
+
+    //function testPauseContract() external {}
+
+    //function testProduceNFT() external {}
+
+    //function testSafeTransferFrom() external {}
+
+    //function testSafeTransferFrom() external {}
+
+    //function testSubmitTransfer() external {}
+
+    //function testSupportsInterface() external {}
+
+    //function testRevokeTransferConfirmation() external {}
+
+    //function testTokenURI() external {}
+
+    //function testTransferFrom() external {}
+
+    //function testTransferNFTOwnership() external {}
+
+    //function testUnpauseContract() external {}
+
+    function testUpdateContractURI() external {
+        vm.startPrank(truhuis);
+
+        /* ARRANGE */
+
+        // Old contract URI.
+        string memory oldContractURI = cadastre.getContractURI();
+        // New contract URI.
+        string memory newContractURI = "ipfs://new-contract-uri";
+
+        /* ACT */
+
+        // Update contract URI.
+        cadastre.updateContractURI(newContractURI);
+
+        /* PERFORM ASSERTIONS */
+
+        // Actual contract URI must be identical to the expected.
+        assertEq(
+            keccak256(bytes(newContractURI)),
+            keccak256(bytes(cadastre.getContractURI()))
+        );
+
+        /* REVERT ERRORS */
+
+        // Providing identical contract URI is not allowed.
+        vm.expectRevert(PROVIDED_IDENTICAL_CONTRACT_URI.selector);
+        cadastre.updateContractURI(newContractURI);
+
+        vm.stopPrank();
+
+        // Except the owner nobody is allowed to call the function.
+        vm.expectRevert("Ownable: caller is not the owner");
+        cadastre.updateContractURI("ipfs://another-one");
     }
 }
