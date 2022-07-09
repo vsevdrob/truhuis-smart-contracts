@@ -87,6 +87,8 @@ contract Conftest is Test {
     /// @dev Identifier for Truhuis Trade smart contract.
     bytes32 public constant TRADE = "TRADE";
 
+    string public cadastreContractURI = "ipfs://";
+
     constructor() {
         truhuis = msg.sender;
     }
@@ -98,7 +100,7 @@ contract Conftest is Test {
         bank = new TruhuisBank(address(addressRegistry));
         cadastre = new TruhuisCadastre(
             address(addressRegistry),
-            "Truhuis Cadastre"
+            cadastreContractURI
         );
         currencyRegistry = new TruhuisCurrencyRegistry();
         inspector = new TruhuisInspector(address(addressRegistry));
