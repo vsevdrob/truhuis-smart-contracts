@@ -3,24 +3,25 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
+/// @dev Reverted if caller is not NFT owner.
+error CALLER_NOT_NFT_OWNER();
+
+/// @dev Reverted if caller is not permitted to call function.
+error CALLER_NOT_PERMITTED(address caller);
+
+/// @dev Reverted if caller is not NFT owner nor approved.
+error CALLER_NOT_NFT_OWNER_NOR_APPROVED();
+
+/// @dev Reverted if caller tries to transfer NFT through `transferFrom`,
+///      `safeTransferFrom` or `safeTransferFrom` function.
+///
+///      Instead, use `transferNFTOwnership` function.
+error INACTIVE_FUNCTION();
+
+/// @dev Reverted if caller provided identical contract URI to the old.
+error PROVIDED_IDENTICAL_CONTRACT_URI();
+
 interface ITruhuisCadastre is IERC721 {
-    /// @dev Reverted if caller is not NFT owner.
-    error CALLER_NOT_NFT_OWNER();
-
-    /// @dev Reverted if caller is not permitted to call function.
-    error CALLER_NOT_PERMITTED(address caller);
-    
-    /// @dev Reverted if caller is not NFT owner nor approved.
-    error CALLER_NOT_NFT_OWNER_NOR_APPROVED();
-
-    /// @dev Reverted if caller tries to transfer NFT through `transferFrom`,
-    ///      `safeTransferFrom` or `safeTransferFrom` function.
-    ///
-    ///      Instead, use `transferNFTOwnership` function.
-    error INACTIVE_FUNCTION();
-
-    /// @dev Reverted if caller provided identical contract URI to the old.
-    error PROVIDED_IDENTICAL_CONTRACT_URI();
 
     /// @dev Event emiited when contract URI is updated.
     event ContractURIUpdated(string contractURI);
