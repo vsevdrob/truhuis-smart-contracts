@@ -59,8 +59,11 @@ contract Conftest is Test {
     TaxAdministration public taxAdministration;
     TruhuisTrade public trade;
 
+    /// @dev Identifier for the municipality of Amsterdam.
     bytes4 public constant AMSTERDAM = bytes4("0363");
+    /// @dev Identifier for the municipality of Rotterdam.
     bytes4 public constant ROTTERDAM = bytes4("0599");
+    /// @dev Identifier for the municipality of The Hague.
     bytes4 public constant THE_HAGUE = bytes4("0518");
 
     /// @dev Identifier for Truhuis Address Registry smart contract.
@@ -87,6 +90,7 @@ contract Conftest is Test {
     /// @dev Identifier for Truhuis Trade smart contract.
     bytes32 public constant TRADE = "TRADE";
 
+    /// @dev Contract URI related to the cadastre.
     string public cadastreContractURI = "ipfs://";
     /// @dev Token URI of token ID 1.
     string public sTokenURI1 = "ipfs://1";
