@@ -4,19 +4,13 @@ pragma solidity 0.8.13;
 
 import "@interfaces/ICurrencyRegistry.sol";
 
-error CURRENCY_ALREADY_REGISTERED();
-error CURRENCY_NOT_REGISTERED();
-
 /**
- * @title CurrencyRegistry
+ * @title ACurrencyRegistry
  * @author vsevdrob
  * @notice _
  */
 abstract contract ACurrencyRegistry is ICurrencyRegistry {
     mapping(address => bool) private _sIsRegistered;
-
-    event CurrencyRegistered(address tokenAddr);
-    event CurrencyUnregistered(address tokenAddr);
 
     /// @inheritdoc ICurrencyRegistry
     function isAllowedCurrency(address _tokenAddr)
