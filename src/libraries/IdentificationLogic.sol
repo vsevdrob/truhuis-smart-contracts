@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.13;
 
-import "../core/address/TruhuisAddressRegistryAdapter.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
 
 /// @notice Reverted if `account` is a smart contract, not an account (human).
 error AccountIsNotHuman(address account);
@@ -17,7 +17,7 @@ error SellerIsNotAllowedToSellRealEstate(address seller, uint256 tokenId);
 /// @notice Reverted if marketplace is not approved to transfer `tokenId`.
 error MarketplaceIsNotApproved(uint256 tokenId);
 
-abstract contract IdentificationLogic is TruhuisAddressRegistryAdapter {
+abstract contract IdentificationLogic is TruhuisAddresserAPI {
     modifier onlyBuyer(address _buyer, uint256 _tokenId) {
         _identifyBuyer(_buyer, _tokenId);
         _;
