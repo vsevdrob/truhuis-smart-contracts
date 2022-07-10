@@ -2,7 +2,15 @@
 
 pragma solidity 0.8.13;
 
+error CURRENCY_ALREADY_REGISTERED();
+error CURRENCY_NOT_REGISTERED();
+
 interface ICurrencyRegistry {
+    /// @dev Event emitted whenever a new currency has been registered.
+    event CurrencyRegistered(address tokenAddr);
+    /// @dev Event emitted whenever a registered currency has been unregistered.
+    event CurrencyUnregistered(address tokenAddr);
+
     /**
      * @dev _
      */
