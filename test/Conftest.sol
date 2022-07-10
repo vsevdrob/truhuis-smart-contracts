@@ -3,11 +3,10 @@
 pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
-import "@core/address/TruhuisAddressRegistry.sol";
+import "@core/addresser/TruhuisAddresser.sol";
 import "@core/appraiser/TruhuisAppraiser.sol";
 import "@core/bank/TruhuisBank.sol";
 import "@core/cadastre/TruhuisCadastre.sol";
-import "@core/currency/TruhuisCurrencyRegistry.sol";
 import "@core/inspector/TruhuisInspector.sol";
 import "@core/notary/TruhuisNotary.sol";
 import "@core/state/Municipality.sol";
@@ -44,11 +43,10 @@ contract Conftest is Test {
     address public ministryOfFin = address(0x11);
 
     // Truhuis contracts as well as state and currency contracts.
-    TruhuisAddressRegistry public addressRegistry;
+    TruhuisAddresser public addresser;
     TruhuisAppraiser public appraiser;
     TruhuisBank public bank;
     TruhuisCadastre public cadastre;
-    TruhuisCurrencyRegistry public currencyRegistry;
     TruhuisInspector public inspector;
     TruhuisNotary public notary;
     MockERC20EURT public mockERC20EURT;
@@ -66,16 +64,14 @@ contract Conftest is Test {
     /// @dev Identifier for the municipality of The Hague.
     bytes4 public constant THE_HAGUE = bytes4("0518");
 
-    /// @dev Identifier for Truhuis Address Registry smart contract.
-    bytes32 public constant ADDRESS_REGISTRY = "ADDRESS_REGISTRY";
+    /// @dev Identifier for Truhuis Addresser smart contract.
+    bytes32 public constant ADDRESSER = "ADDRESSER";
     /// @dev Identifier for Truhuis Appraiser smart contract.
     bytes32 public constant APPRAISER = "APPRAISER";
     /// @dev Identifier for Truhuis Bank smart contract.
     bytes32 public constant BANK = "BANK";
     /// @dev Identifier for Truhuis Cadastre smart contract.
     bytes32 public constant CADASTRE = "CADASTRE";
-    /// @dev Identifier for Truhuis Currency Registry smart contract.
-    bytes32 public constant CURRENCY_REGISTRY = "CURRENCY_REGISTRY";
     /// @dev Identifier for Truhuis Inspector smart contract.
     bytes32 public constant INSPECTOR = "INSPECTOR";
     /// @dev Identifier for Truhuis Notary smart contract.
@@ -103,16 +99,15 @@ contract Conftest is Test {
 
     function _deploy() internal {
         vm.startPrank(truhuis);
-        addressRegistry = new TruhuisAddressRegistry();
-        appraiser = new TruhuisAppraiser(address(addressRegistry));
-        bank = new TruhuisBank(address(addressRegistry));
+        addresser = new TruhuisAddresser();
+        appraiser = new TruhuisAppraiser(address(addresser));
+        bank = new TruhuisBank(address(addresser));
         cadastre = new TruhuisCadastre(
-            address(addressRegistry),
+            address(addresser),
             cadastreContractURI
         );
-        currencyRegistry = new TruhuisCurrencyRegistry();
-        inspector = new TruhuisInspector(address(addressRegistry));
-        notary = new TruhuisNotary(address(addressRegistry));
+        inspector = new TruhuisInspector(address(addresser));
+        notary = new TruhuisNotary(address(addresser));
         mockERC20EURT = new MockERC20EURT(truhuis, 1 * 1000000 * 1000000);
         vm.stopPrank();
 
@@ -130,7 +125,7 @@ contract Conftest is Test {
 
         vm.startPrank(ministryOfIKR);
         personalRecordsDatabase = new PersonalRecordsDatabase(
-            address(addressRegistry)
+            address(addresser)
         );
         vm.stopPrank();
 
@@ -138,7 +133,7 @@ contract Conftest is Test {
         taxAdministration = new TaxAdministration();
         vm.stopPrank();
 
-        trade = new TruhuisTrade(address(addressRegistry), 50);
+        trade = new TruhuisTrade(address(addresser), 50);
 
         _refuelAccountsERC20();
     }

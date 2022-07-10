@@ -36,7 +36,7 @@ contract TruhuisCadastreTest is Conftest {
         /* ACT */
 
         // Get address registry contract address.
-        address addressRegistryAddr = address(cadastre.addressRegistry());
+        address addresserAddr = address(cadastre.addresser());
         // Get contract owner address.
         address contractOwnerAddr = cadastre.owner();
         // Get contract URI.
@@ -45,7 +45,7 @@ contract TruhuisCadastreTest is Conftest {
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
-        assertEq(address(addressRegistry), addressRegistryAddr);
+        assertEq(address(addresser), addresserAddr);
         // Actual owner address must be equal to the expected.
         assertEq(truhuis, contractOwnerAddr);
         // Actual contract URI must be identical to the expected.
