@@ -10,8 +10,8 @@ import "./ATruhuisMarketplace.sol";
  * @notice _
  */
 contract TruhuisMarketplace is ATruhuisMarketplace {
-    constructor(address _addressRegistry, uint96 _serviceFee) {
-        updateAddressRegistry(_addressRegistry);
+    constructor(address _addresser, uint96 _serviceFee) {
+        updateAddresser(_addresser);
         _updateServiceFee(_serviceFee);
     }
 

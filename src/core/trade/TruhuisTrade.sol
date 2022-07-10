@@ -11,7 +11,7 @@ import "./TruhuisMarketplace.sol";
  * @notice _
  */
 contract TruhuisTrade is TruhuisMarketplace {
-    constructor(address _addressRegistry, uint96 _serviceFee)
-        TruhuisMarketplace(_addressRegistry, _serviceFee)
+    constructor(address _addresser, uint96 _serviceFee)
+        TruhuisMarketplace(_addresser, _serviceFee)
     {}
 }

@@ -6,7 +6,7 @@ import {
     WrittenRecord__BuyerMustSign,
     WrittenRecord__SellerMustSign,
     WrittenRecord
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article17WrittenRecord {
     function _validateWrittenRecord(WrittenRecord memory _writtenRecord)

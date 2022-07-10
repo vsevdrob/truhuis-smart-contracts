@@ -4,7 +4,7 @@ pragma solidity 0.8.13;
 
 import "./purchase-agreement/PurchaseAgreement.sol";
 import "./deed-of-delivery/DeedOfDelivery.sol";
-import "../../interfaces/ITruhuisNotary.sol";
+import "@interfaces/ITruhuisNotary.sol";
 
 /**
  * @title TruhuisNotary
@@ -12,8 +12,8 @@ import "../../interfaces/ITruhuisNotary.sol";
  * @notice _
  */
 contract TruhuisNotary is PurchaseAgreement, DeedOfDelivery {
-    constructor(address _addressRegistry) {
-        updateAddressRegistry(_addressRegistry);
+    constructor(address _addresser) {
+        updateAddresser(_addresser);
     }
 
     function drawUpDeedOfDelivery(

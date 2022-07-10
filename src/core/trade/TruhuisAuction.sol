@@ -6,12 +6,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "../address/TruhuisAddressRegistryAdapter.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
 
 contract TruhuisAuction is
     Ownable,
     ReentrancyGuard,
-    TruhuisAddressRegistryAdapter,
+    TruhuisAddresserAPI,
     Pausable
 {
     //    struct Auction {

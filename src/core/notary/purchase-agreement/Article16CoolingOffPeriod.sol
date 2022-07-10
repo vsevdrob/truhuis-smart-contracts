@@ -6,7 +6,7 @@ import {
     CoolingOffPeriod__InvalidEndTime,
     CoolingOffPeriod__InvalidStartTime,
     CoolingOffPeriod
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article16CoolingOffPeriod {
     function _validateCoolingOffPeriod(

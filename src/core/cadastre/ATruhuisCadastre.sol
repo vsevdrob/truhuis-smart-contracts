@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.13;
 
-import "../address/TruhuisAddressRegistryAdapter.sol";
-import "../../interfaces/ITruhuisCadastre.sol";
-import "../../libraries/MultiSignable.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
+import "@interfaces/ITruhuisCadastre.sol";
+import "@libraries/MultiSignable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -20,7 +20,7 @@ abstract contract ATruhuisCadastre is
     ERC721Enumerable,
     Pausable,
     MultiSignable,
-    TruhuisAddressRegistryAdapter,
+    TruhuisAddresserAPI,
     ITruhuisCadastre
 {
     /* PRIVATE STORAGE */
@@ -52,10 +52,10 @@ abstract contract ATruhuisCadastre is
         _;
     }
 
-    constructor(address _addressRegistry, string memory _contractURI)
+    constructor(address _addresser, string memory _contractURI)
         ERC721("Truhuis Cadastre", "TCA")
     {
-        updateAddressRegistry(_addressRegistry);
+        updateAddresser(_addresser);
         _updateContractURI(_contractURI);
     }
 

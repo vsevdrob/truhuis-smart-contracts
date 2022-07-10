@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.13;
 
-import "../../libraries/Signable.sol";
-import "../../interfaces/IPersonalRecordsDatabase.sol";
-import "../address/TruhuisAddressRegistryAdapter.sol";
+import "@libraries/Signable.sol";
+import "@interfaces/IPersonalRecordsDatabase.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
 
 /*
  * @title PersonalRecordsDatabase
@@ -14,14 +14,14 @@ import "../address/TruhuisAddressRegistryAdapter.sol";
 contract PersonalRecordsDatabase is
     Signable,
     IPersonalRecordsDatabase,
-    TruhuisAddressRegistryAdapter
+    TruhuisAddresserAPI
 {
     mapping(address => PersonalRecords) internal _sPersonalRecords;
 
     modifier onlyMunicipality(bytes4 _cbsCode) {
         /* ARRANGE */
 
-        bool isRegistered = addressRegistry().isRegisteredMunicipality(
+        bool isRegistered = addresser().isRegisteredMunicipality(
             msg.sender,
             _cbsCode
         );
@@ -35,8 +35,8 @@ contract PersonalRecordsDatabase is
         _;
     }
 
-    constructor(address _addressRegistry) {
-        updateAddressRegistry(_addressRegistry);
+    constructor(address _addresser) {
+        updateAddresser(_addresser);
     }
 
     function confirmRequest(uint256 _txId) external {

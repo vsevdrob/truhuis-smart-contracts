@@ -2,18 +2,18 @@
 
 pragma solidity 0.8.13;
 
-import "./ATruhuisAddressRegistry.sol";
+import "./ATruhuisAddresser.sol";
 
-/// @title TruhuisAddressRegistry
+/// @title TruhuisAddresser
 /// @author vsevdrob
 /// @notice This contract deployed in order to implement parameterization method
 ///         of upgradable smart contracts by performing addresses registrations.
-contract TruhuisAddressRegistry is ATruhuisAddressRegistry {
+contract TruhuisAddresser is ATruhuisAddresser {
     constructor() {
         _initialize();
     }
 
-    /// @inheritdoc ITruhuisAddressRegistry
+    /// @inheritdoc ITruhuisAddresser
     function registerMunicipality(address _contractAddr, bytes4 _cbsCode)
         external
         onlyOwner
@@ -21,7 +21,7 @@ contract TruhuisAddressRegistry is ATruhuisAddressRegistry {
         _registerMunicipality(_contractAddr, _cbsCode);
     }
 
-    /// @inheritdoc ITruhuisAddressRegistry
+    /// @inheritdoc ITruhuisAddresser
     function updateAddress(address _newAddr, bytes32 _id)
         external
         override
@@ -30,7 +30,7 @@ contract TruhuisAddressRegistry is ATruhuisAddressRegistry {
         _updateAddress(_newAddr, _id);
     }
 
-    /// @inheritdoc ITruhuisAddressRegistry
+    /// @inheritdoc ITruhuisAddresser
     function updateMunicipality(address _newAddr, bytes4 _cbsCode)
         external
         override

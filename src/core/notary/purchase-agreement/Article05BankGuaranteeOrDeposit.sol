@@ -9,7 +9,7 @@ import {
     BankGuaranteeOrDeposit__InvalidDeadlineToDeposit,
     BankGuaranteeOrDeposit,
     TypeOfGuarantee
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article05BankGuaranteeOrDeposit {
     function _validateBankGuaranteeOrDeposit(

@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.13;
 
-import "../../../interfaces/IPurchaseAgreement.sol";
-import "../../address/TruhuisAddressRegistryAdapter.sol";
+import "@interfaces/IPurchaseAgreement.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
 import "./Article01SellAndPurchase.sol";
 import "./Article02Costs.sol";
 import "./Article03Payment.sol";
@@ -22,7 +22,7 @@ import "./Article18DutchLaw.sol";
  *         a purchase agreement.
  */
 contract PurchaseAgreement is
-    TruhuisAddressRegistryAdapter,
+    TruhuisAddresserAPI,
     IPurchaseAgreement,
     Article01SellAndPurchase,
     Article02Costs,

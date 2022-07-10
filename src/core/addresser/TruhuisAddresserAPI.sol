@@ -2,88 +2,72 @@
 
 pragma solidity 0.8.13;
 
-import "../../interfaces/IMunicipality.sol";
-import "../../interfaces/IPersonalRecordsDatabase.sol";
-import "../../interfaces/ITaxAdministration.sol";
-import "../../interfaces/ITruhuisAddressRegistry.sol";
-import "../../interfaces/ITruhuisAppraiser.sol";
-import "../../interfaces/ITruhuisAuction.sol";
-import "../../interfaces/ITruhuisBank.sol";
-import "../../interfaces/ITruhuisCadastre.sol";
-import "../../interfaces/ITruhuisCurrencyRegistry.sol";
-import "../../interfaces/ITruhuisInspector.sol";
-import "../../interfaces/ITruhuisNotary.sol";
-import "../../interfaces/ITruhuisTrade.sol";
+import "@interfaces/IMunicipality.sol";
+import "@interfaces/IPersonalRecordsDatabase.sol";
+import "@interfaces/ITaxAdministration.sol";
+import "@interfaces/ITruhuisAddresser.sol";
+import "@interfaces/ITruhuisAppraiser.sol";
+import "@interfaces/ITruhuisAuction.sol";
+import "@interfaces/ITruhuisBank.sol";
+import "@interfaces/ITruhuisCadastre.sol";
+import "@interfaces/ITruhuisInspector.sol";
+import "@interfaces/ITruhuisNotary.sol";
+import "@interfaces/ITruhuisTrade.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title Truhuis AddressRegistry Adapter abstract smart contract.
-/// @notice This contract deployed in order to be able to perform the necessary
-///         smart contract function calls in the most convenient way.
-abstract contract TruhuisAddressRegistryAdapter is Ownable {
-    /// @notice Reverted if an address registry update fails.
-    error TruhuisAddressRegistryAdapter__AddressRegistryUpdateFailed();
+/// @title TruhuisAddresserAPI
+/// @notice This contract must be inheritted in order to be able to perform the
+///         necessary smart contract function calls in the most convenient way.
+abstract contract TruhuisAddresserAPI is Ownable {
+    /// @notice Truhuis Addresser smart contract address.
+    ITruhuisAddresser private _addresser;
 
-    /// @notice Truhuis Address Registry smart contract address.
-    ITruhuisAddressRegistry private _addressRegistry;
+    /// @notice Event emitted when an addresser update occurs.
+    event AddresserUpdated(address contractAddr);
 
-    /// @notice Event emitted when an address registry update occurs.
-    event AddressRegistryUpdated(address contractAddr);
-
-    /// @notice Update Truhuis Address Registry smart contract address.
-    /// @param _registry The new Truhuis Address Registry smart contract
+    /// @notice Update Truhuis Addresser smart contract address.
+    /// @param _newAddr The new Truhuis Addresser smart contract
     ///        address.
     /// @dev Only owner is able to call this function.
-    function updateAddressRegistry(address _registry) public virtual onlyOwner {
-        _addressRegistry = ITruhuisAddressRegistry(_registry);
+    function updateAddresser(address _newAddr) public virtual onlyOwner {
+        _addresser = ITruhuisAddresser(_newAddr);
+        emit AddresserUpdated(_newAddr);
     }
 
-    /// @notice Returns Truhuis Address Registry smart contract interface.
-    function addressRegistry()
+    /// @notice Returns Truhuis Addresser smart contract interface.
+    function addresser()
         public
         view
         virtual
-        returns (ITruhuisAddressRegistry)
+        returns (ITruhuisAddresser)
     {
-        return _addressRegistry;
+        return _addresser;
     }
 
     /// @notice Returns Truhuis Appraiser smart contract interface.
     function appraiser() public view virtual returns (ITruhuisAppraiser) {
         return
             ITruhuisAppraiser(
-                _addressRegistry.getAddress(bytes32("APPRAISER"))
+                _addresser.getAddress(bytes32("APPRAISER"))
             );
     }
 
     /// @notice Returns Truhuis Bank smart contract interface.
     function bank() public view virtual returns (ITruhuisBank) {
-        return ITruhuisBank(_addressRegistry.getAddress(bytes32("BANK")));
-    }
-
-    /// @notice Returns Truhuis Currency Registry smart contract interface.
-    function currencyRegistry()
-        public
-        view
-        virtual
-        returns (ITruhuisCurrencyRegistry)
-    {
-        return
-            ITruhuisCurrencyRegistry(
-                _addressRegistry.getAddress(bytes32("CURRENCY_REGISTRY"))
-            );
+        return ITruhuisBank(_addresser.getAddress(bytes32("BANK")));
     }
 
     /// @notice Returns Truhuis Cadastre smart contract interface.
     function cadastre() public view virtual returns (ITruhuisCadastre) {
         return
-            ITruhuisCadastre(_addressRegistry.getAddress(bytes32("CADASTRE")));
+            ITruhuisCadastre(_addresser.getAddress(bytes32("CADASTRE")));
     }
 
     /// @notice Returns Truhuis Inspector smart contract interface.
     function inspector() public view virtual returns (ITruhuisInspector) {
         return
             ITruhuisInspector(
-                _addressRegistry.getAddress(bytes32("INSPECTOR"))
+                _addresser.getAddress(bytes32("INSPECTOR"))
             );
     }
 
@@ -98,7 +82,7 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
 
     /// @notice _
     function notary() public view virtual returns (ITruhuisNotary) {
-        return ITruhuisNotary(_addressRegistry.getAddress(bytes32("NOTARY")));
+        return ITruhuisNotary(_addresser.getAddress(bytes32("NOTARY")));
     }
 
     /// @notice Returns Personal Records Database smart contract interface.
@@ -110,7 +94,7 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
     {
         return
             IPersonalRecordsDatabase(
-                _addressRegistry.getAddress(
+                _addresser.getAddress(
                     bytes32("PERSONAL_RECORDS_DATABASE")
                 )
             );
@@ -125,13 +109,13 @@ abstract contract TruhuisAddressRegistryAdapter is Ownable {
     {
         return
             ITaxAdministration(
-                _addressRegistry.getAddress(bytes32("TAX_ADMINISTRATION"))
+                _addresser.getAddress(bytes32("TAX_ADMINISTRATION"))
             );
     }
 
     /// @notice Returns Truhuis Marketplace smart contract interface.
     function trade() public view virtual returns (ITruhuisTrade) {
         return
-            ITruhuisTrade(_addressRegistry.getAddress(bytes32("TRADE")));
+            ITruhuisTrade(_addresser.getAddress(bytes32("TRADE")));
     }
 }

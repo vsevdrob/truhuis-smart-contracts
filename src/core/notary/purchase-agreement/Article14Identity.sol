@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.13;
 
-import "../../../libraries/IdentificationLogic.sol";
-import {Identity} from "../../../interfaces/IPurchaseAgreement.sol";
+import "@libraries/IdentificationLogic.sol";
+import {Identity} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article14Identity is IdentificationLogic {
     function _validateIdentity(uint256 _tokenId, Identity memory _identity)

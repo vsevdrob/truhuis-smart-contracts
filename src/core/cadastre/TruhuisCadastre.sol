@@ -10,8 +10,8 @@ import "./ATruhuisCadastre.sol";
  * @notice _
  */
 contract TruhuisCadastre is ATruhuisCadastre {
-    constructor(address _addressRegistry, string memory _contractURI)
-        ATruhuisCadastre(_addressRegistry, _contractURI)
+    constructor(address _addresser, string memory _contractURI)
+        ATruhuisCadastre(_addresser, _contractURI)
     {}
 
     /// @inheritdoc ITruhuisCadastre

@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.13;
 
-import "../../interfaces/ITruhuisAddressRegistry.sol";
+import "@interfaces/ITruhuisAddresser.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title AbstractTruhuisAddressRegistry
+ * @title ATruhuisAddresser
  * @author vsevdrob
  * @notice _
  */
-abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
+abstract contract ATruhuisAddresser is Ownable, ITruhuisAddresser {
     /* PRIVATE STORAGE */
 
     /// @dev Identifier => Municipality struct.
@@ -18,16 +18,14 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
     /// @dev Address identifier => Smart contract address.
     mapping(bytes32 => address) private _sAddresses;
 
-    /// @dev Identifier for Truhuis Address Registry smart contract.
-    bytes32 private constant _S_ADDRESS_REGISTRY = "ADDRESS_REGISTRY";
+    /// @dev Identifier for Truhuis Addresser smart contract.
+    bytes32 private constant _S_ADDRESSER = "ADDRESSER";
     /// @dev Identifier for Truhuis Appraiser smart contract.
     bytes32 private constant _S_APPRAISER = "APPRAISER";
     /// @dev Identifier for Truhuis Bank smart contract.
     bytes32 private constant _S_BANK = "BANK";
     /// @dev Identifier for Truhuis Cadastre smart contract.
     bytes32 private constant _S_CADASTRE = "CADASTRE";
-    /// @dev Identifier for Truhuis Currency Registry smart contract.
-    bytes32 private constant _S_CURRENCY_REGISTRY = "CURRENCY_REGISTRY";
     /// @dev Identifier for Truhuis Inspector smart contract.
     bytes32 private constant _S_INSPECTOR = "INSPECTOR";
     /// @dev Identifier for Truhuis Notary smart contract.
@@ -44,12 +42,12 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
 
     /* EXTERNAL VIEW FUNCTIONS */
 
-    ///@inheritdoc ITruhuisAddressRegistry
+    ///@inheritdoc ITruhuisAddresser
     function getAddress(bytes32 _id) external view returns (address) {
         return _sAddresses[_id];
     }
 
-    ///@inheritdoc ITruhuisAddressRegistry
+    ///@inheritdoc ITruhuisAddresser
     function getMunicipality(bytes4 _cbsCode)
         external
         view
@@ -59,7 +57,7 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
         return _sMunicipalities[_cbsCode];
     }
 
-    ///@inheritdoc ITruhuisAddressRegistry
+    ///@inheritdoc ITruhuisAddresser
     function isRegisteredMunicipality(address _addr, bytes4 _cbsCode)
         external
         view
@@ -90,7 +88,7 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
      * @dev _
      */
     function _initialize() internal {
-        _sAddresses[_S_ADDRESS_REGISTRY] = address(this);
+        _sAddresses[_S_ADDRESSER] = address(this);
     }
 
     /**
@@ -132,9 +130,9 @@ abstract contract ATruhuisAddressRegistry is Ownable, ITruhuisAddressRegistry {
 
         /* PERFORM ASSERTIONS */
 
-        // Update Truhuis Address Registry is not allowed.
-        if (_id == _S_ADDRESS_REGISTRY) {
-            revert UPDATE_ADDRESS_REGISTRY_NOT_ALLOWED();
+        // Update Truhuis Address is not allowed.
+        if (_id == _S_ADDRESSER) {
+            revert UPDATE_ADDRESSER_NOT_ALLOWED();
         }
 
         // The new address can not be identical to the old address.
