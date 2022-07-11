@@ -78,11 +78,11 @@ contract Conftest is Test {
     bytes32 public constant NOTARY = "NOTARY";
     /// @dev Identifier for Personal Records Database smart contract.
     bytes32 public constant PERSONAL_RECORDS_DATABASE =
-        "PERSONAL_RECORDS_DATABASE";
+        "PERSONAL RECORDS DATABASE";
     /// @dev Identifier for Chainlink Price Feed smart contract.
-    bytes32 public constant PRICE_ORACLE = "PRICE_ORACLE";
+    bytes32 public constant PRICE_ORACLE = "PRICE ORACLE";
     /// @dev Identifier for Tax Administration smart contract.
-    bytes32 public constant TAX_ADMINISTRATION = "TAX_ADMINISTRATION";
+    bytes32 public constant TAX_ADMINISTRATION = "TAX ADMINISTRATION";
     /// @dev Identifier for Truhuis Trade smart contract.
     bytes32 public constant TRADE = "TRADE";
 

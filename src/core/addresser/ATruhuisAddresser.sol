@@ -32,11 +32,11 @@ abstract contract ATruhuisAddresser is Ownable, ITruhuisAddresser {
     bytes32 private constant _S_NOTARY = "NOTARY";
     /// @dev Identifier for Personal Records Database smart contract.
     bytes32 private constant _S_PERSONAL_RECORDS_DATABASE =
-        "PERSONAL_RECORDS_DATABASE";
+        "PERSONAL RECORDS DATABASE";
     /// @dev Identifier for Chainlink Price Feed smart contract.
-    bytes32 private constant _S_PRICE_ORACLE = "PRICE_ORACLE";
+    bytes32 private constant _S_PRICE_ORACLE = "PRICE ORACLE";
     /// @dev Identifier for Tax Administration smart contract.
-    bytes32 private constant _S_TAX_ADMINISTRATION = "TAX_ADMINISTRATION";
+    bytes32 private constant _S_TAX_ADMINISTRATION = "TAX ADMINISTRATION";
     /// @dev Identifier for Truhuis Trade smart contract.
     bytes32 private constant _S_TRADE = "TRADE";
 
