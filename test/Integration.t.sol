@@ -267,33 +267,29 @@ contract TruhuisTest is Conftest {
 
     function _updateAddresses() private {
         vm.startPrank(truhuis);
-        addressRegistry.updateAddress(address(appraiser), APPRAISER);
-        addressRegistry.updateAddress(address(bank), BANK);
-        addressRegistry.updateAddress(address(cadastre), CADASTRE);
-        addressRegistry.updateAddress(
-            address(currencyRegistry),
-            CURRENCY_REGISTRY
-        );
-        addressRegistry.updateAddress(address(inspector), INSPECTOR);
-        addressRegistry.updateAddress(address(notary), NOTARY);
-        addressRegistry.registerMunicipality(address(municipalityA), AMSTERDAM);
-        addressRegistry.registerMunicipality(address(municipalityR), ROTTERDAM);
-        addressRegistry.registerMunicipality(address(municipalityH), THE_HAGUE);
-        addressRegistry.updateAddress(
+        addresser.updateAddress(address(appraiser), APPRAISER);
+        addresser.updateAddress(address(bank), BANK);
+        addresser.updateAddress(address(cadastre), CADASTRE);
+        addresser.updateAddress(address(inspector), INSPECTOR);
+        addresser.updateAddress(address(notary), NOTARY);
+        addresser.registerMunicipality(address(municipalityA), AMSTERDAM);
+        addresser.registerMunicipality(address(municipalityR), ROTTERDAM);
+        addresser.registerMunicipality(address(municipalityH), THE_HAGUE);
+        addresser.updateAddress(
             address(personalRecordsDatabase),
             PERSONAL_RECORDS_DATABASE
         );
-        addressRegistry.updateAddress(
+        addresser.updateAddress(
             address(taxAdministration),
             TAX_ADMINISTRATION
         );
-        addressRegistry.updateAddress(address(trade), TRADE);
+        addresser.updateAddress(address(trade), TRADE);
         vm.stopPrank();
     }
 
     function _addNewCurrency() private {
         vm.startPrank(truhuis);
-        currencyRegistry.add(address(mockERC20EURT));
+        bank.registerCurrency(address(mockERC20EURT));
         vm.stopPrank();
     }
 

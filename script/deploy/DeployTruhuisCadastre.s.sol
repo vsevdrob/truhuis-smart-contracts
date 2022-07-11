@@ -6,12 +6,12 @@ import "forge-std/Script.sol";
 import "@core/cadastre/TruhuisCadastre.sol";
 
 contract DeployTruhuisCadastre is Script {
-    function deploy(address _addressRegistry, string memory _contractURI)
+    function deploy(address _addresser, string memory _contractURI)
         external
     {
         vm.startBroadcast();
 
-        new TruhuisCadastre(_addressRegistry, _contractURI);
+        new TruhuisCadastre(_addresser, _contractURI);
 
         vm.stopBroadcast();
     }

@@ -6,12 +6,12 @@ import "forge-std/Script.sol";
 import "@core/inspector/TruhuisInspector.sol";
 
 contract DeployTruhuisInspector is Script {
-    function deploy(address _addressRegistry)
+    function deploy(address _addresser)
         external
     {
         vm.startBroadcast();
 
-        new TruhuisInspector(_addressRegistry);
+        new TruhuisInspector(_addresser);
 
         vm.stopBroadcast();
     }

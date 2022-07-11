@@ -3,6 +3,7 @@
 pragma solidity 0.8.13;
 
 import {TypeOfGuarantee} from "./IPurchaseAgreement.sol";
+import "./ICurrencyRegistry.sol";
 
 error DEPOSIT_DEADLINE_PASSED();
 error GUARANTEE_ALREADY_FULFILLED();
@@ -77,7 +78,7 @@ struct Balance {
     Credit credit;
 }
 
-interface ITruhuisBank {
+interface ITruhuisBank is ICurrencyRegistry {
     /// @dev _
     event Withdrew(address caller, address currency, uint256 amount);
 

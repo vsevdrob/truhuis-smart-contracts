@@ -6,12 +6,12 @@ import "forge-std/Script.sol";
 import "@core/state/PersonalRecordsDatabase.sol";
 
 contract DeployPersonalRecordsDatabase is Script {
-    function deploy(address _addressRegistry)
+    function deploy(address _addresser)
         external
     {
         vm.startBroadcast();
 
-        new PersonalRecordsDatabase(_addressRegistry);
+        new PersonalRecordsDatabase(_addresser);
 
         vm.stopBroadcast();
     }

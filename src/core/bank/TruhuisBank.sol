@@ -5,7 +5,7 @@ pragma solidity 0.8.13;
 import "./ATruhuisBank.sol";
 
 contract TruhuisBank is ATruhuisBank {
-    constructor(address _addressRegistry) ATruhuisBank(_addressRegistry) {}
+    constructor(address _addresser) ATruhuisBank(_addresser) {}
 
     /// @inheritdoc ITruhuisBank
     function fulfillGuarantee(
@@ -20,6 +20,11 @@ contract TruhuisBank is ATruhuisBank {
         _fulfillPayment(_purchaseAgreementId);
     }
 
+    /// @inheritdoc ICurrencyRegistry
+    function registerCurrency(address _token) external override onlyOwner {
+        _registerCurrency(_token);
+    }
+
     /// @inheritdoc ITruhuisBank
     function takeOutMortgage(uint256 _purchaseAgreementId) external override {
         _takeOutMortgage(_purchaseAgreementId);
@@ -28,6 +33,11 @@ contract TruhuisBank is ATruhuisBank {
     /// @inheritdoc ITruhuisBank
     function unlockProceeds(uint256 _purchaseAgreementId) external override {
         _unlockProceeds(_purchaseAgreementId);
+    }
+
+    /// @inheritdoc ICurrencyRegistry
+    function unregisterCurrency(address _token) external override onlyOwner {
+        _unregisterCurrency(_token);
     }
 
     /// @inheritdoc ITruhuisBank

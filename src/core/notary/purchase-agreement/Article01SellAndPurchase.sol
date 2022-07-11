@@ -8,10 +8,10 @@ import {
     SellAndPurchase__PurchasePriceMustBeGreaterThanZero,
     SellAndPurchase__TokenNotExists,
     SellAndPurchase
-} from "../../../interfaces/IPurchaseAgreement.sol";
-import "../../address/TruhuisAddressRegistryAdapter.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
 
-contract Article01SellAndPurchase is TruhuisAddressRegistryAdapter {
+contract Article01SellAndPurchase is TruhuisAddresserAPI {
     function _validateSellAndPurchase(SellAndPurchase memory _sellAndPurchase)
         internal
         view

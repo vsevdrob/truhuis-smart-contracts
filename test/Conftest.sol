@@ -3,11 +3,10 @@
 pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
-import "@core/address/TruhuisAddressRegistry.sol";
+import "@core/addresser/TruhuisAddresser.sol";
 import "@core/appraiser/TruhuisAppraiser.sol";
 import "@core/bank/TruhuisBank.sol";
 import "@core/cadastre/TruhuisCadastre.sol";
-import "@core/currency/TruhuisCurrencyRegistry.sol";
 import "@core/inspector/TruhuisInspector.sol";
 import "@core/notary/TruhuisNotary.sol";
 import "@core/state/Municipality.sol";
@@ -44,11 +43,10 @@ contract Conftest is Test {
     address public ministryOfFin = address(0x11);
 
     // Truhuis contracts as well as state and currency contracts.
-    TruhuisAddressRegistry public addressRegistry;
+    TruhuisAddresser public addresser;
     TruhuisAppraiser public appraiser;
     TruhuisBank public bank;
     TruhuisCadastre public cadastre;
-    TruhuisCurrencyRegistry public currencyRegistry;
     TruhuisInspector public inspector;
     TruhuisNotary public notary;
     MockERC20EURT public mockERC20EURT;
@@ -59,33 +57,41 @@ contract Conftest is Test {
     TaxAdministration public taxAdministration;
     TruhuisTrade public trade;
 
+    /// @dev Identifier for the municipality of Amsterdam.
     bytes4 public constant AMSTERDAM = bytes4("0363");
+    /// @dev Identifier for the municipality of Rotterdam.
     bytes4 public constant ROTTERDAM = bytes4("0599");
+    /// @dev Identifier for the municipality of The Hague.
     bytes4 public constant THE_HAGUE = bytes4("0518");
 
-    /// @dev Identifier for Truhuis Address Registry smart contract.
-    bytes32 public constant ADDRESS_REGISTRY = "ADDRESS_REGISTRY";
+    /// @dev Identifier for Truhuis Addresser smart contract.
+    bytes32 public constant ADDRESSER = "ADDRESSER";
     /// @dev Identifier for Truhuis Appraiser smart contract.
     bytes32 public constant APPRAISER = "APPRAISER";
     /// @dev Identifier for Truhuis Bank smart contract.
     bytes32 public constant BANK = "BANK";
     /// @dev Identifier for Truhuis Cadastre smart contract.
     bytes32 public constant CADASTRE = "CADASTRE";
-    /// @dev Identifier for Truhuis Currency Registry smart contract.
-    bytes32 public constant CURRENCY_REGISTRY = "CURRENCY_REGISTRY";
     /// @dev Identifier for Truhuis Inspector smart contract.
     bytes32 public constant INSPECTOR = "INSPECTOR";
     /// @dev Identifier for Truhuis Notary smart contract.
     bytes32 public constant NOTARY = "NOTARY";
     /// @dev Identifier for Personal Records Database smart contract.
     bytes32 public constant PERSONAL_RECORDS_DATABASE =
-        "PERSONAL_RECORDS_DATABASE";
+        "PERSONAL RECORDS DATABASE";
     /// @dev Identifier for Chainlink Price Feed smart contract.
-    bytes32 public constant PRICE_ORACLE = "PRICE_ORACLE";
+    bytes32 public constant PRICE_ORACLE = "PRICE ORACLE";
     /// @dev Identifier for Tax Administration smart contract.
-    bytes32 public constant TAX_ADMINISTRATION = "TAX_ADMINISTRATION";
+    bytes32 public constant TAX_ADMINISTRATION = "TAX ADMINISTRATION";
     /// @dev Identifier for Truhuis Trade smart contract.
     bytes32 public constant TRADE = "TRADE";
+
+    /// @dev Contract URI related to the cadastre.
+    string public cadastreContractURI = "ipfs://";
+    /// @dev Token URI of token ID 1.
+    string public sTokenURI1 = "ipfs://1";
+    /// @dev Token URI of token ID 2.
+    string public sTokenURI2 = "ipfs://2";
 
     constructor() {
         truhuis = msg.sender;
@@ -93,16 +99,15 @@ contract Conftest is Test {
 
     function _deploy() internal {
         vm.startPrank(truhuis);
-        addressRegistry = new TruhuisAddressRegistry();
-        appraiser = new TruhuisAppraiser(address(addressRegistry));
-        bank = new TruhuisBank(address(addressRegistry));
+        addresser = new TruhuisAddresser();
+        appraiser = new TruhuisAppraiser(address(addresser));
+        bank = new TruhuisBank(address(addresser));
         cadastre = new TruhuisCadastre(
-            address(addressRegistry),
-            "Truhuis Cadastre"
+            address(addresser),
+            cadastreContractURI
         );
-        currencyRegistry = new TruhuisCurrencyRegistry();
-        inspector = new TruhuisInspector(address(addressRegistry));
-        notary = new TruhuisNotary(address(addressRegistry));
+        inspector = new TruhuisInspector(address(addresser));
+        notary = new TruhuisNotary(address(addresser));
         mockERC20EURT = new MockERC20EURT(truhuis, 1 * 1000000 * 1000000);
         vm.stopPrank();
 
@@ -120,7 +125,7 @@ contract Conftest is Test {
 
         vm.startPrank(ministryOfIKR);
         personalRecordsDatabase = new PersonalRecordsDatabase(
-            address(addressRegistry)
+            address(addresser)
         );
         vm.stopPrank();
 
@@ -128,7 +133,7 @@ contract Conftest is Test {
         taxAdministration = new TaxAdministration();
         vm.stopPrank();
 
-        trade = new TruhuisTrade(address(addressRegistry), 50);
+        trade = new TruhuisTrade(address(addresser), 50);
 
         _refuelAccountsERC20();
     }

@@ -7,7 +7,7 @@ import {
     Costs__PayerMustBeNotNone,
     Costs,
     Party
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article02Costs {
     function _validateCosts(Costs memory _costs) internal pure {

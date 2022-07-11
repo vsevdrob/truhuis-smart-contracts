@@ -1,6 +1,7 @@
 @chainlink/=lib/chainlink-brownie-contracts/
 @core/=src/core/
 @interfaces/=src/interfaces/
+@libraries/=src/libraries/
 @mocks/=src/mocks/
 @openzeppelin/=lib/openzeppelin-contracts/
 chainlink-brownie-contracts/=lib/chainlink-brownie-contracts/
