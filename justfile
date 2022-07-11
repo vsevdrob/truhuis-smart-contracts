@@ -4,11 +4,10 @@ alias i := install
 alias cl := call-local
 ## DEPLOY CONTRACTS (local)
 alias dlall := deploy-local-all
-alias dlar := deploy-local-address-registry
+alias dlar := deploy-local-addresser
 alias dla := deploy-local-appraiser
 alias dlb := deploy-local-bank
 alias dlc := deploy-local-cadastre
-alias dlcr := deploy-local-currency-registry
 alias dli := deploy-local-inspector
 alias dln := deploy-local-notary
 alias dlm := deploy-local-municipality
@@ -19,6 +18,7 @@ alias dlt := deploy-local-trade
 alias lc := lint-check
 alias lw := lint-write
 alias tl := test-local
+alias ua := update-address
 
 # Load .env file.
 set dotenv-load := true
@@ -48,24 +48,32 @@ clean:
 
 # [DEPLOY]: Deploy all smart contracts.
 deploy-local-all:
-    just deploy-local-address-registry
-    just deploy-local-appraiser
-    just deploy-local-bank
-    just deploy-local-cadastre
-    just deploy-local-currency-registry
-    just deploy-local-inspector
-    just deploy-local-notary
-    just deploy-local-municipality
-    just deploy-local-personal-records-database
-    just deploy-local-tax-administration
-    just deploy-local-trade
+    just deploy-local-addresser && \
+    just deploy-local-appraiser && \
+    just deploy-local-bank && \
+    just deploy-local-cadastre && \
+    just deploy-local-inspector && \
+    just deploy-local-notary && \
+    just deploy-local-municipality && \
+    just deploy-local-personal-records-database && \
+    just deploy-local-tax-administration && \
+    just deploy-local-trade && \
+    cp -r ./broadcast/* ../truhuis-addresser-client/contracts/deployments && \
+    cp -r ./out/* ../truhuis-addresser-client/contracts/abi
 
-# ADDRESS
+update-address contract id:
+    {{source}} && cast send \
+    --private-key $PRIVATE_KEY_ANVIL_0 \
+    --rpc-url http://127.0.0.1:8545/ \
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json` \
+    "updateAddress(address,bytes32)" `jq -r ".transactions[0].contractAddress" ./broadcast/Deploy{{contract}}.s.sol/31337/deploy-latest.json` `cast --from-utf8 "{{id}}"`
 
-# [DEPLOY]: Deploy TruhuisAddressRegistry.sol on local network.
-deploy-local-address-registry:
+# ADDRESSER
+
+# [DEPLOY]: Deploy TruhuisAddresser.sol on local network.
+deploy-local-addresser:
     {{source}} && forge script \
-    script/deploy/DeployTruhuisAddressRegistry.s.sol:DeployTruhuisAddressRegistry \
+    script/deploy/DeployTruhuisAddresser.s.sol:DeployTruhuisAddresser \
     --sig "deploy()" \
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
@@ -83,7 +91,7 @@ deploy-local-appraiser:
     --broadcast \
     -vvvv \
     script/deploy/DeployTruhuisAppraiser.s.sol:DeployTruhuisAppraiser \
-    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json`
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
 # BANK
 
@@ -96,7 +104,7 @@ deploy-local-bank:
     --broadcast \
     -vvvv \
     script/deploy/DeployTruhuisBank.s.sol:DeployTruhuisBank \
-    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json`
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
 # CADASTRE
 
@@ -109,20 +117,8 @@ deploy-local-cadastre:
     --broadcast \
     -vvvv \
     script/deploy/DeployTruhuisCadastre.s.sol:DeployTruhuisCadastre \
-    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json` \
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json` \
     "ipfs://"
-    
-# CURRENCY
-
-# [DEPLOY]: Deploy TruhuisCurrencyRegistry.sol on local network.
-deploy-local-currency-registry:
-    {{source}} && forge script \
-    script/deploy/DeployTruhuisCurrencyRegistry.s.sol:DeployTruhuisCurrencyRegistry \
-    --sig "deploy()" \
-    --rpc-url http://127.0.0.1:8545 \
-    --private-key $PRIVATE_KEY_ANVIL_0 \
-    --broadcast \
-    -vvvv
 
 # INSPECTOR
 
@@ -135,7 +131,7 @@ deploy-local-inspector:
     --broadcast \
     -vvvv \
     script/deploy/DeployTruhuisInspector.s.sol:DeployTruhuisInspector \
-    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json`
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
 # NOTARY
 
@@ -148,7 +144,7 @@ deploy-local-notary:
     --broadcast \
     -vvvv \
     script/deploy/DeployTruhuisNotary.s.sol:DeployTruhuisNotary \
-    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json`
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
 # STATE
 
@@ -172,7 +168,7 @@ deploy-local-personal-records-database:
     --broadcast \
     -vvvv \
     script/deploy/DeployPersonalRecordsDatabase.s.sol:DeployPersonalRecordsDatabase \
-    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json`
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
 # [DEPLOY] deploy TaxAdministration.sol on local network.
 deploy-local-tax-administration:
@@ -195,7 +191,7 @@ deploy-local-trade:
     --broadcast \
     -vvvv \
     script/deploy/DeployTruhuisTrade.s.sol:DeployTruhuisTrade \
-    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddressRegistry.s.sol/31337/deploy-latest.json` \
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json` \
     250
 
 # [HELP]: Run help for a certain command.
@@ -212,7 +208,7 @@ send-local private_key contract_addr function_sig:
 
 # [TEST]: Run the project's tests.
 test-local:
-    {{source}} && forge test -vvv
+    {{source}} && forge test -vvvv
 
 # [LINT]: Check for Solidity lintings with Prettier and Solhint.
 lint-check:
