@@ -11,8 +11,8 @@ error MUNICIPALITY_UPDATE_FAILED();
 /// @dev Reverted if provided address is identical to old address.
 error IDENTICAL_ADDRESS_PROVIDED();
 
-/// @dev Reverted if attempted to update Truhuis Address Registry address.
-error UPDATE_ADDRESS_REGISTRY_NOT_ALLOWED();
+/// @dev Reverted if attempted to update Truhuis Addresser address.
+error UPDATE_ADDRESSER_NOT_ALLOWED();
 
 /// @dev Reverted if provided address is the zero address.
 error ZERO_ADDRESS_PROVIDED();
@@ -24,7 +24,7 @@ struct MunicipalityStruct {
     bytes4 cbsCode;
 }
 
-interface ITruhuisAddressRegistry {
+interface ITruhuisAddresser {
     /// @notice Event emitted when an address update takes place.
     event AddressUpdated(address newAddr, address oldAddr, bytes32 id);
 

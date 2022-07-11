@@ -2,11 +2,11 @@
 
 pragma solidity 0.8.13;
 
-import "../address/TruhuisAddressRegistryAdapter.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract ATruhuisAppraiser is Ownable, TruhuisAddressRegistryAdapter {
-    constructor(address _addressRegistry) {
-        updateAddressRegistry(_addressRegistry);
+abstract contract ATruhuisAppraiser is Ownable, TruhuisAddresserAPI {
+    constructor(address _addresser) {
+        updateAddresser(_addresser);
     }
 }

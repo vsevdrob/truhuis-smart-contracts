@@ -6,12 +6,12 @@ import "forge-std/Script.sol";
 import "@core/trade/TruhuisTrade.sol";
 
 contract DeployTruhuisTrade is Script {
-    function deploy(address _addressRegistry, uint96 _serviceFee)
+    function deploy(address _addresser, uint96 _serviceFee)
         external
     {
         vm.startBroadcast();
 
-        new TruhuisTrade(_addressRegistry, _serviceFee);
+        new TruhuisTrade(_addresser, _serviceFee);
 
         vm.stopBroadcast();
     }

@@ -6,7 +6,7 @@ import {
     TransferOfOwnership__InvalidDateOfLegalTransfer,
     TransferOfOwnership__InvalidDateOfActualTransfer,
     TransferOfOwnership
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article04TransferOfOwnership {
     function _validateTransferOfOwnership(

@@ -6,12 +6,12 @@ import "forge-std/Script.sol";
 import "@core/notary/TruhuisNotary.sol";
 
 contract DeployTruhuisNotary is Script {
-    function deploy(address _addressRegistry)
+    function deploy(address _addresser)
         external
     {
         vm.startBroadcast();
 
-        new TruhuisNotary(_addressRegistry);
+        new TruhuisNotary(_addresser);
 
         vm.stopBroadcast();
     }

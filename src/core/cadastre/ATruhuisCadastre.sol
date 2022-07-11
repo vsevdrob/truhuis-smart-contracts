@@ -2,9 +2,9 @@
 
 pragma solidity 0.8.13;
 
-import "../address/TruhuisAddressRegistryAdapter.sol";
-import "../../interfaces/ITruhuisCadastre.sol";
-import "../../libraries/MultiSignable.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
+import "@interfaces/ITruhuisCadastre.sol";
+import "@libraries/MultiSignable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -20,7 +20,7 @@ abstract contract ATruhuisCadastre is
     ERC721Enumerable,
     Pausable,
     MultiSignable,
-    TruhuisAddressRegistryAdapter,
+    TruhuisAddresserAPI,
     ITruhuisCadastre
 {
     /* PRIVATE STORAGE */
@@ -44,19 +44,99 @@ abstract contract ATruhuisCadastre is
     }
 
     modifier onlyPermitted(uint256 _tokenId) {
-        //if (
-        //    msg.sender != ownerOf(_tokenId) || msg.sender != address(notary())
-        //) {
-        //    revert CALLER_NOT_PERMITTED(msg.sender);
-        //}
+        if (
+            msg.sender != ownerOf(_tokenId) && msg.sender != address(notary())
+        ) {
+            revert CALLER_NOT_PERMITTED(msg.sender);
+        }
         _;
     }
 
-    constructor(address _addressRegistry, string memory _contractURI)
+    constructor(address _addresser, string memory _contractURI)
         ERC721("Truhuis Cadastre", "TCA")
     {
-        updateAddressRegistry(_addressRegistry);
+        updateAddresser(_addresser);
         _updateContractURI(_contractURI);
+    }
+
+    /// @inheritdoc ITruhuisCadastre
+    function exists(uint256 _tokenId) external view override returns (bool) {
+        return _exists(_tokenId);
+    }
+
+    // @inheritdoc ITruhuisCadastre
+    function getContractURI() external view override returns (string memory) {
+        return _sContractURI;
+    }
+
+    /// @inheritdoc ITruhuisCadastre
+    function isNFTOwner(address _account, uint256 _tokenId)
+        external
+        view
+        override
+        returns (bool)
+    {
+        return _account == ownerOf(_tokenId);
+    }
+
+    /**
+     * @dev See {IERC721-safeTransferFrom}.
+     */
+    function safeTransferFrom(
+        address,
+        address,
+        uint256
+    ) public virtual override(ERC721, IERC721) {
+        revert INACTIVE_FUNCTION();
+    }
+
+    /**
+     * @dev See {IERC721-safeTransferFrom}.
+     */
+    function safeTransferFrom(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual override(ERC721, IERC721) {
+        revert INACTIVE_FUNCTION();
+    }
+
+    /**
+     * @dev See {IERC165}
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721, ERC721Enumerable, IERC165)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev See {ERC721URIStorage-tokenURI}
+     */
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    /**
+     * @dev See {IERC721-transferFrom}.
+     */
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public virtual override(ERC721, IERC721) {
+        revert INACTIVE_FUNCTION();
     }
 
     /**
@@ -72,6 +152,43 @@ abstract contract ATruhuisCadastre is
 
         // Emit a {TokenURISet} event.
         emit TokenURISet(_tokenURI, _tokenId);
+    }
+
+    /**
+     * @dev _
+     */
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    /**
+     * @dev See {ERC721-burn}
+     */
+    function _burn(uint256 tokenId)
+        internal
+        virtual
+        override(ERC721, ERC721URIStorage)
+    {
+        require(_exists(tokenId), "Token ID set of nonexistent token.");
+        super._burn(tokenId);
+    }
+
+    function _confirmTransfer(uint256 _tokenId, uint256 _txId)
+        internal
+        virtual
+    {
+        _confirmTransaction(_tokenId, _txId);
+    }
+
+    /**
+     * @dev _
+     */
+    function _pauseContract() internal virtual {
+        _pause();
     }
 
     /**
@@ -96,6 +213,29 @@ abstract contract ATruhuisCadastre is
 
         // Increment token ID counter.
         _sTokenIds++;
+    }
+
+    /**
+     * @dev _
+     */
+    function _revokeTransferConfirmation(uint256 _tokenId, uint256 _txId)
+        internal
+        virtual
+    {
+        _revokeConfirmation(_tokenId, _txId);
+    }
+
+    /**
+     * @dev _
+     */
+    function _submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId)
+        internal
+        virtual
+    {
+        _submitTransaction(
+            _getConfirmers(_purchaseAgreementId, _tokenId),
+            _tokenId
+        );
     }
 
     /**
@@ -130,7 +270,21 @@ abstract contract ATruhuisCadastre is
     /**
      * @dev _
      */
+    function _unpauseContract() internal virtual {
+        _unpause();
+    }
+
+    /**
+     * @dev _
+     */
     function _updateContractURI(string memory _contractURI) internal virtual {
+        /* PERFORM ASSERTIONS */
+
+        // New contract URI must be not identical to the old.
+        if (keccak256(bytes(_contractURI)) == keccak256(bytes(_sContractURI))) {
+            revert PROVIDED_IDENTICAL_CONTRACT_URI();
+        }
+
         /* UPDATE CONTRACT URI */
 
         _sContractURI = _contractURI;
@@ -139,79 +293,11 @@ abstract contract ATruhuisCadastre is
         emit ContractURIUpdated(_contractURI);
     }
 
-    /* INTERNAL & PRIVATE FUNCTIONS */
-
-    // The following functions are overrides required by Solidity.
-
-    /**
-     * @dev _
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override(ERC721, ERC721Enumerable) {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    function _burn(uint256 tokenId)
-        internal
-        virtual
-        override(ERC721, ERC721URIStorage)
-    {
-        require(_exists(tokenId), "Token ID set of nonexistent token.");
-        super._burn(tokenId);
-    }
-
-    /**
-     * @dev See {IERC721-transferFrom}.
-     */
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) public virtual override(ERC721, IERC721) {
-        revert INACTIVE_FUNCTION();
-    }
-
-    /**
-     * @dev See {IERC721-safeTransferFrom}.
-     */
-    function safeTransferFrom(
-        address,
-        address,
-        uint256
-    ) public virtual override(ERC721, IERC721) {
-        revert INACTIVE_FUNCTION();
-    }
-
-    /**
-     * @dev See {IERC721-safeTransferFrom}.
-     */
-    function safeTransferFrom(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public virtual override(ERC721, IERC721) {
-        revert INACTIVE_FUNCTION();
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721, ERC721Enumerable, IERC165)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
     /**
      * @dev _
      */
     function _getConfirmers(uint256 _purchaseAgreementId, uint256 _tokenId)
-        internal
+        private
         view
         returns (address[3] memory)
     {
@@ -234,27 +320,5 @@ abstract contract ATruhuisCadastre is
         } else {
             return [address(notary()), nftOwner, address(0)];
         }
-    }
-
-    /**
-     * @dev _
-     */
-    function _isNFTOwner(address _account, uint256 _tokenId)
-        internal
-        view
-        virtual
-        returns (bool)
-    {
-        return _account == ownerOf(_tokenId);
-    }
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
     }
 }

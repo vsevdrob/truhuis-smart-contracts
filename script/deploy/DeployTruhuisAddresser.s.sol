@@ -3,13 +3,13 @@
 pragma solidity 0.8.13;
 
 import "forge-std/Script.sol";
-import "@core/address/TruhuisAddressRegistry.sol";
+import "@core/addresser/TruhuisAddresser.sol";
 
-contract DeployTruhuisAddressRegistry is Script {
+contract DeployTruhuisAddresser is Script {
     function deploy() external {
         vm.startBroadcast();
 
-        new TruhuisAddressRegistry();
+        new TruhuisAddresser();
 
         vm.stopBroadcast();
     }

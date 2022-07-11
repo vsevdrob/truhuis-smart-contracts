@@ -3,21 +3,25 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
+/// @dev Reverted if caller is not NFT owner.
+error CALLER_NOT_NFT_OWNER();
+
+/// @dev Reverted if caller is not permitted to call function.
+error CALLER_NOT_PERMITTED(address caller);
+
+/// @dev Reverted if caller is not NFT owner nor approved.
+error CALLER_NOT_NFT_OWNER_NOR_APPROVED();
+
+/// @dev Reverted if caller tries to transfer NFT through `transferFrom`,
+///      `safeTransferFrom` or `safeTransferFrom` function.
+///
+///      Instead, use `transferNFTOwnership` function.
+error INACTIVE_FUNCTION();
+
+/// @dev Reverted if caller provided identical contract URI to the old.
+error PROVIDED_IDENTICAL_CONTRACT_URI();
+
 interface ITruhuisCadastre is IERC721 {
-    /// @dev Reverted if caller is not NFT owner.
-    error CALLER_NOT_NFT_OWNER();
-
-    /// @dev Reverted if caller is not permitted to call function.
-    error CALLER_NOT_PERMITTED(address caller);
-    
-    /// @dev Reverted if caller is not NFT owner nor approved.
-    error CALLER_NOT_NFT_OWNER_NOR_APPROVED();
-
-    /// @dev Reverted if caller tries to transfer NFT through `transferFrom`,
-    ///      `safeTransferFrom` or `safeTransferFrom` function.
-    ///
-    ///      Instead, use `transferNFTOwnership` function.
-    error INACTIVE_FUNCTION();
 
     /// @dev Event emiited when contract URI is updated.
     event ContractURIUpdated(string contractURI);
@@ -38,7 +42,7 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function pause() external;
+    function pauseContract() external;
 
     /**
      * @dev _
@@ -48,13 +52,13 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId) external;
+    function revokeTransferConfirmation(uint256 _tokenId, uint256 _txId)
+        external;
 
     /**
      * @dev _
      */
-    function revokeTransferConfirmation(uint256 _tokenId, uint256 _txId)
-        external;
+    function submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId) external;
 
     /**
      * @dev _
@@ -70,7 +74,7 @@ interface ITruhuisCadastre is IERC721 {
     /**
      * @dev _
      */
-    function unpause() external;
+    function unpauseContract() external;
 
     /**
      * @dev _
@@ -81,6 +85,11 @@ interface ITruhuisCadastre is IERC721 {
      * @dev _
      */
     function exists(uint256 _tokenId) external view returns (bool);
+
+    /**
+     * @dev _
+     */
+    function getContractURI() external view returns (string memory);
 
     /**
      * @dev _

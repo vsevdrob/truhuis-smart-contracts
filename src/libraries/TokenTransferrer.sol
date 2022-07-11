@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.13;
 
-import "../core/address/TruhuisAddressRegistryAdapter.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error ERC20TransferFailed();
@@ -15,7 +15,7 @@ error ERC721TransferFailed();
  *         transfers, used by Truhuis Bank Truhuis Marketplace and Truhuis
  *         Auction.
  */
-contract TokenTransferrer is TruhuisAddressRegistryAdapter {
+contract TokenTransferrer is TruhuisAddresserAPI {
     function _performERC20Transfer(
         address _to,
         address _token,

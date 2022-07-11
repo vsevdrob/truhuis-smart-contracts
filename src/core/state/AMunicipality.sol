@@ -2,8 +2,8 @@
 
 pragma solidity 0.8.13;
 
-import "../address/TruhuisAddressRegistryAdapter.sol";
-import "../../interfaces/IMunicipality.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
+import "@interfaces/IMunicipality.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 abstract contract AMunicipality is
     Ownable,
     IMunicipality,
-    TruhuisAddressRegistryAdapter
+    TruhuisAddresserAPI
 {
     bytes4 private _sId;
 

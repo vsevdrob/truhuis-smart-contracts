@@ -10,7 +10,7 @@ import "./ATruhuisInspector.sol";
  * @notice _
  */
 contract TruhuisInspector is ATruhuisInspector {
-    constructor(address _addressRegistry) ATruhuisInspector(_addressRegistry) {}
+    constructor(address _addresser) ATruhuisInspector(_addresser) {}
 
     /// @inheritdoc ITruhuisInspector
     function carryOutStructuralInspection(uint256 _purchaseAgreementId)

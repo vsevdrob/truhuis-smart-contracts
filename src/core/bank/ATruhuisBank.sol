@@ -5,10 +5,12 @@ pragma solidity 0.8.13;
 import {
     PurchaseAgreementStruct,
     TypeOfGuarantee
-} from "../../interfaces/IPurchaseAgreement.sol";
-import "../address/TruhuisAddressRegistryAdapter.sol";
-import "../../libraries/TokenTransferrer.sol";
-import "../../interfaces/ITruhuisBank.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
+import "@libraries/TokenTransferrer.sol";
+import "@interfaces/ITruhuisBank.sol";
+import "./ACurrencyRegistry.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ATruhuisBank
@@ -16,17 +18,19 @@ import "../../interfaces/ITruhuisBank.sol";
  * @notice _
  */
 abstract contract ATruhuisBank is
+    Ownable,
     ITruhuisBank,
-    TruhuisAddressRegistryAdapter,
-    TokenTransferrer
+    TruhuisAddresserAPI,
+    TokenTransferrer,
+    ACurrencyRegistry
 {
     /// @dev Purchase agreement ID => Whether proceeds are locked or not.
     mapping(uint256 => bool) private _sAreProceedsLocked;
 
     Balance private _sBalance;
 
-    constructor(address _addressRegistry) {
-        updateAddressRegistry(_addressRegistry);
+    constructor(address _addresser) {
+        updateAddresser(_addresser);
     }
 
     function _fulfillGuarantee(

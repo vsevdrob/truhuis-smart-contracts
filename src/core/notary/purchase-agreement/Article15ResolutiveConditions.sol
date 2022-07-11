@@ -6,7 +6,7 @@ import {
     ResolutiveConditions__InvalidDeadlines,
     ResolutiveConditions__InvalidInspector,
     ResolutiveConditions
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article15ResolutiveConditions {
     function _validateResolutiveConditions(

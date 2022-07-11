@@ -2,15 +2,15 @@
 
 pragma solidity 0.8.13;
 
-import "../../address/TruhuisAddressRegistryAdapter.sol";
-import "../../../interfaces/IDeedOfDelivery.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
+import "@interfaces/IDeedOfDelivery.sol";
 import {
     PurchaseAgreementStruct
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract DeedOfDelivery is
     IDeedOfDelivery,
-    TruhuisAddressRegistryAdapter
+    TruhuisAddresserAPI
 {
     mapping(uint256 => DeedOfDeliveryStruct) private _sDeedOfDeliveries;
 

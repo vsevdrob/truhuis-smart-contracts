@@ -14,7 +14,7 @@ pragma solidity 0.8.13;
 import {
     DutchLaw__IsNotApplied,
     DutchLaw
-} from "../../../interfaces/IPurchaseAgreement.sol";
+} from "@interfaces/IPurchaseAgreement.sol";
 
 contract Article18DutchLaw {
     function _validateDutchLaw(DutchLaw memory _dutchLaw)

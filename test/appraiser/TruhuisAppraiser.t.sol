@@ -19,14 +19,14 @@ contract TruhuisAppraiserTest is Conftest {
         /* ACT */
         
         // Get address registry contract address.
-        address addressRegistryAddr = address(appraiser.addressRegistry());
+        address addresserAddr = address(appraiser.addresser());
         // Get contract owner address.
         address contractOwnerAddr = appraiser.owner();
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
-        assertEq(address(addressRegistry), addressRegistryAddr);
+        assertEq(address(addresser), addresserAddr);
         // Actual contract owner address must be equal to the expected.
         assertEq(truhuis, contractOwnerAddr);
     }

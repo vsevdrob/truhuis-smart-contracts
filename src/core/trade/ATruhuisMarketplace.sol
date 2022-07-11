@@ -2,10 +2,10 @@
 
 pragma solidity 0.8.13;
 
-import "../address/TruhuisAddressRegistryAdapter.sol";
-import "../../interfaces/ITruhuisMarketplace.sol";
+import "@core/addresser/TruhuisAddresserAPI.sol";
+import "@interfaces/ITruhuisMarketplace.sol";
 
-import "../../libraries/IdentificationLogic.sol";
+import "@libraries/IdentificationLogic.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -18,7 +18,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
  */
 abstract contract ATruhuisMarketplace is
     Ownable,
-    TruhuisAddressRegistryAdapter,
+    TruhuisAddresserAPI,
     ITruhuisMarketplace,
     ReentrancyGuard,
     IdentificationLogic
@@ -349,7 +349,7 @@ abstract contract ATruhuisMarketplace is
         }
 
         // Currency must be allowed.
-        if (!currencyRegistry().isAllowed(_currency)) {
+        if (!bank().isAllowedCurrency(_currency)) {
             revert INVALID_CURRENCY(_currency);
         }
 
@@ -439,8 +439,8 @@ abstract contract ATruhuisMarketplace is
             revert STAGE_SOLD();
         }
 
-        // Currency must be allowed.
-        if (!currencyRegistry().isAllowed(_newCurrency))
+        // Currency must be allowd.
+        if (!bank().isAllowedCurrency(_newCurrency))
             revert INVALID_CURRENCY(_newCurrency);
 
         /* UPDATE LISTING CURRENCY */
