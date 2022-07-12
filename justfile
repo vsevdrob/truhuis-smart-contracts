@@ -18,6 +18,7 @@ alias dlt := deploy-local-trade
 alias lc := lint-check
 alias lw := lint-write
 alias tl := test-local
+alias uaall := update-address-all
 alias ua := update-address
 
 # Load .env file.
@@ -61,6 +62,16 @@ deploy-local-all:
     cp -r ./broadcast/* ../truhuis-addresser-client/contracts/deployments && \
     cp -r ./out/* ../truhuis-addresser-client/contracts/abi
 
+update-address-all:
+    just update-address PersonalRecordsDatabase "PERSONAL RECORDS DATABASE" && \
+    just update-address TaxAdministration "TAX ADMINISTRATION" && \
+    just update-address TruhuisAppraiser "APPRAISER" && \
+    just update-address TruhuisBank "BANK" && \
+    just update-address TruhuisCadastre "CADASTRE" && \
+    just update-address TruhuisInspector "INSPECTOR" && \
+    just update-address TruhuisNotary "NOTARY" && \
+    just update-address TruhuisTrade "TRADE"
+
 update-address contract id:
     {{source}} && cast send \
     --private-key $PRIVATE_KEY_ANVIL_0 \
@@ -78,7 +89,7 @@ deploy-local-addresser:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv
+    -vvv
 
 # APPRAISER
 
@@ -89,7 +100,7 @@ deploy-local-appraiser:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv \
+    -vvv \
     script/deploy/DeployTruhuisAppraiser.s.sol:DeployTruhuisAppraiser \
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
@@ -102,7 +113,7 @@ deploy-local-bank:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv \
+    -vvv \
     script/deploy/DeployTruhuisBank.s.sol:DeployTruhuisBank \
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
@@ -115,7 +126,7 @@ deploy-local-cadastre:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv \
+    -vvv \
     script/deploy/DeployTruhuisCadastre.s.sol:DeployTruhuisCadastre \
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json` \
     "ipfs://"
@@ -129,7 +140,7 @@ deploy-local-inspector:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv \
+    -vvv \
     script/deploy/DeployTruhuisInspector.s.sol:DeployTruhuisInspector \
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
@@ -142,7 +153,7 @@ deploy-local-notary:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv \
+    -vvv \
     script/deploy/DeployTruhuisNotary.s.sol:DeployTruhuisNotary \
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
@@ -155,7 +166,7 @@ deploy-local-municipality:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_1 \
     --broadcast \
-    -vvvv \
+    -vvv \
     script/deploy/DeployMunicipality.s.sol:DeployMunicipality \
     0x30333633
 
@@ -178,7 +189,7 @@ deploy-local-tax-administration:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv
+    -vvv
 
 # TRADE
 
@@ -189,7 +200,7 @@ deploy-local-trade:
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvvv \
+    -vvv \
     script/deploy/DeployTruhuisTrade.s.sol:DeployTruhuisTrade \
     `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json` \
     250
