@@ -43,6 +43,16 @@ abstract contract ATruhuisMarketplace is
     /* EXTERNAL VIEW FUNCTIONS */
 
     /// @inheritdoc ITruhuisMarketplace
+    function getListing(uint256 _tokenId)
+        external
+        view
+        override
+        returns (Listing memory)
+    {
+        return _sListings[_tokenId];
+    }
+
+    /// @inheritdoc ITruhuisMarketplace
     function getServiceFee() external view override returns (uint96) {
         return _sServiceFee;
     }
@@ -534,18 +544,5 @@ abstract contract ATruhuisMarketplace is
 
         // Emit a {ServiceFeeUpdated} event.
         emit ServiceFeeUpdated(_newServiceFee, oldServiceFee);
-    }
-
-    /* INTERNAL VIEW FUNCTIONS */
-
-    /**
-     * @dev _
-     */
-    function _getListing(uint256 _tokenId)
-        internal
-        view
-        returns (Listing memory)
-    {
-        return _sListings[_tokenId];
     }
 }

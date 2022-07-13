@@ -100,14 +100,4 @@ contract TruhuisMarketplace is ATruhuisMarketplace {
     {
         _updateServiceFee(_newServiceFee);
     }
-
-    /// @inheritdoc ITruhuisMarketplace
-    function getListing(uint256 _tokenId)
-        external
-        view
-        override
-        returns (Listing memory)
-    {
-        return _getListing(_tokenId);
-    }
 }
