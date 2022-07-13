@@ -93,6 +93,9 @@ contract Conftest is Test {
     /// @dev Token URI of token ID 2.
     string public sTokenURI2 = "ipfs://2";
 
+    /// @dev Truhuis Marketplace initial service fee.
+    uint96 public sServiceFee = 250; // 2.5 %
+
     constructor() {
         truhuis = msg.sender;
     }
