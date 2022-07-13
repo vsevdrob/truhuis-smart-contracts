@@ -8,43 +8,45 @@ import "@test/Conftest.sol";
  * @title MunicipalityTest
  * @author vsevdrob
  * @dev List of implemented functions to test (PASS | FAIL | TODO):
- *      [TODO] constructor()
+ *      [PASS] constructor()
+ *      [PASS] getId()
  */
 contract MunicipalityTest is Conftest {
     function setUp() public {
         _deploy();
+        _updateAddresses();
     }
 
     function testConstructor() external {
         /* ACT */
 
         // Get municipality ID.
-        bytes4 id = municipalityA.getId();
+        bytes4 id = sMunicipalityA.getId();
         // Get contract owner address.
-        address contractOwnerAddr = municipalityA.owner();
+        address contractOwnerAddr = sMunicipalityA.owner();
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
-        assertEq(AMSTERDAM, id);
+        assertEq(S_AMSTERDAM, id);
         // Actrual contract owner must be equal to the expected.
-        assertEq(amsterdam, contractOwnerAddr);
+        assertEq(sAmsterdam, contractOwnerAddr);
     }
 
     function testGetId() external {
         /* ACT */
 
         // Get municipality ID.
-        bytes4 idA = municipalityA.getId();
-        bytes4 idR = municipalityR.getId();
-        bytes4 idH = municipalityH.getId();
+        bytes4 idA = sMunicipalityA.getId();
+        bytes4 idR = sMunicipalityR.getId();
+        bytes4 idH = sMunicipalityH.getId();
 
         /* PERFORM ASSERTIONS */
 
         // Actual municipality identifier must be identical to the expected.
 
-        assertEq(AMSTERDAM, idA);
-        assertEq(ROTTERDAM, idR);
-        assertEq(THE_HAGUE, idH);
+        assertEq(S_AMSTERDAM, idA);
+        assertEq(S_ROTTERDAM, idR);
+        assertEq(S_THE_HAGUE, idH);
     }
 }
