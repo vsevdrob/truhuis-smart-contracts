@@ -35,6 +35,11 @@ abstract contract ATruhuisMarketplace is
     /// @dev Truhuis Marketplace service fee (e.g. 100 (1%); 1000 (10%)).
     uint96 private _sServiceFee;
 
+    constructor(address _addresser, uint96 _serviceFee) {
+        updateAddresser(_addresser);
+        _updateServiceFee(_serviceFee);
+    }
+
     /* INTERNAL FUNCTIONS */
 
     /**

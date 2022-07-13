@@ -10,10 +10,9 @@ import "./ATruhuisMarketplace.sol";
  * @notice _
  */
 contract TruhuisMarketplace is ATruhuisMarketplace {
-    constructor(address _addresser, uint96 _serviceFee) {
-        updateAddresser(_addresser);
-        _updateServiceFee(_serviceFee);
-    }
+    constructor(address _addresser, uint96 _serviceFee)
+        ATruhuisMarketplace(_addresser, _serviceFee)
+    {}
 
     /// @inheritdoc ITruhuisMarketplace
     function acceptOffer(
@@ -71,10 +70,7 @@ contract TruhuisMarketplace is ATruhuisMarketplace {
     }
 
     /// @inheritdoc ITruhuisMarketplace
-    function setListingSold(uint256 _tokenId)
-        external
-        override
-    {
+    function setListingSold(uint256 _tokenId) external override {
         _setListingSold(_tokenId);
     }
 
