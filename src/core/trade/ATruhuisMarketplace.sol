@@ -47,7 +47,6 @@ abstract contract ATruhuisMarketplace is
         return _sServiceFee;
     }
 
-
     /* INTERNAL FUNCTIONS */
 
     /**
@@ -327,7 +326,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Available stage.
      */
     function _list(
         address _currency,
@@ -396,7 +394,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Negotiation stage.
      */
     function _setListingSold(uint256 _tokenId) internal virtual {
         /* ARRANGE */
@@ -426,7 +423,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Available stage.
      */
     function _updateListingCurrency(address _newCurrency, uint256 _tokenId)
         internal
@@ -472,7 +468,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Available stage.
      */
     function _updateListingPrice(uint256 _newPrice, uint256 _tokenId)
         internal
