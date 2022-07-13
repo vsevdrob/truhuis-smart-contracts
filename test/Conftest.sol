@@ -136,7 +136,9 @@ contract Conftest is Test {
         taxAdministration = new TaxAdministration();
         vm.stopPrank();
 
-        trade = new TruhuisTrade(address(addresser), 50);
+        vm.startPrank(truhuis);
+        trade = new TruhuisTrade(address(addresser), sServiceFee);
+        vm.stopPrank();
 
         _refuelAccountsERC20();
     }
