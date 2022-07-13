@@ -95,7 +95,7 @@ abstract contract TruhuisAddresserAPI is Ownable {
         return
             IPersonalRecordsDatabase(
                 _addresser.getAddress(
-                    bytes32("PERSONAL_RECORDS_DATABASE")
+                    bytes32("PERSONAL RECORDS DATABASE")
                 )
             );
     }
@@ -109,7 +109,7 @@ abstract contract TruhuisAddresserAPI is Ownable {
     {
         return
             ITaxAdministration(
-                _addresser.getAddress(bytes32("TAX_ADMINISTRATION"))
+                _addresser.getAddress(bytes32("TAX ADMINISTRATION"))
             );
     }
 
