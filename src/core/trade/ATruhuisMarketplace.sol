@@ -40,6 +40,14 @@ abstract contract ATruhuisMarketplace is
         _updateServiceFee(_serviceFee);
     }
 
+    /* EXTERNAL VIEW FUNCTIONS */
+
+    /// @inheritdoc ITruhuisMarketplace
+    function getServiceFee() external view override returns (uint96) {
+        return _sServiceFee;
+    }
+
+
     /* INTERNAL FUNCTIONS */
 
     /**
