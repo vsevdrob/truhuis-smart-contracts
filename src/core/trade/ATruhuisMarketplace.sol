@@ -43,6 +43,16 @@ abstract contract ATruhuisMarketplace is
     /* EXTERNAL VIEW FUNCTIONS */
 
     /// @inheritdoc ITruhuisMarketplace
+    function getListing(uint256 _tokenId)
+        external
+        view
+        override
+        returns (Listing memory)
+    {
+        return _sListings[_tokenId];
+    }
+
+    /// @inheritdoc ITruhuisMarketplace
     function getServiceFee() external view override returns (uint96) {
         return _sServiceFee;
     }
@@ -115,7 +125,7 @@ abstract contract ATruhuisMarketplace is
 
         // uint256
         sListing.acceptedOffer.offerId = _offerId;
-        sListing.acceptedOffer.price = sOffer.price;
+        sListing.acceptedOffer.bidPrice = sOffer.bidPrice;
         sListing.acceptedOffer.timeAccepted = timeAccepted;
 
         // Emit an {OfferAccepted} event.
@@ -198,7 +208,7 @@ abstract contract ATruhuisMarketplace is
 
         // uint256
         delete sListing.endTime;
-        delete sListing.initialPrice;
+        delete sListing.askPrice;
         delete sListing.startTime;
         delete sListing.tokenId;
 
@@ -254,7 +264,7 @@ abstract contract ATruhuisMarketplace is
     function _createOffer(
         address _currency,
         uint256 _expiry,
-        uint256 _price,
+        uint256 _bidPrice,
         uint256 _tokenId
     ) internal virtual {
         /* ARRANGE */
@@ -307,7 +317,7 @@ abstract contract ATruhuisMarketplace is
 
         // uint256
         sOffer.expiry = _expiry;
-        sOffer.price = _price;
+        sOffer.bidPrice = _bidPrice;
 
         /* INCREMENT FREE OFFER ID */
 
@@ -319,7 +329,7 @@ abstract contract ATruhuisMarketplace is
             msg.sender,
             _expiry,
             offerId,
-            _price,
+            _bidPrice,
             _tokenId
         );
     }
@@ -329,7 +339,7 @@ abstract contract ATruhuisMarketplace is
      */
     function _list(
         address _currency,
-        uint256 _price,
+        uint256 _askPrice,
         uint256 _tokenId
     ) internal virtual {
         /* ARRANGE */
@@ -355,7 +365,7 @@ abstract contract ATruhuisMarketplace is
         }
 
         // Initial price must be greater than zero.
-        if (0 >= _price) {
+        if (0 >= _askPrice) {
             revert PRICE_NOT_GREATER_THAN_ZERO();
         }
 
@@ -378,7 +388,7 @@ abstract contract ATruhuisMarketplace is
 
         // uint256
         sListing.endTime = 0;
-        sListing.initialPrice = _price;
+        sListing.askPrice = _askPrice;
         sListing.startTime = block.timestamp;
         sListing.tokenId = _tokenId;
 
@@ -386,7 +396,7 @@ abstract contract ATruhuisMarketplace is
         emit Listed(
             _currency,
             msg.sender,
-            _price,
+            _askPrice,
             sListing.startTime,
             _tokenId
         );
@@ -460,7 +470,7 @@ abstract contract ATruhuisMarketplace is
         emit Listed(
             _newCurrency,
             msg.sender,
-            sListing.initialPrice,
+            sListing.askPrice,
             sListing.startTime,
             _tokenId
         );
@@ -469,7 +479,7 @@ abstract contract ATruhuisMarketplace is
     /**
      * @dev _
      */
-    function _updateListingPrice(uint256 _newPrice, uint256 _tokenId)
+    function _updateListingPrice(uint256 _newAskPrice, uint256 _tokenId)
         internal
         virtual
     {
@@ -494,19 +504,19 @@ abstract contract ATruhuisMarketplace is
         }
 
         // Price must be greater than zero.
-        if (0 >= _newPrice) {
+        if (0 >= _newAskPrice) {
             revert PRICE_NOT_GREATER_THAN_ZERO();
         }
 
         /* UPDATE LISTING PRICE */
 
-        sListing.initialPrice = _newPrice;
+        sListing.askPrice = _newAskPrice;
 
         // Emit a {Listed} event.
         emit Listed(
             sListing.currency,
             msg.sender,
-            _newPrice,
+            _newAskPrice,
             sListing.startTime,
             _tokenId
         );
@@ -534,18 +544,5 @@ abstract contract ATruhuisMarketplace is
 
         // Emit a {ServiceFeeUpdated} event.
         emit ServiceFeeUpdated(_newServiceFee, oldServiceFee);
-    }
-
-    /* INTERNAL VIEW FUNCTIONS */
-
-    /**
-     * @dev _
-     */
-    function _getListing(uint256 _tokenId)
-        internal
-        view
-        returns (Listing memory)
-    {
-        return _sListings[_tokenId];
     }
 }
