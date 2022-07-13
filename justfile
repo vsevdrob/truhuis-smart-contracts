@@ -218,8 +218,8 @@ send-local private_key contract_addr function_sig:
     {{source}} && cast send --private-key {{private_key}} {{contract_addr}} "{{function_sig}}" --rpc-url http://127.0.0.1:8545
 
 # [TEST]: Run the project's tests.
-test-local:
-    {{source}} && forge test -vvvv
+test-local *v="":
+    {{source}} && forge test -vvv{{v}}
 
 # [LINT]: Check for Solidity lintings with Prettier and Solhint.
 lint-check:
