@@ -24,129 +24,156 @@ import "@interfaces/IPurchaseAgreement.sol";
  */
 contract Conftest is Test {
     // Truhuis account.
-    address public truhuis;
+    address public sTruhuis;
     // Sellers accounts.
-    address public alice = address(0x1);
-    address public bob = address(0x2);
-    address public charlie = address(0x3);
+    address public sAlice = address(0x1);
+    address public sBob = address(0x2);
+    address public sCharlie = address(0x3);
     // Buyers accounts.
-    address public dave = address(0x4);
-    address public eve = address(0x5);
-    address public ferdie = address(0x6);
+    address public sDave = address(0x4);
+    address public sEve = address(0x5);
+    address public sFerdie = address(0x6);
     // Municipalities accounts.
-    address public amsterdam = address(0x7);
-    address public rotterdam = address(0x8);
-    address public theHague = address(0x9);
+    address public sAmsterdam = address(0x7);
+    address public sRotterdam = address(0x8);
+    address public sTheHague = address(0x9);
     // Ministry of the Interior and Kingdom Relations (IKR).
-    address public ministryOfIKR = address(0x10);
+    address public sMinistryOfIKR = address(0x10);
     // Ministry of Finance (Fin).
-    address public ministryOfFin = address(0x11);
+    address public sMinistryOfFin = address(0x11);
 
     // Truhuis contracts as well as state and currency contracts.
-    TruhuisAddresser public addresser;
-    TruhuisAppraiser public appraiser;
-    TruhuisBank public bank;
-    TruhuisCadastre public cadastre;
-    TruhuisInspector public inspector;
-    TruhuisNotary public notary;
-    MockERC20EURT public mockERC20EURT;
-    Municipality public municipalityA;
-    Municipality public municipalityR;
-    Municipality public municipalityH;
-    PersonalRecordsDatabase public personalRecordsDatabase;
-    TaxAdministration public taxAdministration;
-    TruhuisTrade public trade;
+    TruhuisAddresser public sAddresser;
+    TruhuisAppraiser public sAppraiser;
+    TruhuisBank public sBank;
+    TruhuisCadastre public sCadastre;
+    TruhuisInspector public sInspector;
+    TruhuisNotary public sNotary;
+    MockERC20EURT public sMockERC20EURT;
+    Municipality public sMunicipalityA;
+    Municipality public sMunicipalityR;
+    Municipality public sMunicipalityH;
+    PersonalRecordsDatabase public sPersonalRecordsDatabase;
+    TaxAdministration public sTaxAdministration;
+    TruhuisTrade public sTrade;
 
     /// @dev Identifier for the municipality of Amsterdam.
-    bytes4 public constant AMSTERDAM = bytes4("0363");
+    bytes4 public constant S_AMSTERDAM = bytes4("0363");
     /// @dev Identifier for the municipality of Rotterdam.
-    bytes4 public constant ROTTERDAM = bytes4("0599");
+    bytes4 public constant S_ROTTERDAM = bytes4("0599");
     /// @dev Identifier for the municipality of The Hague.
-    bytes4 public constant THE_HAGUE = bytes4("0518");
+    bytes4 public constant S_THE_HAGUE = bytes4("0518");
 
     /// @dev Identifier for Truhuis Addresser smart contract.
-    bytes32 public constant ADDRESSER = "ADDRESSER";
+    bytes32 public constant S_ADDRESSER = "ADDRESSER";
     /// @dev Identifier for Truhuis Appraiser smart contract.
-    bytes32 public constant APPRAISER = "APPRAISER";
+    bytes32 public constant S_APPRAISER = "APPRAISER";
     /// @dev Identifier for Truhuis Bank smart contract.
-    bytes32 public constant BANK = "BANK";
+    bytes32 public constant S_BANK = "BANK";
     /// @dev Identifier for Truhuis Cadastre smart contract.
-    bytes32 public constant CADASTRE = "CADASTRE";
+    bytes32 public constant S_CADASTRE = "CADASTRE";
     /// @dev Identifier for Truhuis Inspector smart contract.
-    bytes32 public constant INSPECTOR = "INSPECTOR";
+    bytes32 public constant S_INSPECTOR = "INSPECTOR";
     /// @dev Identifier for Truhuis Notary smart contract.
-    bytes32 public constant NOTARY = "NOTARY";
+    bytes32 public constant S_NOTARY = "NOTARY";
     /// @dev Identifier for Personal Records Database smart contract.
-    bytes32 public constant PERSONAL_RECORDS_DATABASE =
+    bytes32 public constant S_PERSONAL_RECORDS_DATABASE =
         "PERSONAL RECORDS DATABASE";
     /// @dev Identifier for Chainlink Price Feed smart contract.
-    bytes32 public constant PRICE_ORACLE = "PRICE ORACLE";
+    bytes32 public constant S_PRICE_ORACLE = "PRICE ORACLE";
     /// @dev Identifier for Tax Administration smart contract.
-    bytes32 public constant TAX_ADMINISTRATION = "TAX ADMINISTRATION";
+    bytes32 public constant S_TAX_ADMINISTRATION = "TAX ADMINISTRATION";
     /// @dev Identifier for Truhuis Trade smart contract.
-    bytes32 public constant TRADE = "TRADE";
+    bytes32 public constant S_TRADE = "TRADE";
 
     /// @dev Contract URI related to the cadastre.
-    string public cadastreContractURI = "ipfs://";
+    string public sCadastreContractURI = "ipfs://";
     /// @dev Token URI of token ID 1.
     string public sTokenURI1 = "ipfs://1";
     /// @dev Token URI of token ID 2.
     string public sTokenURI2 = "ipfs://2";
 
+    /// @dev Truhuis Marketplace initial service fee.
+    uint96 public sServiceFee = 250; // 2.5 %
+
     constructor() {
-        truhuis = msg.sender;
+        sTruhuis = msg.sender;
     }
 
     function _deploy() internal {
-        vm.startPrank(truhuis);
-        addresser = new TruhuisAddresser();
-        appraiser = new TruhuisAppraiser(address(addresser));
-        bank = new TruhuisBank(address(addresser));
-        cadastre = new TruhuisCadastre(
-            address(addresser),
-            cadastreContractURI
+        vm.startPrank(sTruhuis);
+        sAddresser = new TruhuisAddresser();
+        sAppraiser = new TruhuisAppraiser(address(sAddresser));
+        sBank = new TruhuisBank(address(sAddresser));
+        sCadastre = new TruhuisCadastre(
+            address(sAddresser),
+            sCadastreContractURI
         );
-        inspector = new TruhuisInspector(address(addresser));
-        notary = new TruhuisNotary(address(addresser));
-        mockERC20EURT = new MockERC20EURT(truhuis, 1 * 1000000 * 1000000);
+        sInspector = new TruhuisInspector(address(sAddresser));
+        sNotary = new TruhuisNotary(address(sAddresser));
+        sMockERC20EURT = new MockERC20EURT(sTruhuis, 1 * 1000000 * 1000000);
         vm.stopPrank();
 
-        vm.startPrank(amsterdam);
-        municipalityA = new Municipality(AMSTERDAM);
+        vm.startPrank(sAmsterdam);
+        sMunicipalityA = new Municipality(S_AMSTERDAM);
         vm.stopPrank();
 
-        vm.startPrank(rotterdam);
-        municipalityR = new Municipality(ROTTERDAM);
+        vm.startPrank(sRotterdam);
+        sMunicipalityR = new Municipality(S_ROTTERDAM);
         vm.stopPrank();
 
-        vm.startPrank(theHague);
-        municipalityH = new Municipality(THE_HAGUE);
+        vm.startPrank(sTheHague);
+        sMunicipalityH = new Municipality(S_THE_HAGUE);
         vm.stopPrank();
 
-        vm.startPrank(ministryOfIKR);
-        personalRecordsDatabase = new PersonalRecordsDatabase(
-            address(addresser)
+        vm.startPrank(sMinistryOfIKR);
+        sPersonalRecordsDatabase = new PersonalRecordsDatabase(
+            address(sAddresser)
         );
         vm.stopPrank();
 
-        vm.startPrank(ministryOfFin);
-        taxAdministration = new TaxAdministration();
+        vm.startPrank(sMinistryOfFin);
+        sTaxAdministration = new TaxAdministration();
         vm.stopPrank();
 
-        trade = new TruhuisTrade(address(addresser), 50);
+        vm.startPrank(sTruhuis);
+        sTrade = new TruhuisTrade(address(sAddresser), sServiceFee);
+        vm.stopPrank();
 
         _refuelAccountsERC20();
     }
 
+    function _updateAddresses() internal {
+        vm.startPrank(sTruhuis);
+        sAddresser.registerMunicipality(address(sMunicipalityA), S_AMSTERDAM);
+        sAddresser.registerMunicipality(address(sMunicipalityR), S_ROTTERDAM);
+        sAddresser.registerMunicipality(address(sMunicipalityH), S_THE_HAGUE);
+        sAddresser.updateAddress(address(sAppraiser), S_APPRAISER);
+        sAddresser.updateAddress(address(sBank), S_BANK);
+        sAddresser.updateAddress(address(sCadastre), S_CADASTRE);
+        sAddresser.updateAddress(address(sInspector), S_INSPECTOR);
+        sAddresser.updateAddress(address(sNotary), S_NOTARY);
+        sAddresser.updateAddress(
+            address(sPersonalRecordsDatabase),
+            S_PERSONAL_RECORDS_DATABASE
+        );
+        sAddresser.updateAddress(
+            address(sTaxAdministration),
+            S_TAX_ADMINISTRATION
+        );
+        sAddresser.updateAddress(address(sTrade), S_TRADE);
+        vm.stopPrank();
+    }
+
     function _refuelAccountsERC20() private {
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
         // Send EURT to the accounts.
-        mockERC20EURT.transfer(alice, 10000000);
-        mockERC20EURT.transfer(bob, 10000000);
-        mockERC20EURT.transfer(charlie, 10000000);
-        mockERC20EURT.transfer(dave, 10000000);
-        mockERC20EURT.transfer(eve, 10000000);
-        mockERC20EURT.transfer(ferdie, 10000000);
+        sMockERC20EURT.transfer(sAlice, 10000000);
+        sMockERC20EURT.transfer(sBob, 10000000);
+        sMockERC20EURT.transfer(sCharlie, 10000000);
+        sMockERC20EURT.transfer(sDave, 10000000);
+        sMockERC20EURT.transfer(sEve, 10000000);
+        sMockERC20EURT.transfer(sFerdie, 10000000);
         vm.stopPrank();
     }
 }

@@ -304,6 +304,11 @@ interface ITruhuisMarketplace {
         view
         returns (Listing memory);
 
+    /**
+     * @dev _
+     */
+    function getServiceFee() external view returns (uint96);
+
     ///**
     // * @dev Update marketplace owner address.
     // * @param _newOwner The new marketplace owner address.

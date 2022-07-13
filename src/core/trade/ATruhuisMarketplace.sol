@@ -35,6 +35,18 @@ abstract contract ATruhuisMarketplace is
     /// @dev Truhuis Marketplace service fee (e.g. 100 (1%); 1000 (10%)).
     uint96 private _sServiceFee;
 
+    constructor(address _addresser, uint96 _serviceFee) {
+        updateAddresser(_addresser);
+        _updateServiceFee(_serviceFee);
+    }
+
+    /* EXTERNAL VIEW FUNCTIONS */
+
+    /// @inheritdoc ITruhuisMarketplace
+    function getServiceFee() external view override returns (uint96) {
+        return _sServiceFee;
+    }
+
     /* INTERNAL FUNCTIONS */
 
     /**
@@ -314,7 +326,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Available stage.
      */
     function _list(
         address _currency,
@@ -383,7 +394,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Negotiation stage.
      */
     function _setListingSold(uint256 _tokenId) internal virtual {
         /* ARRANGE */
@@ -413,7 +423,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Available stage.
      */
     function _updateListingCurrency(address _newCurrency, uint256 _tokenId)
         internal
@@ -459,7 +468,6 @@ abstract contract ATruhuisMarketplace is
 
     /**
      * @dev _
-     * NOTE: Available stage.
      */
     function _updateListingPrice(uint256 _newPrice, uint256 _tokenId)
         internal
