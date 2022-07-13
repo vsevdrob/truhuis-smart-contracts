@@ -54,19 +54,19 @@ contract TruhuisMarketplace is ATruhuisMarketplace {
     function createOffer(
         address _currency,
         uint256 _expiry,
-        uint256 _price,
+        uint256 _bidPrice,
         uint256 _tokenId
     ) external override onlyBuyer(msg.sender, _tokenId) {
-        _createOffer(_currency, _expiry, _price, _tokenId);
+        _createOffer(_currency, _expiry, _bidPrice, _tokenId);
     }
 
     /// @inheritdoc ITruhuisMarketplace
     function list(
         address _currency,
-        uint256 _price,
+        uint256 _askPrice,
         uint256 _tokenId
     ) external override onlySeller(msg.sender, _tokenId) {
-        _list(_currency, _price, _tokenId);
+        _list(_currency, _askPrice, _tokenId);
     }
 
     /// @inheritdoc ITruhuisMarketplace
@@ -84,12 +84,12 @@ contract TruhuisMarketplace is ATruhuisMarketplace {
     }
 
     /// @inheritdoc ITruhuisMarketplace
-    function updateListingPrice(uint256 _newPrice, uint256 _tokenId)
+    function updateListingPrice(uint256 _newAskPrice, uint256 _tokenId)
         external
         override
         onlySeller(msg.sender, _tokenId)
     {
-        _updateListingPrice(_newPrice, _tokenId);
+        _updateListingPrice(_newAskPrice, _tokenId);
     }
 
     /// @inheritdoc ITruhuisMarketplace

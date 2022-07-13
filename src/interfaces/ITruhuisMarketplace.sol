@@ -51,8 +51,8 @@ struct AcceptedOffer {
     address currency;
     address offerer;
     bool exists;
+    uint256 bidPrice;
     uint256 offerId;
-    uint256 price;
     uint256 timeAccepted;
 }
 
@@ -60,8 +60,8 @@ struct Listing {
     address currency;
     address seller;
     bool exists;
+    uint256 askPrice;
     uint256 endTime;
-    uint256 initialPrice;
     uint256 startTime;
     uint256 tokenId;
     AcceptedOffer acceptedOffer;
@@ -72,8 +72,8 @@ struct Offer {
     address currency;
     address offerer;
     bool exists;
+    uint256 bidPrice;
     uint256 expiry;
-    uint256 price;
 }
 
 error ACCEPTED_OFFER_NOT_EXISTS();
