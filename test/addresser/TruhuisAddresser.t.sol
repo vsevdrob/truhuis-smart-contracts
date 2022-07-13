@@ -18,83 +18,73 @@ import "@interfaces/ITruhuisAddresser.sol";
  *      [PASS] updateMunicipality(address,bytes4)
  */
 contract TruhuisAddresserTest is Conftest {
-    TruhuisAddresser public addresserNew;
-    Municipality public municipalityANew;
-
     function setUp() public {
         _deploy();
-
-        vm.startPrank(truhuis);
-
-        addresserNew = new TruhuisAddresser();
-        municipalityANew = new Municipality(AMSTERDAM);
-
-        vm.stopPrank();
     }
 
     function testConstructor() public {
         /* ACT */
 
-        // Get contract address of the address registry.
-        address addresserAddr = addresser.getAddress(ADDRESSER);
+        // Get contract address of the addresser.
+        address addresserAddr = sAddresser.getAddress(S_ADDRESSER);
 
         // Get contract owner address.
-        address contractOwnerAddr = addresser.owner();
+        address contractOwnerAddr = sAddresser.owner();
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
-        assertEq(address(addresser), addresserAddr);
+        assertEq(address(sAddresser), addresserAddr);
         // Actual contract owner must be equal to the expected.
-        assertEq(truhuis, contractOwnerAddr);
+        assertEq(sTruhuis, contractOwnerAddr);
     }
 
     function testGetAddress() public {
         /* ARRANGE */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         // Update Truhuis Trade contract address.
-        addresser.updateAddress(address(trade), TRADE);
+        sAddresser.updateAddress(address(sTrade), S_TRADE);
 
         vm.stopPrank();
 
         /* ACT */
 
         // Get contract address of the appraiser.
-        address appraiserAddr = addresser.getAddress(APPRAISER);
+        address appraiserAddr = sAddresser.getAddress(S_APPRAISER);
         // Get contract address of the trade.
-        address tradeAddr = addresser.getAddress(TRADE);
+        address tradeAddr = sAddresser.getAddress(S_TRADE);
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the zero address.
         assertEq(address(0), appraiserAddr);
         // Actual contract address must be equal to the expected.
-        assertEq(address(trade), tradeAddr);
+        assertEq(address(sTrade), tradeAddr);
     }
 
     function testGetMunicipality() public {
         /* ARRANGE */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         // Register municipality of Amsterdam.
-        addresser.registerMunicipality(address(municipalityA), AMSTERDAM);
+        sAddresser.registerMunicipality(address(sMunicipalityA), S_AMSTERDAM);
 
         vm.stopPrank();
 
         /* ACT */
 
         // Get municipality of Amsterdam.
-        MunicipalityStruct memory mA = addresser.getMunicipality(AMSTERDAM);
+        MunicipalityStruct memory mA = sAddresser.getMunicipality(S_AMSTERDAM);
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
-        assertEq(address(municipalityA), mA.contractAddr);
+        assertEq(address(sMunicipalityA), mA.contractAddr);
         // Municipality of Amsterdam identifier must be equal to the expected.
-        assertEq(mA.cbsCode, AMSTERDAM);
+        assertEq(mA.cbsCode, S_AMSTERDAM);
         // Municipality of Amsterdam must be registered.
         assertEq(mA.isRegistered, true);
     }
@@ -102,25 +92,25 @@ contract TruhuisAddresserTest is Conftest {
     function testIsRegisteredMunicipality() public {
         /* ARRANGE */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         // Register municipality of Amsterdam.
-        addresser.registerMunicipality(address(municipalityA), AMSTERDAM);
+        sAddresser.registerMunicipality(address(sMunicipalityA), S_AMSTERDAM);
 
         vm.stopPrank();
 
         /* ACT */
 
         // Get whether the municipality registered or not.
-        bool isRegisteredA = addresser.isRegisteredMunicipality(
-            address(municipalityA),
-            AMSTERDAM
+        bool isRegisteredA = sAddresser.isRegisteredMunicipality(
+            address(sMunicipalityA),
+            S_AMSTERDAM
         );
 
         // Get whether the municipality registered or not.
-        bool isRegisteredR = addresser.isRegisteredMunicipality(
-            address(municipalityR),
-            ROTTERDAM
+        bool isRegisteredR = sAddresser.isRegisteredMunicipality(
+            address(sMunicipalityR),
+            S_ROTTERDAM
         );
 
         /* PERFORM ASSERTIONS */
@@ -134,148 +124,153 @@ contract TruhuisAddresserTest is Conftest {
     function testRegisterMunicipality() public {
         /* ARRANGE */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         // Register municipality of Amsterdam.
-        addresser.registerMunicipality(address(municipalityA), AMSTERDAM);
+        sAddresser.registerMunicipality(address(sMunicipalityA), S_AMSTERDAM);
 
         vm.stopPrank();
 
         /* ACT */
 
         // Get municipality of Amsterdam.
-        MunicipalityStruct memory mA = addresser.getMunicipality(AMSTERDAM);
+        MunicipalityStruct memory mA = sAddresser.getMunicipality(S_AMSTERDAM);
 
         /* PERFORM ASSERTIONS */
 
         // Expected municipality contract address must be equal to the actual.
-        assertEq(address(municipalityA), mA.contractAddr);
+        assertEq(address(sMunicipalityA), mA.contractAddr);
         // Municipality of Amsterdam identifier must be equal to the expected.
-        assertEq(mA.cbsCode, AMSTERDAM);
+        assertEq(mA.cbsCode, S_AMSTERDAM);
         // Municipality of Amsterdam must be registered.
         assertEq(mA.isRegistered, true);
 
         /* REVERT ERRORS */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         // Must fail because of default value of an address.
         vm.expectRevert(MUNICIPALITY_REGISTRATION_FAILED.selector);
-        addresser.registerMunicipality(address(0), AMSTERDAM);
+        sAddresser.registerMunicipality(address(0), S_AMSTERDAM);
 
         // Must fail because municipality is already registered.
         vm.expectRevert(MUNICIPALITY_REGISTRATION_FAILED.selector);
-        addresser.registerMunicipality(address(municipalityA), AMSTERDAM);
+        sAddresser.registerMunicipality(address(sMunicipalityA), S_AMSTERDAM);
 
         // Must fail because of default value of a bytes4.
         vm.expectRevert(MUNICIPALITY_REGISTRATION_FAILED.selector);
-        addresser.registerMunicipality(address(municipalityR), 0x00000000);
+        sAddresser.registerMunicipality(address(sMunicipalityR), 0x00000000);
 
         vm.stopPrank();
 
         // Must fail because caller is not contract owner.
-        vm.startPrank(alice);
+        vm.startPrank(sAlice);
         vm.expectRevert("Ownable: caller is not the owner");
-        addresser.registerMunicipality(address(municipalityH), THE_HAGUE);
+        sAddresser.registerMunicipality(address(sMunicipalityH), S_THE_HAGUE);
         vm.stopPrank();
     }
 
     function testUpdateAddress() public {
         /* ARRANGE */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         // Store updated appraiser contract address.
-        addresser.updateAddress(address(appraiser), APPRAISER);
+        sAddresser.updateAddress(address(sAppraiser), S_APPRAISER);
         // Store updated inspector contract address.
-        addresser.updateAddress(address(inspector), INSPECTOR);
+        sAddresser.updateAddress(address(sInspector), S_INSPECTOR);
 
         vm.stopPrank();
 
         /* ACT */
 
         // Get appraiser contract address.
-        address appraiserAddr = addresser.getAddress(APPRAISER);
+        address appraiserAddr = sAddresser.getAddress(S_APPRAISER);
         // Get inspector contract address.
-        address inspectorAddr = addresser.getAddress(INSPECTOR);
+        address inspectorAddr = sAddresser.getAddress(S_INSPECTOR);
 
         /* PERFORM ASSERTIONS */
 
         // Actual appraiser address must be equal to the expected.
-        assertEq(address(appraiser), appraiserAddr);
+        assertEq(address(sAppraiser), appraiserAddr);
         // Actual appraiser address must be equal to the expected.
-        assertEq(address(inspector), inspectorAddr);
+        assertEq(address(sInspector), inspectorAddr);
 
         /* REVERT ERRORS */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
-        // Must fail because updating the address registry contract address
+        // Must fail because updating the addresser contract address
         // is not allowed.
         vm.expectRevert(UPDATE_ADDRESSER_NOT_ALLOWED.selector);
-        addresser.updateAddress(address(addresserNew), ADDRESSER);
+        sAddresser.updateAddress(address(0x0123), S_ADDRESSER);
 
         // Must fail because updating a new contract address on top of an
         // identical old contract address is not allowed.
         vm.expectRevert(IDENTICAL_ADDRESS_PROVIDED.selector);
-        addresser.updateAddress(address(appraiser), APPRAISER);
+        sAddresser.updateAddress(address(sAppraiser), S_APPRAISER);
 
         // Must fail because providing the zero address is not permitted.
         vm.expectRevert(ZERO_ADDRESS_PROVIDED.selector);
-        addresser.updateAddress(address(0), APPRAISER);
+        sAddresser.updateAddress(address(0), S_APPRAISER);
 
         vm.stopPrank();
 
         // Must fail because caller is not contract owner.
-        vm.startPrank(bob);
+        vm.startPrank(sBob);
         vm.expectRevert("Ownable: caller is not the owner");
-        addresser.updateAddress(address(inspector), INSPECTOR);
+        sAddresser.updateAddress(address(sInspector), S_INSPECTOR);
         vm.stopPrank();
     }
 
     function testUpdateMunicipality() public {
         /* ARRANGE */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
+
+        // Deploy new munciipality of Amsterdam contract.
+        Municipality municipalityANew = new Municipality(S_AMSTERDAM);
 
         // Register municipality of Amsterdam.
-        addresser.registerMunicipality(address(municipalityA), AMSTERDAM);
+        sAddresser.registerMunicipality(address(sMunicipalityA), S_AMSTERDAM);
 
         // Store updated municipality of Amsterdam contract address.
-        addresser.updateMunicipality(address(municipalityANew), AMSTERDAM);
+        sAddresser.updateMunicipality(address(municipalityANew), S_AMSTERDAM);
 
         vm.stopPrank();
 
         /* ACT */
 
         // Get municipality of Amsterdam.
-        MunicipalityStruct memory mA = addresser.getMunicipality(AMSTERDAM);
+        MunicipalityStruct memory mA = sAddresser.getMunicipality(S_AMSTERDAM);
+
+        /* PERFORM ASSERTIONS */
 
         // Actual municipality contract address must be equal to the expected.
         assertEq(address(municipalityANew), mA.contractAddr);
         // Actual CBS-code must be identical to the expected.
-        assertEq(AMSTERDAM, mA.cbsCode);
+        assertEq(S_AMSTERDAM, mA.cbsCode);
         // Municipality of Amsterdam must be successfully registered.
         assertEq(mA.isRegistered, true);
 
         /* REVERT ERRORS */
 
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         // Must fail because new address is equal to old address.
         vm.expectRevert(MUNICIPALITY_UPDATE_FAILED.selector);
-        addresser.updateMunicipality(address(municipalityANew), AMSTERDAM);
+        sAddresser.updateMunicipality(address(municipalityANew), S_AMSTERDAM);
 
         // Must fail because providing the zero address is not permitted.
         vm.expectRevert(ZERO_ADDRESS_PROVIDED.selector);
-        addresser.updateMunicipality(address(0), AMSTERDAM);
+        sAddresser.updateMunicipality(address(0), S_AMSTERDAM);
 
         vm.stopPrank();
 
         // Must fail because caller is not contract owner.
-        vm.startPrank(ministryOfIKR);
+        vm.startPrank(sMinistryOfIKR);
         vm.expectRevert("Ownable: caller is not the owner");
-        addresser.updateMunicipality(address(municipalityH), THE_HAGUE);
+        sAddresser.updateMunicipality(address(sMunicipalityH), S_THE_HAGUE);
         vm.stopPrank();
     }
 }

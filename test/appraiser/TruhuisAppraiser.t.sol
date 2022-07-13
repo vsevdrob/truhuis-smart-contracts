@@ -13,22 +13,23 @@ import "@test/Conftest.sol";
 contract TruhuisAppraiserTest is Conftest {
     function setUp() public {
         _deploy();
+        _updateAddresses();
     }
 
     function testConstructor() external {
         /* ACT */
         
-        // Get address registry contract address.
-        address addresserAddr = address(appraiser.addresser());
+        // Get addresser contract address.
+        address addresserAddr = address(sAppraiser.addresser());
         // Get contract owner address.
-        address contractOwnerAddr = appraiser.owner();
+        address contractOwnerAddr = sAppraiser.owner();
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
-        assertEq(address(addresser), addresserAddr);
+        assertEq(address(sAddresser), addresserAddr);
         // Actual contract owner address must be equal to the expected.
-        assertEq(truhuis, contractOwnerAddr);
+        assertEq(sTruhuis, contractOwnerAddr);
     }
 }
 

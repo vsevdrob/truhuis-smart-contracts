@@ -30,42 +30,43 @@ import "@test/Conftest.sol";
 contract TruhuisCadastreTest is Conftest {
     function setUp() external {
         _deploy();
+        _updateAddresses();
     }
 
     function testConstructor() external {
         /* ACT */
 
-        // Get address registry contract address.
-        address addresserAddr = address(cadastre.addresser());
+        // Get addresser contract address.
+        address addresserAddr = address(sCadastre.addresser());
         // Get contract owner address.
-        address contractOwnerAddr = cadastre.owner();
+        address contractOwnerAddr = sCadastre.owner();
         // Get contract URI.
-        string memory contractURI = cadastre.getContractURI();
+        string memory contractURI = sCadastre.getContractURI();
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract address must be equal to the expected.
-        assertEq(address(addresser), addresserAddr);
+        assertEq(address(sAddresser), addresserAddr);
         // Actual owner address must be equal to the expected.
-        assertEq(truhuis, contractOwnerAddr);
+        assertEq(sTruhuis, contractOwnerAddr);
         // Actual contract URI must be identical to the expected.
-        assertEq(cadastreContractURI, contractURI);
+        assertEq(sCadastreContractURI, contractURI);
     }
 
     function testAllotTokenURI() external {
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         /* ARRANGE */
 
         // Mint 1 NFT of ID 1.
-        cadastre.produceNFT(alice, sTokenURI1);
+        sCadastre.produceNFT(sAlice, sTokenURI1);
         // Allot a new tokenURI to token ID 1.
-        cadastre.allotTokenURI("ipfs://1-new", 1);
+        sCadastre.allotTokenURI("ipfs://1-new", 1);
 
         /* ACT */
 
         // Get token URI of token ID 1.
-        string memory newTokenURI1 = cadastre.tokenURI(1);
+        string memory newTokenURI1 = sCadastre.tokenURI(1);
 
         /* PERFORM ASSERTIONS */
 
@@ -79,13 +80,13 @@ contract TruhuisCadastreTest is Conftest {
 
         // Can not allot token URI to a non-existent NFT.
         vm.expectRevert("ERC721URIStorage: URI set of nonexistent token");
-        cadastre.allotTokenURI(sTokenURI2, 2);
+        sCadastre.allotTokenURI(sTokenURI2, 2);
 
         vm.stopPrank();
 
         // Except the owner nobody can call the function.
         vm.expectRevert("Ownable: caller is not the owner");
-        cadastre.allotTokenURI("ipfs://1-new-new", 1);
+        sCadastre.allotTokenURI("ipfs://1-new-new", 1);
     }
 
     //function testConfirmTransfer() external {}
@@ -117,38 +118,38 @@ contract TruhuisCadastreTest is Conftest {
     //function testUnpauseContract() external {}
 
     function testUpdateContractURI() external {
-        vm.startPrank(truhuis);
+        vm.startPrank(sTruhuis);
 
         /* ARRANGE */
 
         // Old contract URI.
-        string memory oldContractURI = cadastre.getContractURI();
+        string memory oldContractURI = sCadastre.getContractURI();
         // New contract URI.
         string memory newContractURI = "ipfs://new-contract-uri";
 
         /* ACT */
 
         // Update contract URI.
-        cadastre.updateContractURI(newContractURI);
+        sCadastre.updateContractURI(newContractURI);
 
         /* PERFORM ASSERTIONS */
 
         // Actual contract URI must be identical to the expected.
         assertEq(
             keccak256(bytes(newContractURI)),
-            keccak256(bytes(cadastre.getContractURI()))
+            keccak256(bytes(sCadastre.getContractURI()))
         );
 
         /* REVERT ERRORS */
 
         // Providing identical contract URI is not allowed.
         vm.expectRevert(PROVIDED_IDENTICAL_CONTRACT_URI.selector);
-        cadastre.updateContractURI(newContractURI);
+        sCadastre.updateContractURI(newContractURI);
 
         vm.stopPrank();
 
         // Except the owner nobody is allowed to call the function.
         vm.expectRevert("Ownable: caller is not the owner");
-        cadastre.updateContractURI("ipfs://another-one");
+        sCadastre.updateContractURI("ipfs://another-one");
     }
 }

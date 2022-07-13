@@ -23,11 +23,10 @@ contract TruhuisTest is Conftest {
 
     function setUp() public {
         _deploy();
+        _updateAddresses();
     }
 
     function testTruhuis() public {
-        // Update addresses in the address registry.
-        _updateAddresses();
 
         // Add a new currency.
         _addNewCurrency();
@@ -65,82 +64,79 @@ contract TruhuisTest is Conftest {
 
         _withdrawProceeds();
 
-        assertEq(cadastre.ownerOf(1), dave);
-        assertEq(truhuis, msg.sender);
-
-        emit log_uint(mockERC20EURT.balanceOf(dave));
-        emit log_uint(mockERC20EURT.balanceOf(alice));
+        assertEq(sCadastre.ownerOf(1), sDave);
+        assertEq(sTruhuis, msg.sender);
     }
 
     function _withdrawProceeds() private {
-        vm.startPrank(alice);
-        bank.withdrawProceeds(address(mockERC20EURT));
+        vm.startPrank(sAlice);
+        sBank.withdrawProceeds(address(sMockERC20EURT));
         vm.stopPrank();
     }
 
     function _drawUpDeedOfDelivery() private {
-        vm.startPrank(alice);
-        uint256 txId = cadastre.getTxIds();
-        cadastre.submitTransfer(1, 1);
-        cadastre.confirmTransfer(1, txId);
-        cadastre.approve(address(notary), 1);
+        vm.startPrank(sAlice);
+        uint256 txId = sCadastre.getTxIds();
+        sCadastre.submitTransfer(1, 1);
+        sCadastre.confirmTransfer(1, txId);
+        sCadastre.approve(address(sNotary), 1);
         vm.stopPrank();
 
         vm.warp(4 days);
 
-        vm.startPrank(truhuis);
-        notary.drawUpDeedOfDelivery(1, 1);
+        vm.startPrank(sTruhuis);
+        sNotary.drawUpDeedOfDelivery(1, 1);
         vm.stopPrank();
     }
 
     function _carryOutStructuralInspection() private {
-        vm.startPrank(truhuis);
-        inspector.carryOutStructuralInspection(1);
+        vm.startPrank(sTruhuis);
+        sInspector.carryOutStructuralInspection(1);
         vm.stopPrank();
     }
 
     function _fulfillPayment() private {
-        vm.startPrank(dave);
-        mockERC20EURT.approve(address(bank), amountToArrange);
-        bank.fulfillPayment(1);
+        vm.startPrank(sDave);
+        sMockERC20EURT.approve(address(sBank), amountToArrange);
+        sBank.fulfillPayment(1);
         vm.stopPrank();
     }
 
     function _fulfillGuarantee() private {
-        vm.startPrank(dave);
-        mockERC20EURT.approve(address(bank), ((690000 * 10**18) / 100) * 10);
-        bank.fulfillGuarantee(1, TypeOfGuarantee.DEPOSIT);
+        vm.startPrank(sDave);
+        sMockERC20EURT.approve(address(sBank), ((690000 * 10**18) / 100) * 10);
+        sBank.fulfillGuarantee(1, TypeOfGuarantee.DEPOSIT);
         vm.stopPrank();
     }
 
     function _acceptOffer() private {
-        vm.startPrank(alice);
-        trade.acceptOffer(dave, 1, 1);
+        vm.startPrank(sAlice);
+        sTrade.acceptOffer(sDave, 1, 1);
         vm.stopPrank();
     }
 
     function _createOffer() private {
-        vm.startPrank(dave);
-        trade.createOffer(
-            address(mockERC20EURT),
+        vm.startPrank(sDave);
+        sTrade.createOffer(
+            address(sMockERC20EURT),
             block.timestamp + 5 days,
             690000,
             1
         );
         vm.stopPrank();
 
-        vm.startPrank(eve);
-        trade.createOffer(
-            address(mockERC20EURT),
+        vm.startPrank(sEve);
+        sTrade.createOffer(
+            address(sMockERC20EURT),
             block.timestamp + 3 days,
             410000,
             2
         );
         vm.stopPrank();
 
-        vm.startPrank(ferdie);
-        trade.createOffer(
-            address(mockERC20EURT),
+        vm.startPrank(sFerdie);
+        sTrade.createOffer(
+            address(sMockERC20EURT),
             block.timestamp + 14 days,
             520000,
             3
@@ -149,24 +145,24 @@ contract TruhuisTest is Conftest {
     }
 
     function _list() private {
-        vm.startPrank(alice);
-        trade.list(address(mockERC20EURT), 756200, 1);
+        vm.startPrank(sAlice);
+        sTrade.list(address(sMockERC20EURT), 756200, 1);
         vm.stopPrank();
 
-        vm.startPrank(bob);
-        trade.list(address(mockERC20EURT), 525000, 2);
+        vm.startPrank(sBob);
+        sTrade.list(address(sMockERC20EURT), 525000, 2);
         vm.stopPrank();
 
-        vm.startPrank(charlie);
-        trade.list(address(mockERC20EURT), 590000, 3);
+        vm.startPrank(sCharlie);
+        sTrade.list(address(sMockERC20EURT), 590000, 3);
         vm.stopPrank();
     }
 
     function _produceNFT() private {
-        vm.startPrank(truhuis);
-        cadastre.produceNFT(alice, "ipfs://0");
-        cadastre.produceNFT(bob, "ipfs://1");
-        cadastre.produceNFT(charlie, "ipfs://2");
+        vm.startPrank(sTruhuis);
+        sCadastre.produceNFT(sAlice, "ipfs://0");
+        sCadastre.produceNFT(sBob, "ipfs://1");
+        sCadastre.produceNFT(sCharlie, "ipfs://2");
         vm.stopPrank();
     }
 
@@ -210,7 +206,7 @@ contract TruhuisTest is Conftest {
                     })
                 }),
                 payment: Payment({
-                    currency: address(mockERC20EURT),
+                    currency: address(sMockERC20EURT),
                     isFulfilled: false
                 }),
                 transferOfOwnership: TransferOfOwnership({
@@ -232,8 +228,8 @@ contract TruhuisTest is Conftest {
                     typeOfGuarantee: TypeOfGuarantee.DEPOSIT
                 }),
                 identity: Identity({
-                    buyer: Buyer({account: dave, coBuyer: address(0)}),
-                    seller: Seller({account: alice, coSeller: address(0)})
+                    buyer: Buyer({account: sDave, coBuyer: address(0)}),
+                    seller: Seller({account: sAlice, coSeller: address(0)})
                 }),
                 resolutiveConditions: ResolutiveConditions({
                     financingArranging: FinancingArranging({
@@ -243,7 +239,7 @@ contract TruhuisTest is Conftest {
                         mortgageType: MortgageType.NONE
                     }),
                     structuralInspection: StructuralInspection({
-                        inspector: address(inspector),
+                        inspector: address(sInspector),
                         isDissolved: false,
                         amountToPayForRepairOfDefects: 0,
                         deadlineToInspect: block.timestamp + 1 weeks
@@ -260,71 +256,49 @@ contract TruhuisTest is Conftest {
                 dutchLaw: DutchLaw({isApplied: true})
             });
 
-        vm.startPrank(truhuis);
-        notary.drawUpPurchaseAgreement(purchaseAgreementAliceDave);
-        vm.stopPrank();
-    }
-
-    function _updateAddresses() private {
-        vm.startPrank(truhuis);
-        addresser.updateAddress(address(appraiser), APPRAISER);
-        addresser.updateAddress(address(bank), BANK);
-        addresser.updateAddress(address(cadastre), CADASTRE);
-        addresser.updateAddress(address(inspector), INSPECTOR);
-        addresser.updateAddress(address(notary), NOTARY);
-        addresser.registerMunicipality(address(municipalityA), AMSTERDAM);
-        addresser.registerMunicipality(address(municipalityR), ROTTERDAM);
-        addresser.registerMunicipality(address(municipalityH), THE_HAGUE);
-        addresser.updateAddress(
-            address(personalRecordsDatabase),
-            PERSONAL_RECORDS_DATABASE
-        );
-        addresser.updateAddress(
-            address(taxAdministration),
-            TAX_ADMINISTRATION
-        );
-        addresser.updateAddress(address(trade), TRADE);
+        vm.startPrank(sTruhuis);
+        sNotary.drawUpPurchaseAgreement(purchaseAgreementAliceDave);
         vm.stopPrank();
     }
 
     function _addNewCurrency() private {
-        vm.startPrank(truhuis);
-        bank.registerCurrency(address(mockERC20EURT));
+        vm.startPrank(sTruhuis);
+        sBank.registerCurrency(address(sMockERC20EURT));
         vm.stopPrank();
     }
 
     function _storePersonalDataBuyers() private {
-        vm.startPrank(address(municipalityA));
-        uint256 txIdDave = personalRecordsDatabase.getTxIds();
-        personalRecordsDatabase.submitRequest([dave]);
+        vm.startPrank(address(sMunicipalityA));
+        uint256 txIdDave = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sDave]);
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityR));
-        uint256 txIdEve = personalRecordsDatabase.getTxIds();
-        personalRecordsDatabase.submitRequest([eve]);
+        vm.startPrank(address(sMunicipalityR));
+        uint256 txIdEve = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sEve]);
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityH));
-        uint256 txIdFerdie = personalRecordsDatabase.getTxIds();
-        personalRecordsDatabase.submitRequest([ferdie]);
+        vm.startPrank(address(sMunicipalityH));
+        uint256 txIdFerdie = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sFerdie]);
         vm.stopPrank();
 
-        vm.startPrank(dave);
-        personalRecordsDatabase.confirmRequest(txIdDave);
+        vm.startPrank(sDave);
+        sPersonalRecordsDatabase.confirmRequest(txIdDave);
         vm.stopPrank();
 
-        vm.startPrank(eve);
-        personalRecordsDatabase.confirmRequest(txIdEve);
+        vm.startPrank(sEve);
+        sPersonalRecordsDatabase.confirmRequest(txIdEve);
         vm.stopPrank();
 
-        vm.startPrank(ferdie);
-        personalRecordsDatabase.confirmRequest(txIdFerdie);
+        vm.startPrank(sFerdie);
+        sPersonalRecordsDatabase.confirmRequest(txIdFerdie);
         vm.stopPrank();
 
         PersonalRecords memory personalRecordsDave = PersonalRecords({
             name: Name({first: bytes32("Dave"), last: bytes32("Bakker")}),
             gender: Gender.MALE,
-            account: address(dave),
+            account: address(sDave),
             dateOfBirth: DateOfBirth({
                 day: uint24(9),
                 month: uint24(12),
@@ -353,14 +327,14 @@ contract TruhuisTest is Conftest {
                 street: bytes32("Kerkstraat"),
                 houseNumber: uint8(1),
                 postcode: bytes7("1000 AC"),
-                municipality: AMSTERDAM
+                municipality: S_AMSTERDAM
             })
         });
 
         PersonalRecords memory personalRecordsEve = PersonalRecords({
             name: Name({first: bytes32("Eve"), last: bytes32("de Vries")}),
             gender: Gender.FEMALE,
-            account: address(eve),
+            account: address(sEve),
             dateOfBirth: DateOfBirth({
                 day: uint24(2),
                 month: uint24(9),
@@ -385,14 +359,14 @@ contract TruhuisTest is Conftest {
                 street: bytes32("Stationsweg"),
                 houseNumber: uint8(1),
                 postcode: bytes7("2491 AC"),
-                municipality: ROTTERDAM
+                municipality: S_ROTTERDAM
             })
         });
 
         PersonalRecords memory personalRecordsFerdie = PersonalRecords({
             name: Name({first: bytes32("Ferdie"), last: bytes32("Timmermans")}),
             gender: Gender.MALE,
-            account: address(ferdie),
+            account: address(sFerdie),
             dateOfBirth: DateOfBirth({
                 day: uint24(26),
                 month: uint24(7),
@@ -417,67 +391,67 @@ contract TruhuisTest is Conftest {
                 street: bytes32("Beatrixstraat"),
                 houseNumber: uint8(1),
                 postcode: bytes7("2491 AC"),
-                municipality: THE_HAGUE
+                municipality: S_THE_HAGUE
             })
         });
 
-        vm.startPrank(address(municipalityA));
-        personalRecordsDatabase.storePersonalRecords(
+        vm.startPrank(address(sMunicipalityA));
+        sPersonalRecordsDatabase.storePersonalRecords(
             personalRecordsDave,
-            AMSTERDAM,
+            S_AMSTERDAM,
             txIdDave
         );
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityR));
-        personalRecordsDatabase.storePersonalRecords(
+        vm.startPrank(address(sMunicipalityR));
+        sPersonalRecordsDatabase.storePersonalRecords(
             personalRecordsEve,
-            ROTTERDAM,
+            S_ROTTERDAM,
             txIdEve
         );
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityH));
-        personalRecordsDatabase.storePersonalRecords(
+        vm.startPrank(address(sMunicipalityH));
+        sPersonalRecordsDatabase.storePersonalRecords(
             personalRecordsFerdie,
-            THE_HAGUE,
+            S_THE_HAGUE,
             txIdFerdie
         );
         vm.stopPrank();
     }
 
     function _storePersonalDataSellers() private {
-        vm.startPrank(address(municipalityA));
-        uint256 txIdAlice = personalRecordsDatabase.getTxIds();
-        personalRecordsDatabase.submitRequest([alice]);
+        vm.startPrank(address(sMunicipalityA));
+        uint256 txIdAlice = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sAlice]);
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityR));
-        uint256 txIdBob = personalRecordsDatabase.getTxIds();
-        personalRecordsDatabase.submitRequest([bob]);
+        vm.startPrank(address(sMunicipalityR));
+        uint256 txIdBob = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sBob]);
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityH));
-        uint256 txIdCharlie = personalRecordsDatabase.getTxIds();
-        personalRecordsDatabase.submitRequest([charlie]);
+        vm.startPrank(address(sMunicipalityH));
+        uint256 txIdCharlie = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sCharlie]);
         vm.stopPrank();
 
-        vm.startPrank(alice);
-        personalRecordsDatabase.confirmRequest(txIdAlice);
+        vm.startPrank(sAlice);
+        sPersonalRecordsDatabase.confirmRequest(txIdAlice);
         vm.stopPrank();
 
-        vm.startPrank(bob);
-        personalRecordsDatabase.confirmRequest(txIdBob);
+        vm.startPrank(sBob);
+        sPersonalRecordsDatabase.confirmRequest(txIdBob);
         vm.stopPrank();
 
-        vm.startPrank(charlie);
-        personalRecordsDatabase.confirmRequest(txIdCharlie);
+        vm.startPrank(sCharlie);
+        sPersonalRecordsDatabase.confirmRequest(txIdCharlie);
         vm.stopPrank();
 
         PersonalRecords memory personalRecordsAlice = PersonalRecords({
             name: Name({first: bytes32("Alice"), last: bytes32("Jansen")}),
             gender: Gender.FEMALE,
-            account: address(alice),
+            account: address(sAlice),
             dateOfBirth: DateOfBirth({
                 day: uint24(4),
                 month: uint24(5),
@@ -506,14 +480,14 @@ contract TruhuisTest is Conftest {
                 street: bytes32("Julianastraat"),
                 houseNumber: uint8(1),
                 postcode: bytes7("1000 AB"),
-                municipality: AMSTERDAM
+                municipality: S_AMSTERDAM
             })
         });
 
         PersonalRecords memory personalRecordsBob = PersonalRecords({
             name: Name({first: bytes32("Bob"), last: bytes32("van Dijk")}),
             gender: Gender.MALE,
-            account: address(bob),
+            account: address(sBob),
             dateOfBirth: DateOfBirth({
                 day: uint24(30),
                 month: uint24(6),
@@ -538,7 +512,7 @@ contract TruhuisTest is Conftest {
                 street: bytes32("Willemstraat"),
                 houseNumber: uint8(1),
                 postcode: bytes7("2491 AB"),
-                municipality: ROTTERDAM
+                municipality: S_ROTTERDAM
             })
         });
 
@@ -548,7 +522,7 @@ contract TruhuisTest is Conftest {
                 last: bytes32("Schoenmaker")
             }),
             gender: Gender.FEMALE,
-            account: address(charlie),
+            account: address(sCharlie),
             dateOfBirth: DateOfBirth({
                 day: uint24(19),
                 month: uint24(1),
@@ -573,30 +547,30 @@ contract TruhuisTest is Conftest {
                 street: bytes32("Oranjestraat"),
                 houseNumber: uint8(1),
                 postcode: bytes7("2491 AB"),
-                municipality: THE_HAGUE
+                municipality: S_THE_HAGUE
             })
         });
 
-        vm.startPrank(address(municipalityA));
-        personalRecordsDatabase.storePersonalRecords(
+        vm.startPrank(address(sMunicipalityA));
+        sPersonalRecordsDatabase.storePersonalRecords(
             personalRecordsAlice,
-            AMSTERDAM,
+            S_AMSTERDAM,
             txIdAlice
         );
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityR));
-        personalRecordsDatabase.storePersonalRecords(
+        vm.startPrank(address(sMunicipalityR));
+        sPersonalRecordsDatabase.storePersonalRecords(
             personalRecordsBob,
-            ROTTERDAM,
+            S_ROTTERDAM,
             txIdBob
         );
         vm.stopPrank();
 
-        vm.startPrank(address(municipalityH));
-        personalRecordsDatabase.storePersonalRecords(
+        vm.startPrank(address(sMunicipalityH));
+        sPersonalRecordsDatabase.storePersonalRecords(
             personalRecordsCharlie,
-            THE_HAGUE,
+            S_THE_HAGUE,
             txIdCharlie
         );
         vm.stopPrank();
