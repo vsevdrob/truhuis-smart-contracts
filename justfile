@@ -184,12 +184,13 @@ deploy-local-personal-records-database:
 # [DEPLOY] deploy TaxAdministration.sol on local network.
 deploy-local-tax-administration:
     {{source}} && forge script \
-    script/deploy/DeployTaxAdministration.s.sol:DeployTaxAdministration \
     --sig "deploy()" \
     --rpc-url http://127.0.0.1:8545 \
     --private-key $PRIVATE_KEY_ANVIL_0 \
     --broadcast \
-    -vvv
+    -vvv \
+    script/deploy/DeployTaxAdministration.s.sol:DeployTaxAdministration \
+    `jq -r ".transactions[0].contractAddress" ./broadcast/DeployTruhuisAddresser.s.sol/31337/deploy-latest.json`
 
 # TRADE
 
