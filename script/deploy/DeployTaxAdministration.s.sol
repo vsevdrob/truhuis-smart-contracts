@@ -6,12 +6,12 @@ import "forge-std/Script.sol";
 import "@core/state/TaxAdministration.sol";
 
 contract DeployTaxAdministration is Script {
-    function deploy()
+    function deploy(address _addresser)
         external
     {
         vm.startBroadcast();
 
-        new TaxAdministration();
+        new TaxAdministration(_addresser);
 
         vm.stopBroadcast();
     }
