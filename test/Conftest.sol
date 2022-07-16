@@ -96,6 +96,11 @@ contract Conftest is Test {
     /// @dev Truhuis Marketplace initial service fee.
     uint96 public sServiceFee = 250; // 2.5 %
 
+    /// @dev Transfer tax ID one.
+    uint256 public sTaxIdOne = 1;
+    /// @dev Transfer tax amount in % (e.g. 100 = 1%; 1000 = 10%)
+    uint96 public sTransferTaxBasis = 200;
+
     constructor() {
         sTruhuis = msg.sender;
     }
@@ -133,7 +138,9 @@ contract Conftest is Test {
         vm.stopPrank();
 
         vm.startPrank(sMinistryOfFin);
-        sTaxAdministration = new TaxAdministration();
+        sTaxAdministration = new TaxAdministration(
+            address(sAddresser)
+        );
         vm.stopPrank();
 
         vm.startPrank(sTruhuis);
@@ -162,6 +169,12 @@ contract Conftest is Test {
             S_TAX_ADMINISTRATION
         );
         sAddresser.updateAddress(address(sTrade), S_TRADE);
+        vm.stopPrank();
+    }
+
+    function _updateTax() internal {
+        vm.startPrank(sMinistryOfFin);
+        sTaxAdministration.updateTax(sTaxIdOne, sTransferTaxBasis);
         vm.stopPrank();
     }
 
