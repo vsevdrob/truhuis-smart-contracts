@@ -24,6 +24,7 @@ contract TruhuisTest is Conftest {
     function setUp() public {
         _deploy();
         _updateAddresses();
+        _updateTax();
     }
 
     function testTruhuis() public {
