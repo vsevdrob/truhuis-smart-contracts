@@ -1,19 +1,19 @@
-// SPDX-Licence-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.13;
 
 interface ITaxAdministration {
-    event TransferTaxUpdated(uint256 _id, uint96 _tax);
+    event TaxUpdated(uint256 _id, uint96 _tax);
 
     /**
      * @dev _
      */
-    function updateTransferTax(uint256 _id, uint96 _tax) external;
+    function updateTax(uint256 _id, uint96 _tax) external;
 
     /**
      * @dev _
      */
-    function transferTax(/*address _person, uint256 _tokenId*/)
+    function getTax(uint256 _id)
         external
         view
         returns (uint96);
