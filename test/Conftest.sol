@@ -101,6 +101,10 @@ contract Conftest is Test {
     /// @dev Transfer tax amount in % (e.g. 100 = 1%; 1000 = 10%)
     uint96 public sTransferTaxBasis = 200;
 
+    PersonalRecords public sPersonalRecordsDave;
+    PersonalRecords public sPersonalRecordsEve;
+    PersonalRecords public sPersonalRecordsFerdie;
+
     constructor() {
         sTruhuis = msg.sender;
     }
@@ -175,6 +179,315 @@ contract Conftest is Test {
     function _updateTax() internal {
         vm.startPrank(sMinistryOfFin);
         sTaxAdministration.updateTax(sTaxIdOne, sTransferTaxBasis);
+        vm.stopPrank();
+    }
+
+    function _storeBuyersPersonalRecords() internal {
+        vm.startPrank(address(sMunicipalityA));
+        uint256 txIdDave = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sDave]);
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityR));
+        uint256 txIdEve = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sEve]);
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityH));
+        uint256 txIdFerdie = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sFerdie]);
+        vm.stopPrank();
+
+        vm.startPrank(sDave);
+        sPersonalRecordsDatabase.confirmRequest(txIdDave);
+        vm.stopPrank();
+
+        vm.startPrank(sEve);
+        sPersonalRecordsDatabase.confirmRequest(txIdEve);
+        vm.stopPrank();
+
+        vm.startPrank(sFerdie);
+        sPersonalRecordsDatabase.confirmRequest(txIdFerdie);
+        vm.stopPrank();
+
+        sPersonalRecordsDave = PersonalRecords({
+            name: Name({first: bytes32("Dave"), last: bytes32("Bakker")}),
+            gender: Gender.MALE,
+            account: address(sDave),
+            dateOfBirth: DateOfBirth({
+                day: uint24(9),
+                month: uint24(12),
+                year: uint24(1999)
+            }),
+            placeOfBirth: PlaceOfBirth({
+                city: bytes32("Amsterdam"),
+                province: bytes32("North Holland"),
+                country: bytes3("NLD")
+            }),
+            parents: Parents({
+                father: 0x56206543c9094648296803d9d0AF3CeBA1D211D9,
+                mother: 0x2Ea31aBe305D675e7037886Ed4edd162172a26ED
+            }),
+            civilState: CivilStatus.MARRIED,
+            children: Children({
+                hasChildren: true,
+                childrenAccounts: [
+                    0x26A6a0C2eD5A5c4E8da6710F58c023cb498BEE39,
+                    0x49B8326B947a6f97E9F66743E02bC9090e7BA515,
+                    address(0)
+                ]
+            }),
+            residency: Residency.DUTCH_NATIONALITY,
+            currentAddress: CurrentAddress({
+                street: bytes32("Kerkstraat"),
+                houseNumber: uint8(1),
+                postcode: bytes7("1000 AC"),
+                municipality: S_AMSTERDAM
+            })
+        });
+
+        sPersonalRecordsEve = PersonalRecords({
+            name: Name({first: bytes32("Eve"), last: bytes32("de Vries")}),
+            gender: Gender.FEMALE,
+            account: address(sEve),
+            dateOfBirth: DateOfBirth({
+                day: uint24(2),
+                month: uint24(9),
+                year: uint24(1992)
+            }),
+            placeOfBirth: PlaceOfBirth({
+                city: bytes32("Rotterdam"),
+                province: bytes32("South Holland"),
+                country: bytes3("NLD")
+            }),
+            parents: Parents({
+                father: 0x8cbEbE6336D52dE9fe961FF994E0A176Ace3Adf4,
+                mother: 0xfABdD57aeb73BED95c73015406e2Ce218BE9D7b5
+            }),
+            civilState: CivilStatus.UNMARRIED,
+            children: Children({
+                hasChildren: false,
+                childrenAccounts: [address(0), address(0), address(0)]
+            }),
+            residency: Residency.DUTCH_NATIONALITY,
+            currentAddress: CurrentAddress({
+                street: bytes32("Stationsweg"),
+                houseNumber: uint8(1),
+                postcode: bytes7("2491 AC"),
+                municipality: S_ROTTERDAM
+            })
+        });
+
+        sPersonalRecordsFerdie = PersonalRecords({
+            name: Name({first: bytes32("Ferdie"), last: bytes32("Timmermans")}),
+            gender: Gender.MALE,
+            account: address(sFerdie),
+            dateOfBirth: DateOfBirth({
+                day: uint24(26),
+                month: uint24(7),
+                year: uint24(2003)
+            }),
+            placeOfBirth: PlaceOfBirth({
+                city: bytes32("The Hague"),
+                province: bytes32("South Holland"),
+                country: bytes3("NLD")
+            }),
+            parents: Parents({
+                father: 0x794E68896Dd7E048134Cf8e33777B8684D0fFc39,
+                mother: 0x82501d3cA8f24490977313431ceC6b17Fe63a73C
+            }),
+            civilState: CivilStatus.UNMARRIED,
+            children: Children({
+                hasChildren: false,
+                childrenAccounts: [address(0), address(0), address(0)]
+            }),
+            residency: Residency.DUTCH_NATIONALITY,
+            currentAddress: CurrentAddress({
+                street: bytes32("Beatrixstraat"),
+                houseNumber: uint8(1),
+                postcode: bytes7("2491 AC"),
+                municipality: S_THE_HAGUE
+            })
+        });
+
+        vm.startPrank(address(sMunicipalityA));
+        sPersonalRecordsDatabase.storePersonalRecords(
+            sPersonalRecordsDave,
+            S_AMSTERDAM,
+            txIdDave
+        );
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityR));
+        sPersonalRecordsDatabase.storePersonalRecords(
+            sPersonalRecordsEve,
+            S_ROTTERDAM,
+            txIdEve
+        );
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityH));
+        sPersonalRecordsDatabase.storePersonalRecords(
+            sPersonalRecordsFerdie,
+            S_THE_HAGUE,
+            txIdFerdie
+        );
+        vm.stopPrank();
+    }
+
+    function _storeSellersPersonalRecords() internal {
+        vm.startPrank(address(sMunicipalityA));
+        uint256 txIdAlice = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sAlice]);
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityR));
+        uint256 txIdBob = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sBob]);
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityH));
+        uint256 txIdCharlie = sPersonalRecordsDatabase.getTxIds();
+        sPersonalRecordsDatabase.submitRequest([sCharlie]);
+        vm.stopPrank();
+
+        vm.startPrank(sAlice);
+        sPersonalRecordsDatabase.confirmRequest(txIdAlice);
+        vm.stopPrank();
+
+        vm.startPrank(sBob);
+        sPersonalRecordsDatabase.confirmRequest(txIdBob);
+        vm.stopPrank();
+
+        vm.startPrank(sCharlie);
+        sPersonalRecordsDatabase.confirmRequest(txIdCharlie);
+        vm.stopPrank();
+
+        PersonalRecords memory personalRecordsAlice = PersonalRecords({
+            name: Name({first: bytes32("Alice"), last: bytes32("Jansen")}),
+            gender: Gender.FEMALE,
+            account: address(sAlice),
+            dateOfBirth: DateOfBirth({
+                day: uint24(4),
+                month: uint24(5),
+                year: uint24(2000)
+            }),
+            placeOfBirth: PlaceOfBirth({
+                city: bytes32("Amsterdam"),
+                province: bytes32("North Holland"),
+                country: bytes3("NLD")
+            }),
+            parents: Parents({
+                father: 0x2A0FAc8aC01A7C14F70E57FB5bc773090e999039,
+                mother: 0x61dBE16043102fC80a67da263FD29A5CF76A9502
+            }),
+            civilState: CivilStatus.MARRIED,
+            children: Children({
+                hasChildren: true,
+                childrenAccounts: [
+                    0xb1962E00a5F9205b3CeFFbfc9Aa867958b4D6B9a,
+                    0x0c33309c711C949f64946df0BC45276688395AA5,
+                    address(0)
+                ]
+            }),
+            residency: Residency.DUTCH_NATIONALITY,
+            currentAddress: CurrentAddress({
+                street: bytes32("Julianastraat"),
+                houseNumber: uint8(1),
+                postcode: bytes7("1000 AB"),
+                municipality: S_AMSTERDAM
+            })
+        });
+
+        PersonalRecords memory personalRecordsBob = PersonalRecords({
+            name: Name({first: bytes32("Bob"), last: bytes32("van Dijk")}),
+            gender: Gender.MALE,
+            account: address(sBob),
+            dateOfBirth: DateOfBirth({
+                day: uint24(30),
+                month: uint24(6),
+                year: uint24(2002)
+            }),
+            placeOfBirth: PlaceOfBirth({
+                city: bytes32("Rotterdam"),
+                province: bytes32("South Holland"),
+                country: bytes3("NLD")
+            }),
+            parents: Parents({
+                father: 0xEAF1a76a2980aBd1ECe7aFbC62DFF14d37910eDe,
+                mother: 0xBdd57A7471811b2799335e4CcDD57Ff3aB5163CF
+            }),
+            civilState: CivilStatus.UNMARRIED,
+            children: Children({
+                hasChildren: false,
+                childrenAccounts: [address(0), address(0), address(0)]
+            }),
+            residency: Residency.DUTCH_NATIONALITY,
+            currentAddress: CurrentAddress({
+                street: bytes32("Willemstraat"),
+                houseNumber: uint8(1),
+                postcode: bytes7("2491 AB"),
+                municipality: S_ROTTERDAM
+            })
+        });
+
+        PersonalRecords memory personalRecordsCharlie = PersonalRecords({
+            name: Name({
+                first: bytes32("Charlie"),
+                last: bytes32("Schoenmaker")
+            }),
+            gender: Gender.FEMALE,
+            account: address(sCharlie),
+            dateOfBirth: DateOfBirth({
+                day: uint24(19),
+                month: uint24(1),
+                year: uint24(1998)
+            }),
+            placeOfBirth: PlaceOfBirth({
+                city: bytes32("The Hague"),
+                province: bytes32("South Holland"),
+                country: bytes3("NLD")
+            }),
+            parents: Parents({
+                father: 0x0D9B45438c85C1dC623feD4302f4a80bBf61A621,
+                mother: 0x1f5236595319F3E08B92597A3386d86dcc12c8FA
+            }),
+            civilState: CivilStatus.UNMARRIED,
+            children: Children({
+                hasChildren: false,
+                childrenAccounts: [address(0), address(0), address(0)]
+            }),
+            residency: Residency.DUTCH_NATIONALITY,
+            currentAddress: CurrentAddress({
+                street: bytes32("Oranjestraat"),
+                houseNumber: uint8(1),
+                postcode: bytes7("2491 AB"),
+                municipality: S_THE_HAGUE
+            })
+        });
+
+        vm.startPrank(address(sMunicipalityA));
+        sPersonalRecordsDatabase.storePersonalRecords(
+            personalRecordsAlice,
+            S_AMSTERDAM,
+            txIdAlice
+        );
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityR));
+        sPersonalRecordsDatabase.storePersonalRecords(
+            personalRecordsBob,
+            S_ROTTERDAM,
+            txIdBob
+        );
+        vm.stopPrank();
+
+        vm.startPrank(address(sMunicipalityH));
+        sPersonalRecordsDatabase.storePersonalRecords(
+            personalRecordsCharlie,
+            S_THE_HAGUE,
+            txIdCharlie
+        );
         vm.stopPrank();
     }
 
