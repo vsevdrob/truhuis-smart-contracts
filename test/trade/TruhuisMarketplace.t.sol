@@ -9,7 +9,7 @@ import "@test/Conftest.sol";
  * @title TruhuisMarketplaceTest
  * @author vsevdrob
  * @dev List of implemented functions to test (PASS | FAIL | TODO):
- *      [TODO] constructor(address,string)
+ *      [PASS] constructor(address,string)
  *      [TODO] acceptOffer(address,uint256,uint256)
  *      [TODO] cancelAcceptedOffer(uint256)
  *      [TODO] cancelListing(uint256)
