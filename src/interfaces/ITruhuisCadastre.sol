@@ -1,4 +1,5 @@
-// SPDX-Licence-Identifier: MIT
+// SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -40,12 +41,15 @@ interface ITruhuisCadastre is IERC721 {
     function confirmTransfer(uint256 _tokenId, uint256 _txId) external;
 
     /**
-     * @dev _
+     * @dev Set contract temporary on pause.
+     * @dev https://docs.openzeppelin.com/contracts/4.x/api/security#Pausable
      */
     function pauseContract() external;
 
     /**
-     * @dev _
+     * @dev Produce new NFT.
+     * @param _to Initial owner of that NFT.
+     * @param _tokenURI Initial URI for that NFT.
      */
     function produceNFT(address _to, string memory _tokenURI) external;
 
@@ -61,7 +65,7 @@ interface ITruhuisCadastre is IERC721 {
     function submitTransfer(uint256 _purchaseAgreementId, uint256 _tokenId) external;
 
     /**
-     * @dev _
+     * @dev Transfer NFT ownership of `_tokenId` from `_from` to `_to`.
      */
     function transferNFTOwnership(
         address _from,
@@ -72,27 +76,29 @@ interface ITruhuisCadastre is IERC721 {
     ) external;
 
     /**
-     * @dev _
+     * @dev Unpause contract.
+     * @dev https://docs.openzeppelin.com/contracts/4.x/api/security#Pausable
      */
     function unpauseContract() external;
 
     /**
-     * @dev _
+     * @dev Update contract URI.
+     * @param _contractURI New contract URI.
      */
     function updateContractURI(string memory _contractURI) external;
 
     /**
-     * @dev _
+     * @dev Get whether NFT exists or not.
      */
     function exists(uint256 _tokenId) external view returns (bool);
 
     /**
-     * @dev _
+     * @dev Get contract URI.
      */
     function getContractURI() external view returns (string memory);
 
     /**
-     * @dev _
+     * @dev Get whether `_account` is NFT `_tokenId` owner.
      */
     function isNFTOwner(address _account, uint256 _tokenId)
         external

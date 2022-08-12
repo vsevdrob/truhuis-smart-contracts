@@ -1,4 +1,4 @@
-// SPDX-Licence-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.13;
 
@@ -35,29 +35,38 @@ interface ITruhuisAddresser {
     event MunicipalityUpdated(address newAddr, address oldAddr, bytes4 cbsCode);
 
     /**
-     * @dev _
+     * @dev Register new municipality.
+     * @param _addr Contract address of the municipality.
+     * @param _cbsCode CBS-code identifier for the municipality.
      */
     function registerMunicipality(address _addr, bytes4 _cbsCode)
         external;
 
     /**
-     * @dev _
+     * @dev Update contract address.
+     * @param _newAddr New contract address of the contract.
+     * @param _id Bytes 32 identifier for the contract.
      */
     function updateAddress(address _newAddr, bytes32 _id) external;
 
     /**
-     * @dev _
+     * @dev Update municipality contract address.
+     * @param _newAddr New contract address of the municipality.
+     * @param _cbsCode CBS-code identifier of the municipality.
      */
     function updateMunicipality(address _newAddr, bytes4 _cbsCode)
         external;
 
     /**
-     * @dev _
+     * @dev Get contract address specified by contract identifier.
+     * @param _id Contract identifier.
      */
     function getAddress(bytes32 _id) external view returns (address);
 
     /**
-     * @dev _
+     * @dev Get contract address of municipality specified by CBS-code
+     *      identifier.
+     * @param _cbsCode CBS-code identifier of the municipality.
      */
     function getMunicipality(bytes4 _cbsCode)
         external
@@ -65,7 +74,9 @@ interface ITruhuisAddresser {
         returns (MunicipalityStruct memory);
 
     /**
-     * @dev _
+     * @dev Get whether municipality is registered or not.
+     * @param _addr Contract address of the municipality.
+     * @param _cbsCode CBS-code identifier for the municipality.
      */
     function isRegisteredMunicipality(address _addr, bytes4 _cbsCode)
         external

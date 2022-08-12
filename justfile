@@ -32,8 +32,8 @@ default:
 source := "export PATH=$PATH:$HOME/.foundry/bin"
 
 # [DEBUG]: Run anvil local Ethereum development node
-anvil:
-    {{source}} && anvil
+anvil *args="":
+    {{source}} && anvil {{args}}
 
 # [BUILD]: Build the project's smart contracts.
 build:
