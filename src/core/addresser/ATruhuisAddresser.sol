@@ -1,4 +1,4 @@
-// SPDX-Licence-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 pragma solidity 0.8.13;
 
@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /**
  * @title ATruhuisAddresser
  * @author vsevdrob
- * @notice _
+ * @notice Abstract contract for TruhuisAddresser contract.
  */
 abstract contract ATruhuisAddresser is Ownable, ITruhuisAddresser {
     /* PRIVATE STORAGE */
@@ -85,14 +85,16 @@ abstract contract ATruhuisAddresser is Ownable, ITruhuisAddresser {
     /* INTERNAL FUNCTIONS */
 
     /**
-     * @dev _
+     * @dev Run initial code while deploying contract.
      */
     function _initialize() internal {
         _sAddresses[_S_ADDRESSER] = address(this);
     }
 
     /**
-     * @dev _
+     * @dev Register new municipality.
+     * @param _addr Contract address of the municipality.
+     * @param _cbsCode CBS-code identifier for the municipality.
      */
     function _registerMunicipality(address _addr, bytes4 _cbsCode) internal {
         /* ARRANGE */
@@ -120,7 +122,9 @@ abstract contract ATruhuisAddresser is Ownable, ITruhuisAddresser {
     }
 
     /**
-     * @dev _
+     * @dev Update contract address.
+     * @param _newAddr New contract address of the contract.
+     * @param _id Bytes 32 identifier for the contract.
      */
     function _updateAddress(address _newAddr, bytes32 _id) internal {
         /* ARRANGE */
@@ -154,7 +158,9 @@ abstract contract ATruhuisAddresser is Ownable, ITruhuisAddresser {
     }
 
     /**
-     * @dev _
+     * @dev Update municipality contract address.
+     * @param _newAddr New contract address of the municipality.
+     * @param _cbsCode CBS-code identifier of the municipality.
      */
     function _updateMunicipality(address _newAddr, bytes4 _cbsCode) internal {
         /* ARRANGE */
