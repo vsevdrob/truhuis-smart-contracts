@@ -1,4 +1,4 @@
-// SPDX-Licence-Idetifier: MIT
+// SPDX-License-Idetifier: MIT
 pragma solidity 0.8.13;
 
 interface IPriceConsumerV3 {
